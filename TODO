@@ -1,0 +1,5 @@
+debug edge_induced
+there is some bug in edge_induced match for size-4+
+edge_induced join generate different results with different join methods
+
+file_lock in db.cpp is not deallocated. 
