@@ -46,8 +46,7 @@ struct MyKV {
 
         if (mni) {
           mni_met.push_back(other.mni_met[value]);
-          if (!other.mni_met[value])
-            distinct_vertices.push_back(other.distinct_vertices[value]);
+          distinct_vertices.push_back(other.distinct_vertices[value]);
         }
       } else {
         size_t fid = keys[key];
