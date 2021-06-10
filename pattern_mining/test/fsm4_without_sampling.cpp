@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto d_res = join<true, true, true, 2, 4, 3>(g, H, sgls, false, none);
+  auto d_res = join<true, true, true, 2, 4, 3>(g, H, sgls, false, none, {0, 0}, mni_threshold);
   t.stop();
 
   if (d_res.sgl) {

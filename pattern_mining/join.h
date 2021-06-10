@@ -686,6 +686,7 @@ SGList join(const graph::Graph &g, const std::vector<std::vector<std::shared_ptr
       sampling_param.push_back(sampling_param[0]);
   }
 
+  std::cout << "start for loop" << std::endl;
 
   for_loop1<has_labels, edge_induced, mni, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, 0, res, qp2cp, qp_count, qp_idx, g,
                                                                                   sm, sampling_param, store, sgl3, mni_threshold);
