@@ -7,7 +7,7 @@
                 "${BOOST_ROOT}"
             ],
             "defines": [],
-            "compilerPath": "/opt/rh/devtoolset-7/root/usr/bin/gcc",
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
