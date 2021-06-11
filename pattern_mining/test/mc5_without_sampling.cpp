@@ -23,34 +23,16 @@ int main(int argc, char* argv[]) {
   auto pat2 = pattern_mining::PatListing::make_pattern(
       pattern_mining::PatListing().pattern_listing(2));
 
-  double thh = atof(argv[2]);
-
-  int mni_threshold = (int)round(g.num_nodes() * thh);
-
-
-  cout << "support threshold: " << thh << endl;
-
-  cout << "start matchings pat2: " << endl;
-  auto d2 = match(g, pat2, true, false, true);
 
   cout << "start matchings pat3: " << endl;
   util::Timer match_time;
   match_time.start();
-  auto d3 = match(g, pat3, true, true, true);
+  auto d3 = match(g, pat3, true, false, false);
   match_time.stop();
 
   cout << "match 3 time: " << match_time.get() << " sec" << endl;
 
-  filter(d3, mni_threshold);
-
-  cout << "num of size-3 frequent patterns: " << d3.sgl->size() << endl;
-
-  auto q3 = get_pattern3(d3);
-
-  filter(d2, mni_threshold);
-  cout << "num of size-2 patterns: " << d2.sgl->size() << endl;
-
-  vector<SGList> sgls = {d3, d2};
+  vector<SGList> sgls = {d3, d3};
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -58,18 +40,19 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto d_res = join<true, true, true, 2, 4, 3>(g, H, sgls, false, none, {0, 0}, mni_threshold);
+  auto [d_res, ess] = join<false, false, false, 2, 4, 4>(g, H, sgls, false, none, {0, 0});
   t.stop();
 
   if (d_res.sgl) {
     cout << "total num of patterns: " << d_res.sgl->size() << endl;
     cout << "join time: " << t.get() << " sec" << endl;
 
-    filter(d_res, mni_threshold);
+    for (int i = 0; i < d_res.sgl->count.size(); i++) {
+          cout << d_res.sgl->count[i] << endl;
+    }
 
-    cout << "num frequent patterns: " << d_res.sgl->keys.size() << endl;
   } else {
-    cout << "num frequent patterns: 0" << endl;
+    cout << "num of patterns: 0" << endl;
   }
 
   return 0;

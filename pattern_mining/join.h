@@ -348,7 +348,7 @@ void for_loop2_end(std::array<int, ncols_left> &s,
 }
 
 template <bool has_labels, bool edge_induced, bool mni, int K, typename key_type, size_t ncols_left, size_t ncols, size_t... ncols_right>
-void for_loop2(const std::vector<SGList> &sgls, std::array<int, ncols_left> &s,
+double for_loop2(const std::vector<SGList> &sgls, std::array<int, ncols_left> &s,
                std::shared_ptr<Pattern> pat,
                const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>> &H, int level,
                std::vector<int> &iterates, std::vector<SGList> &res,
@@ -360,6 +360,8 @@ void for_loop2(const std::vector<SGList> &sgls, std::array<int, ncols_left> &s,
   int tid = omp_get_thread_num();
 
   auto &pats1 = sgls[level].patterns;
+
+  double tp_res = 0;
 
   for (int i = 1; i < s.size(); i++) {
     if (H[level][iterates[level]]->keys.find(s[i]) ==
@@ -389,6 +391,8 @@ void for_loop2(const std::vector<SGList> &sgls, std::array<int, ncols_left> &s,
 
     auto it1 = buf.begin();
     size_t lena = 0, len = 0;
+
+    double tp_estimate = 0;
 
     while (true) {
       size_t length = it1.buffer_size / ncols;
@@ -457,19 +461,25 @@ void for_loop2(const std::vector<SGList> &sgls, std::array<int, ncols_left> &s,
             }
           }
 
-          if constexpr (K > 1)
-            for_loop2<has_labels, edge_induced, mni, K - 1, key_type, value.size(), ncols_right...>(sgls, value, ptt, H, level + 1, iterates, res, qp2cp,
+          if constexpr (K > 1) {
+            double tp = for_loop2<has_labels, edge_induced, mni, K - 1, key_type, value.size(), ncols_right...>(sgls, value, ptt, H, level + 1, iterates, res, qp2cp,
                                                                                                     qp_count, qp_idx, g, sm, sampling_param,
                                                                                                     store, sgl3, mni_threshold);
-          else
+            tp_estimate += tp;
+          } else {
             for_loop2_end<mni, value.size()>(value, ptt, res, qp2cp,
                                              store, mni_threshold);
+            tp_estimate += 1;
+          }
         }
       }
       if (!it1.has_next) break;
       it1.next();
     }
+    if (lena > 0)
+    tp_res += tp_estimate * double(len) / double(lena); 
   }
+  return tp_res;
 }
 
 template <bool has_labels, bool edge_induced, bool mni, int K, typename key_type, size_t ncols1, size_t ncols2, size_t... ncols>
@@ -479,12 +489,12 @@ void for_loop1(const std::vector<SGList> &sgls,
                std::vector<std::map<int, typename std::conditional<mni, std::pair<std::string, std::vector<int>>, std::string>::type>> &qp2cp, std::vector<std::vector<int>> &qp_count,
                std::vector<std::vector<std::map<key_type, int>>> &qp_idx,
                const graph::Graph &g, SamplingMethod sm,
-               std::vector<double> sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> &sgl3, size_t mni_threshold) {
+               std::vector<double> sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> &sgl3, size_t mni_threshold, double &exploration_space_size) {
   if (level < H.size()) {
     for (int i = 0; i < H[level].size(); i++) {
       iterates.push_back(i);
       for_loop1<has_labels, edge_induced, mni, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, level + 1, res, qp2cp, qp_count, qp_idx, g,
-                                                                                      sm, sampling_param, store, sgl3, mni_threshold);
+                                                                                      sm, sampling_param, store, sgl3, mni_threshold, exploration_space_size);
       iterates.pop_back();
     }
   } else {
@@ -533,9 +543,15 @@ void for_loop1(const std::vector<SGList> &sgls,
 
         auto it1 = reordered_d1.begin();
 
+        double tp_estimate1 = 0;
+        size_t lena1 = 0;
+        size_t len1 = 0;
+
+
         while (true) {
           size_t length1 = it1.buffer_size / ncols1;
-#pragma omp parallel for num_threads(_Nthreads)
+          len1 += length1;
+#pragma omp parallel for num_threads(_Nthreads) reduction(+: tp_estimate1, lena1)
           for (size_t z = 0; z < length1; z++) {
             int type1 = it1.buffer[z * ncols1];
             const int *it_d1 = it1.buffer + z * ncols1;
@@ -544,6 +560,8 @@ void for_loop1(const std::vector<SGList> &sgls,
               continue;
             else if (sm == clustered && random_number() >= (sampling_param[0] / length1))
               continue;
+
+            lena1++;
 
 
             int tid = omp_get_thread_num();
@@ -557,14 +575,23 @@ void for_loop1(const std::vector<SGList> &sgls,
 
             auto it2 = reordered_d2.begin();
 
+
+            double tp_estimate2 = 0;
+            size_t lena2 = 0;
+            size_t len2 = 0;
+
             while (true) {
               size_t length2 = it2.buffer_size / ncols2;
+
+              len2 += length2;
 
               for (size_t z1 = 0; z1 < length2; z1++) {
                 if (sm == stratified && random_number() >= 1.0 / sampling_param[1])
                   continue;
                 else if (sm == clustered && random_number() >= (sampling_param[1] / length2))
                   continue;
+
+                lena2++;
 
 
                 int type2 = it2.buffer[z1 * ncols2];
@@ -631,13 +658,16 @@ void for_loop1(const std::vector<SGList> &sgls,
                   }
 
                   // if(omp_get_thread_num() == 0) t_for_loop.start();
-                  if constexpr (K > 2)
-                    for_loop2<has_labels, edge_induced, mni, K - 2, key_type, value.size(), ncols...>(sgls, value, ptt, H, 2, iterates, res, qp2cp,
+                  if constexpr (K > 2) {
+                    double tp = for_loop2<has_labels, edge_induced, mni, K - 2, key_type, value.size(), ncols...>(sgls, value, ptt, H, 2, iterates, res, qp2cp,
                                                                                                       qp_count, qp_idx, g, sm,
                                                                                                       sampling_param, store, sgl3, mni_threshold);
-                  else
+                    tp_estimate2 += tp;
+                  } else {
                     for_loop2_end<mni, value.size()>(value, ptt, res, qp2cp,
                                                      store, mni_threshold);
+                    tp_estimate2 += 1;
+                  }
                 }
               }
 
@@ -645,23 +675,27 @@ void for_loop1(const std::vector<SGList> &sgls,
               if (!it2.has_next) break;
               it2.next();
             }
+
+            if (lena2 > 0) tp_estimate1 += tp_estimate2 * double(len2) / double(lena2);
           }
           //std::cout << it1.has_next << std::endl;
           if (!it1.has_next) break;
           it1.next();
         }
+        if (lena1 > 0)
+        exploration_space_size += tp_estimate1 * double(len1) / double(lena1); 
       }
     }
   }
 }
 
 template <bool has_labels, bool edge_induced, bool mni, int K, size_t ncols1, size_t ncols2, size_t... ncols>
-SGList join(const graph::Graph &g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>> &H, const std::vector<SGList> &sgls, bool store, SamplingMethod sm,
-            std::vector<double> sampling_param = std::vector<double>(), size_t mni_threshold = 0, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> &sgl3 = dummy1) {
+std::tuple<SGList, double> join(const graph::Graph &g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>> &H, const std::vector<SGList> &sgls, bool store, SamplingMethod sm,
+            std::vector<double> sampling_param, size_t mni_threshold = 0, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> &sgl3 = dummy1) {
   assert((!mni && mni_threshold == 0) || (mni && mni_threshold > 0));
   int res_size = 2;
   for (auto &d : sgls) {
-    if (d.patterns.empty()) return SGList();
+    if (d.patterns.empty()) return {SGList(), 0};
     int n = d.sgl->ncols - 1;
     res_size += n - 1;
   }
@@ -686,8 +720,14 @@ SGList join(const graph::Graph &g, const std::vector<std::vector<std::shared_ptr
       sampling_param.push_back(sampling_param[0]);
   }
 
+
+  double exploration_space_size = 0.0;
+
   for_loop1<has_labels, edge_induced, mni, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, 0, res, qp2cp, qp_count, qp_idx, g,
-                                                                                  sm, sampling_param, store, sgl3, mni_threshold);
+                                                                                  sm, sampling_param, store, sgl3, mni_threshold, exploration_space_size);
+
+
+  std::cout << "exploration space size: " << exploration_space_size << std::endl;
 
 #ifdef PROF
   //cout << "auto test time: " << t_list_left.get() << endl;
@@ -705,6 +745,6 @@ SGList join(const graph::Graph &g, const std::vector<std::vector<std::shared_ptr
     res[0].combine(res[i], mni, store);
   }
 
-  return res[0];
+  return {res[0], exploration_space_size};
 }
 }  // namespace euler::pattern_mining
