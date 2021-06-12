@@ -1,4 +1,5 @@
 #include <boost/multiprecision/cpp_dec_float.hpp>
+#include <algorithm>
 
 #include "pattern_mining/gmine.h"
 #include "util.h"
@@ -24,12 +25,12 @@ int main(int argc, char* argv[]) {
       pattern_mining::PatListing().pattern_listing(2));
 
   cout << "start matchings pat2: " << endl;
-  auto d2 = match(g, pat2, true, false, false);
+  auto d2 = match(g, pat2, true, false, true);
 
   cout << "start matchings pat3: " << endl;
   util::Timer match_time;
   match_time.start();
-  auto d3 = match(g, pat3, true, false, false);
+  auto d3 = match(g, pat3, true, false, true);
   match_time.stop();
 
   cout << "match 3 time: " << match_time.get() << " sec" << endl;
@@ -42,16 +43,27 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<false, false, false, 2, 4, 3>(g, H, sgls, false, none, {0, 0});
+  auto [d_res, ess] = join<true, false, false, 2, 4, 3>(g, H, sgls, false, none, {0, 0});
   t.stop();
+
+
+  vector<int> counts;
 
   if (d_res.sgl) {
     cout << "total num of patterns: " << d_res.sgl->size() << endl;
     cout << "join time: " << t.get() << " sec" << endl;
 
     for (int i = 0; i < d_res.sgl->count.size(); i++) {
-          cout << d_res.sgl->count[i] << endl;
+          counts.push_back(d_res.sgl->count[i]);
     }
+
+    sort(counts.begin(), counts.end(), greater<int>());
+
+    for (int i=0; i<20 && i < counts.size(); i++) {
+      cout << counts[i] << endl;
+    }
+
+
 
   } else {
     cout << "num of patterns: 0" << endl;
