@@ -9,15 +9,15 @@
             "type": "cppdbg",
             "request": "launch",
             //"program": "${workspaceFolder}/pattern_mining/match_test.exe",
-            "program": "${workspaceFolder}/pattern_mining/fsm5_without_sampling.exe",
-            "args": ["/data/not_backed_up/shared/graphs/citeseer.lg", "0.001"],
+            "program": "${workspaceFolder}/pattern_mining/mc4_without_sampling.exe",
+            "args": ["/data/not_backed_up/shared/gpm_data/citeseer.lg"],
             //"args": ["${workspaceFolder}/pattern_mining/datasets/g1.lg"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "/bin/gdb",
+            "miDebuggerPath": "${GDB}",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
