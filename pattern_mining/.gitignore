@@ -9,3 +9,4 @@
 bliss/bliss
 bliss/libbliss.a
 *.err
+output/*
