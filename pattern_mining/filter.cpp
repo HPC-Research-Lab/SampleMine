@@ -46,7 +46,7 @@ void filter(SGList &d, int threshold) {
         }
       }
       if (mni < threshold) {
-        d.patterns.erase(d.sgl->buf[file_id][0]);
+        //d.patterns.erase(d.sgl->buf[file_id][0]);
         vector<int>().swap(d.sgl->buf[file_id]);
         std::string fname = d.sgl->DBPath + "/" + std::to_string(file_id) + ".dat";
         if (access(fname.c_str(), F_OK) != -1) {

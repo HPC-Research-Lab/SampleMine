@@ -1,5 +1,6 @@
 {
     "files.associations": {
+      "*.cu": "cpp",
       "*.tcc": "cpp",
       "cctype": "cpp",
       "clocale": "cpp",
@@ -101,7 +102,10 @@
       "ios": "cpp",
       "locale": "cpp",
       "*.inc": "cpp",
-      "__node_handle": "cpp"
+      "__node_handle": "cpp",
+      "charconv": "cpp",
+      "source_location": "cpp",
+      "bit": "cpp"
     },
     "python.pythonPath": "/data/not_backed_up/penjiang/conda_env/pytorch/bin/python"
 }

@@ -29,9 +29,19 @@ struct MyKV {
   std::vector<size_t> count;
   std::vector<bool> mni_met;
   int ncols;
-  size_t data_size = 0, mni_buf_size = 0;
+  size_t data_size = 0; //, mni_buf_size = 0;
   std::vector<std::vector<std::set<value_type>>> distinct_vertices;
   std::vector<int> file_exist;
+
+  void print() {
+    for (auto &[key, value] : keys) {
+      std::cout << "key: " << key << std::endl;
+      for (int i=0; i<buf[value].size(); i++) {
+        std::cout << buf[value][i] << " ";
+        if ((i+1) % ncols == 0) std::cout << std::endl;
+      }
+    }
+  }
 
   void combine(MyKV &other, bool mni, bool store) {
     for (auto &[key, value] : other.keys) {

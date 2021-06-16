@@ -13,16 +13,13 @@ enum SamplingMethod {stratified, clustered, none};
 
 struct SGList {
   std::shared_ptr<db::MyKV<std::string>> sgl = nullptr;
-  PatList patterns;
+  PatList unlabeled_patterns;
 
   SGList() {}
   SGList(const SGList &t)
-      : sgl(t.sgl),
-        patterns(t.patterns) {}
-  SGList(std::shared_ptr<db::MyKV<std::string>> sl, const PatList &pat, size_t ts,
-         size_t ns, size_t ninv)
-      : sgl(move(sl)),
-        patterns(pat) {}
+      : sgl(t.sgl), unlabeled_patterns(t.unlabeled_patterns) {}
+  SGList(std::shared_ptr<db::MyKV<std::string>> sl, const PatList &up)
+      : sgl(move(sl)), unlabeled_patterns(up) {}
 
   bool operator<(const SGList &sglist) const {
     return sgl < sglist.sgl;
@@ -32,6 +29,10 @@ struct SGList {
     assert(sgl != nullptr);
     sgl->combine(*other.sgl, mni, store);
 
+  }
+
+  void print() {
+    sgl->print();
   }
 
 };

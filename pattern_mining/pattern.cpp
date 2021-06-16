@@ -97,6 +97,43 @@ std::shared_ptr<Pattern> Pattern::get_pattern(const graph::Graph &g,
   return p;
 }
 
+std::shared_ptr<Pattern> Pattern::get_pattern(const graph::Graph &g,
+                                              const int *buf,
+                                              int ncols, bool with_label) {
+  auto p = std::make_shared<Pattern>();
+  p->enable_label();
+  for (int j = 1; j < ncols; j++) {
+    if (with_label)
+      p->add_node(g.get_vertex_label(buf[j]));
+    else
+      p->add_node(0);
+  }
+
+  for (int xi = 1; xi < ncols - 1; xi++) {
+    for (int yi = xi + 1; yi < ncols; yi++) {
+      if (g.is_neighbor(buf[xi], buf[yi])) {
+        p->add_edge(xi - 1, yi - 1);
+      } 
+    }
+  }
+  // std::cout << p->dfs_coding() << std::endl;
+  return p;
+}
+
+
+std::shared_ptr<Pattern> Pattern::get_labels(const graph::Graph &g,
+                                              const int *buf,
+                                              int ncols, std::shared_ptr<Pattern> unlabeled_pat) {
+  auto p = std::make_shared<Pattern>(*unlabeled_pat);
+  p->enable_label();
+  for (int j = 1; j < ncols; j++) {
+      p->add_label(g.get_vertex_label(buf[j]));
+  }
+  // std::cout << p->dfs_coding() << std::endl;
+  return p;
+}
+
+
 std::string Pattern::dfs_coding() const {
   if (!use_vertex_label) {
     std::cerr << "no label" << std::endl;
