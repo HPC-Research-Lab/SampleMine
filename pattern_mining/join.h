@@ -383,8 +383,6 @@ namespace euler::pattern_mining {
 #ifdef PROF
       memory_load_count++;
 #endif
-
-
       //vector<int> buf;
       auto buf = H[level][iterates[level]]->getbuf(H[level][iterates[level]]->keys[s[i]], ncols);
 

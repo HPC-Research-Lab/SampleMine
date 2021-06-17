@@ -183,7 +183,6 @@ namespace euler::db {
           for (int i = 1; i < len / sizeof(value_type); i++) {
             buf[file_id].push_back(*((int*)a + perm[i - 1] + 1));
           }
-          std::cout << std::endl;
         }
         data_size += len;
         //assert(buf[file_id].size() % 5 == 0);
