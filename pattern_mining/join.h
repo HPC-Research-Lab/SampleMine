@@ -325,14 +325,16 @@ namespace euler::pattern_mining {
     int tid = omp_get_thread_num();
 
     auto it = qp2cp[tid].find(s[0]);
-    /*if (it != qp2cp[tid].end()) {
+    if (it != qp2cp[tid].end()) {
       if constexpr (mni) {
-        res[tid].sgl->merge(it->second.first, s.data(), s.size() * sizeof(int), store, mni_threshold, it->second.second.data());
+        // TODO: list permutations to compute the correct MNI
+        res[tid].sgl->merge(it->second.first, s.data(), s.size() * sizeof(int), store, mni_threshold);
       }
       else {
         res[tid].sgl->merge(it->second, s.data(), s.size() * sizeof(int), store);
       }
-    } else*/ {
+    }
+    else {
 #ifdef PROF
       iso_test_count++;
 #endif
@@ -343,19 +345,13 @@ namespace euler::pattern_mining {
       if constexpr (mni) {
         auto coding = pat->canonical_form();
         qp2cp[tid][s[0]] = coding;
-        res[tid].sgl->merge(coding.first, s.data(), s.size() * sizeof(int), store, mni_threshold, coding.second.data());
+        res[tid].sgl->merge(coding.first, s.data(), s.size() * sizeof(int), store, mni_threshold);
       }
       else {
         std::string coding = pat->dfs_coding();
-        
-        //pat->print();
-        //std::cout << coding << std::endl;
-        //std::cout << s[0] << " " << s[1] << " " << s[2] << " " << s[3] << " " << s[4] << " " << s[5] << std::endl;
-
         qp2cp[tid][s[0]] = coding;
         res[tid].sgl->merge(coding, s.data(), s.size() * sizeof(int), store);
       }
-      //	if (res.sgl->keys.size() % 100000 == 0) std::cout << res.sgl->keys.size() << std::endl;
     }
   }
 
@@ -568,7 +564,7 @@ namespace euler::pattern_mining {
           while (true) {
             size_t length1 = it1.buffer_size / ncols1;
             len1 += length1;
-            #pragma omp parallel for num_threads(_Nthreads) reduction(+: tp_estimate1, lena1)
+#pragma omp parallel for num_threads(_Nthreads) reduction(+: tp_estimate1, lena1)
             for (size_t z = 0; z < length1; z++) {
               int type1 = it1.buffer[z * ncols1];
               const int* it_d1 = it1.buffer + z * ncols1;
