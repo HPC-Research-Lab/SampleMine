@@ -650,7 +650,7 @@ namespace euler::pattern_mining {
     assert(sampling_threshold >= 0);
 
     static int tag = 0;
-    const int s1 = patterns.begin()->second->nn + 1;
+    const int s1 = patterns[0]->nn + 1;
 
     auto data = std::make_shared<db::MyKV<std::string>>(s1);
 
@@ -664,8 +664,7 @@ namespace euler::pattern_mining {
 
     std::map<std::string, std::pair<size_t, std::shared_ptr<Pattern>>> canonical_patterns;
 
-    for (auto& p : patterns) {
-      auto& pat = p.second;
+    for (auto& pat : patterns) {
 
       // pat->print();
 
@@ -768,7 +767,7 @@ namespace euler::pattern_mining {
       return SGList(data, patterns);
     }
     else {
-      PatList labeled_patterns;
+      PatList labeled_patterns(canonical_patterns.size());
       for (auto &[key, value]: canonical_patterns) {
         labeled_patterns[value.first] = value.second;
       }

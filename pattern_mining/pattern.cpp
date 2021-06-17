@@ -123,8 +123,8 @@ std::shared_ptr<Pattern> Pattern::get_pattern(const graph::Graph &g,
 
 std::shared_ptr<Pattern> Pattern::get_labels(const graph::Graph &g,
                                               const int *buf,
-                                              int ncols, std::shared_ptr<Pattern> unlabeled_pat) {
-  auto p = std::make_shared<Pattern>(*unlabeled_pat);
+                                              int ncols, const std::shared_ptr<Pattern> pat) {
+  auto p = std::make_shared<Pattern>(*pat);
   p->enable_label();
   for (int j = 1; j < ncols; j++) {
       p->add_label(g.get_vertex_label(buf[j]));

@@ -185,7 +185,7 @@ namespace euler::pattern_mining {
 
     static std::shared_ptr<Pattern> get_labels(const graph::Graph& g,
       const int* buf,
-      int ncols, std::shared_ptr<Pattern> unlabeled_pat);
+      int ncols, const std::shared_ptr<Pattern> unlabeled_pat);
 
     // static std::map<int, std::shared_ptr<Pattern>> set_pattern(const Graph &g,
     // std::shared_ptr<MyKV<std::string>> &d);

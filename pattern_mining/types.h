@@ -5,7 +5,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 
 namespace euler::pattern_mining {
-typedef std::map<int, std::shared_ptr<Pattern>> PatList;
+typedef std::vector<std::shared_ptr<Pattern>> PatList;
 typedef __uint64_t cpp_int;
 
 
@@ -28,7 +28,6 @@ struct SGList {
   void combine(SGList& other, bool mni, bool store) {
     assert(sgl != nullptr);
     sgl->combine(*other.sgl, mni, store);
-
   }
 
   void print() {

@@ -432,7 +432,7 @@ namespace euler::pattern_mining {
           //std::cout << it_buf[1] << " " << it_buf[2] << std::endl;
 
           //pats1.at(type2)->print();
-          auto pat_buf = Pattern::get_labels(g, it_buf, ncols, pats1.at(type2));
+          auto pat_buf = Pattern::get_labels(g, it_buf, ncols, pats1[type2]);
 
           auto key_pat_vec =
             get_connectivity<has_labels, edge_induced, ncols, s.size(), value.size()>(nbv, it_buf, s.data(), j + 1, i,
@@ -619,8 +619,8 @@ namespace euler::pattern_mining {
 
                   const int* it_d2 = it2.buffer + z1 * ncols2;
 
-                  auto pat2 = Pattern::get_labels(g, it_d2, ncols2, pats2.at(type2));
-                  auto pat1 = Pattern::get_labels(g, it_d1, ncols1, pats1.at(type1));
+                  auto pat2 = Pattern::get_labels(g, it_d2, ncols2, pats2[type2]);
+                  auto pat1 = Pattern::get_labels(g, it_d1, ncols1, pats1[type1]);
 
                   auto key_pat_vec = get_connectivity<has_labels, edge_induced, ncols2, ncols1, value.size()>(
                     nbv, it_d2, it_d1, j + 1,

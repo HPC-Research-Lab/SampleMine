@@ -89,9 +89,9 @@ class PatListing {
 
   static std::vector<std::vector<std::pair<int, int>>> spanning_tree_listing(int n);
 
-  static std::map<int, std::shared_ptr<Pattern>> make_pattern(
+  static std::vector<std::shared_ptr<Pattern>> make_pattern(
       const std::vector<std::vector<std::pair<int, int>>> &pat) {
-    std::map<int, std::shared_ptr<Pattern>> res;
+    std::vector<std::shared_ptr<Pattern>> res(pat.size());
     for (int i = 0; i < pat.size(); i++) {
       res[i] = std::make_shared<Pattern>(pat[i]);
     }
