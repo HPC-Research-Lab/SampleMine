@@ -152,11 +152,11 @@ namespace euler::pattern_mining {
       }
 
       for (int i = 0; i < nn; i++) {
-        pat->add_node(vertex_label[perm[i]]);
+        pat->add_node(vertex_label[rperm[i]]);
       }
       for (int i = 0; i < adj_list.size(); i++) {
         for (int j : adj_list[i]) {
-          pat->add_edge(rperm[i], rperm[j]);
+          pat->add_edge(perm[i], perm[j]);
         }
       }
       return pat;

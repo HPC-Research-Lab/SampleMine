@@ -129,14 +129,19 @@ namespace euler::db {
       file_id = nfiles++;
       keys[k] = file_id;
       file_exist.push_back(0);
-      if ( perm == nullptr) {
+      if (perm == nullptr) {
         buf.emplace_back((int*)a, (int*)a + len / sizeof(value_type));
       } // TODO: performance optimization with pre-determined patterns
       else {
+        std::vector<int> rperm(len / sizeof(value_type) - 1);
+
+        for (int i = 0; i < rperm.size(); i++) {
+          rperm[perm[i]] = i;
+        }
         std::vector<int> sg;
         sg.push_back(*(int*)a);
         for (int i = 1; i < len / sizeof(value_type); i++) {
-          sg.push_back(*((int*)a + perm[i - 1] + 1));
+          sg.push_back(*((int*)a + rperm[i - 1] + 1));
         }
         buf.push_back(sg);
       }
@@ -173,15 +178,20 @@ namespace euler::db {
       }
 
       if (store_value) {
-        if ( perm == nullptr) {
+        if (perm == nullptr) {
           for (int i = 0; i < len / sizeof(value_type); i++) {
             buf[file_id].push_back(*((int*)a + i));
           }
         } // TODO: performance optimization with pre-determined patterns
         else {
+          std::vector<int> rperm(len / sizeof(value_type) - 1);
+
+          for (int i = 0; i < rperm.size(); i++) {
+            rperm[perm[i]] = i;
+          }
           buf[file_id].push_back(*(int*)a);
           for (int i = 1; i < len / sizeof(value_type); i++) {
-            buf[file_id].push_back(*((int*)a + perm[i - 1] + 1));
+            buf[file_id].push_back(*((int*)a + rperm[i - 1] + 1));
           }
         }
         data_size += len;
