@@ -208,7 +208,7 @@ namespace euler::db {
       else {
 
       }
-      count[file_id]++;
+      count[file_id] += 1;
     }
 
     if (data_size > BUF_SIZE * 1024l) {

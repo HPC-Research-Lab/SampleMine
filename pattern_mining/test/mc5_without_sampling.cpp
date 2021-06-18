@@ -33,21 +33,21 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, false, false, 4, 3, 3, 3, 3>(g, H, sgls, true, none, {0, 0, 0, 0});
+  auto [d_res, ess]  = join<true, false, false, 4, 3, 3, 3, 3>(g, H, sgls, true, none, {0, 0, 0, 0});
   t.stop();
 
 
-  vector<int> counts;
+  vector<size_t> counts;
 
   if (d_res.sgl) {
     cout << "total num of patterns: " << d_res.sgl->size() << endl;
     cout << "join time: " << t.get() << " sec" << endl;
 
-    for (int i = 0; i < d_res.sgl->count.size(); i++) {
-          counts.push_back(d_res.sgl->count[i]);
+    for (auto &[k,v]: ess) {
+          counts.push_back(v);
     }
 
-    sort(counts.begin(), counts.end(), greater<int>());
+    sort(counts.begin(), counts.end(), greater<size_t>());
 
     for (int i=0; i < counts.size(); i++) {
       cout << counts[i] << endl;

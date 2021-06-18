@@ -26,7 +26,7 @@ struct MyKV {
   std::atomic<size_t> nfiles;
   std::map<key_type, size_t> keys;
   std::vector<std::vector<value_type>> buf;
-  std::vector<size_t> count;
+  std::vector<double> count;
   std::vector<bool> mni_met;
   int ncols;
   size_t data_size = 0; //, mni_buf_size = 0;
