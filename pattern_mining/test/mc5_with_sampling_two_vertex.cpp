@@ -49,7 +49,7 @@ std::map<std::string, double> ess;
 
   util::Timer t;
   t.start();
-  auto [d_res, est]  = join<true, false, false, 2, 4, 4>(g, H, sgls, true, stratified, {st, st});
+  auto [d_res, est]  = join<true, false, false, true, 2, 4, 4>(g, H, sgls, true, clustered, {st, st});
   t.stop();
 
   tot_time += t.get();

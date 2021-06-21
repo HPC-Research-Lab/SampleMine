@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, est] = join<true, false, false, 4, 3, 3, 3, 3>(g, H, sgls, true, stratified, { st, st, st, st });
+    auto [d_res, est] = join<true, false, false, true, 4, 3, 3, 3, 3>(g, H, sgls, true, clustered, { 20, 10, 10, 5});
     t.stop();
     tot_time += t.get();
     for (auto &[k,v]: est) {
