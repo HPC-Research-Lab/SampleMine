@@ -160,6 +160,16 @@ std::string Pattern::dfs_coding() const {
   return sout.str();
 }
 
+static void
+report_aut(void* param, const unsigned int n, const unsigned int* aut)
+{
+  assert(param);
+  fprintf((FILE*)param, "Generator: ");
+  bliss::print_permutation((FILE*)param, n, aut, 1);
+  fprintf((FILE*)param, "\n");
+}
+
+
 std::pair<std::string, std::vector<int>> Pattern::canonical_form() const {
   if (!use_vertex_label) {
     std::cerr << "no label" << std::endl;
@@ -177,7 +187,7 @@ std::pair<std::string, std::vector<int>> Pattern::canonical_form() const {
     }
   }
   bliss::Stats stats;
-  const unsigned int *cl = g.canonical_form(stats, NULL, stdout);
+  const unsigned int *cl = g.canonical_form(stats, report_aut, stdout);
   std::vector<int> perm(cl, cl+nn);
   bliss::Graph *cf = g.permute(cl);
   std::ostringstream sout;

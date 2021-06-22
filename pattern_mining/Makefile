@@ -5,7 +5,8 @@ CXX=g++
 HOME_DIR = ..
 INCLUDE = -I../ -I$(BOOST_ROOT)
 OBJ = join.o match.o filter.o pattern.o patlist.o
-EXE = mc5_without_sampling.exe mc5_without_sampling_two_vertex.exe mc5_with_sampling.exe mc5_with_sampling_two_vertex.exe
+EXE = fsm5_without_sampling.exe
+
 all: $(EXE)
 
 %.exe: test/%.cpp $(OBJ) bliss/libbliss.a $(wildcard $(HOME_DIR)/db/*.cpp) $(wildcard $(HOME_DIR)/graph/*.cpp) $(HOME_DIR)/util.cpp

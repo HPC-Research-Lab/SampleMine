@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
   cout << "num of size-3 frequent patterns: " << d3.sgl->size() << endl;
 
-  auto q3 = get_pattern3(d3);
+  //auto q3 = get_pattern3(d3);
 
   filter(d2, mni_threshold);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto d_res = join<true, true, true, 2, 4, 4>(g, H, sgls, false, none, {0, 0}, mni_threshold, q3);
+  auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, none, {0, 0}, mni_threshold);
   t.stop();
 
   if (d_res.sgl) {
