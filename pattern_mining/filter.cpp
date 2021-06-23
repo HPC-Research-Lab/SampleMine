@@ -32,6 +32,7 @@ void filter(SGList &d, int threshold) {
         std::string mni_fname = d.sgl->DBPath + "/mni_" + std::to_string(file_id) + "_" + std::to_string(j) + ".dat"; 
         bool file_exist = false;
         if (access(mni_fname.c_str(), F_OK) != -1) {
+          std::cout << "wrong in filter" << std::endl;
           ifstream fin(mni_fname);
           int v;
           while (fin >> v) {

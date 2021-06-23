@@ -146,16 +146,21 @@ namespace euler::db {
         //  for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + rperm[i - 1] + 1) });
         //}
         //else {
-          for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + i) });
-       // }
+        for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + i) });
+        // }
 
+        std::vector<std::set<int>> vos;
         for (auto& o : orbits) {
           std::set<int> vo;
           for (unsigned s : o) {
             vo.insert(vs[s].begin(), vs[s].end());
           }
-          for (unsigned ss : o) {
-            vs[perm[ss]] = vo;
+          vos.push_back(vo);
+        }
+
+        for (int i = 0; i < vos.size(); i++) {
+          for (unsigned ss : orbits[i]) {
+            vs[perm[ss]] = vos[i];
           }
         }
         mni_met.push_back(false);
@@ -177,18 +182,25 @@ namespace euler::db {
            // for (int i = 1; i < ncols; i++) vs.push_back({ *((int*)a + rperm[i - 1] + 1) });
          // }
           //else {
-            for (int i = 1; i < ncols; i++) vs.push_back({ *((int*)a + i) });
+          for (int i = 1; i < ncols; i++) vs.push_back({ *((int*)a + i) });
           //}
 
+          std::vector<std::set<int>> vos;
           for (auto& o : orbits) {
             std::set<int> vo;
             for (unsigned s : o) {
               vo.insert(vs[s].begin(), vs[s].end());
             }
-            for (unsigned ss : o) {
-              vs[perm[ss]] = vo;
+            vos.push_back(vo);
+          }
+
+          for (int i = 0; i < vos.size(); i++) {
+            for (unsigned ss : orbits[i]) {
+              vs[perm[ss]] = vos[i];
             }
           }
+
+
 
           auto& vss = distinct_vertices[file_id];
           bool tflag = true;
