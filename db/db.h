@@ -19,6 +19,9 @@ namespace euler::db {
 
 const size_t BUF_SIZE = 1024l * 1024l * 128l;
 
+ static std::vector<std::vector<unsigned>> dummy1 = {};
+ static std::vector<unsigned> dummy2 = {};
+
 template <class key_type, class value_type = int>
 struct MyKV {
   static int db_id;
@@ -266,7 +269,7 @@ struct MyKV {
   void put(const void *a, size_t len);
 
   void merge(const key_type &k, const void *a, size_t len,
-             bool store_value = true, size_t mni = 0, const int *perm = nullptr);
+             bool store_value = true, size_t mni = 0, const std::vector<std::vector<unsigned>> &orbits = dummy1, const std::vector<unsigned> &perm = dummy2);
 
   MyBuf getbuf(size_t file_idx, size_t cs);
 

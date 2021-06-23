@@ -25,15 +25,17 @@ int main(int argc, char* argv[]) {
 
   double thh = atof(argv[2]);
 
+  size_t sup = (size_t) round(thh * g.num_nodes());
+
   cout << "support threshold: " << thh << endl;
 
   cout << "start matchings pat2: " << endl;
-  auto d2 = match(g, pat2, true, false, true, true);
+  auto d2 = match(g, pat2, true, false, true, sup);
 
   cout << "start matchings pat3: " << endl;
   util::Timer match_time;
   match_time.start();
-  auto d3 = match(g, pat3, true, true, true, true);
+  auto d3 = match(g, pat3, true, true, true, sup);
   match_time.stop();
 
   cout << "match 3 time: " << match_time.get() << " sec" << endl;

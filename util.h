@@ -42,7 +42,11 @@ class span {
   size_t size() { return len; }
 };
 
-void print_vec(const std::vector<int> &a);
+template <class T>
+void print_vec(const std::vector<T> &a) {
+  for (T i : a) std::cout << i << " ";
+  std::cout << std::endl;
+}
 
 
 /*// atomically adds 128-bit src to dst, returning the old dst.

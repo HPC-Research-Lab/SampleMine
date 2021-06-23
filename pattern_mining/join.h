@@ -323,19 +323,20 @@ namespace euler::pattern_mining {
   std::string for_loop2_end(std::array<int, ncols_left>& s,
     std::shared_ptr<Pattern> pat,
     std::vector<SGList>& res,
-    std::vector<std::map<int, typename std::conditional<mni, std::pair<std::string, std::vector<int>>, std::string>::type>>& qp2cp, bool store, size_t mni_threshold) {
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, size_t mni_threshold) {
     int tid = omp_get_thread_num();
 
     auto it = qp2cp[tid].find(s[0]);
     if (it != qp2cp[tid].end()) {
       if constexpr (mni) {
-        // TODO: list permutations to compute the correct MNI
-        res[tid].sgl->merge(it->second.first, s.data(), s.size() * sizeof(int), store, mni_threshold);
+        res[tid].sgl->merge(std::get<0>(it->second), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(it->second), std::get<2>(it->second));
+        return std::get<0>(it->second);
       }
       else {
         res[tid].sgl->merge(it->second, s.data(), s.size() * sizeof(int), store);
+        return it->second;
+
       }
-      return it->second;
     }
     else {
 #ifdef PROF
@@ -348,8 +349,8 @@ namespace euler::pattern_mining {
       if constexpr (mni) {
         auto coding = pat->canonical_form();
         qp2cp[tid][s[0]] = coding;
-        res[tid].sgl->merge(coding.first, s.data(), s.size() * sizeof(int), store, mni_threshold);
-        return coding.first;
+        res[tid].sgl->merge(std::get<0>(coding), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(coding), std::get<2>(coding));
+        return std::get<0>(coding);
       }
       else {
         std::string coding = pat->dfs_coding();
@@ -357,15 +358,15 @@ namespace euler::pattern_mining {
         res[tid].sgl->merge(coding, s.data(), s.size() * sizeof(int), store);
         return coding;
       }
+    }
   }
-}
 
   template <bool has_labels, bool edge_induced, bool mni, bool est, int K, typename key_type, size_t ncols_left, size_t ncols, size_t... ncols_right>
   std::map<std::string, double> for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
     std::shared_ptr<Pattern> pat,
     const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, int level,
     std::vector<int>& iterates, std::vector<SGList>& res,
-    std::vector<std::map<int, typename std::conditional<mni, std::pair<std::string, std::vector<int>>, std::string>::type>>& qp2cp, std::vector<std::vector<int>>& qp_count,
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<int>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
     std::vector<double> sampling_param,
@@ -517,7 +518,7 @@ namespace euler::pattern_mining {
   void for_loop1(const std::vector<SGList>& sgls,
     const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H,
     std::vector<int>& iterates, int level, std::vector<SGList>& res,
-    std::vector<std::map<int, typename std::conditional<mni, std::pair<std::string, std::vector<int>>, std::string>::type>>& qp2cp, std::vector<std::vector<int>>& qp_count,
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<int>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
     std::vector<double> sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, size_t mni_threshold, std::map<std::string, double>& estimate_counts) {
@@ -743,9 +744,9 @@ namespace euler::pattern_mining {
               }
             }
           }
+        }
       }
     }
-  }
   }
 
   template<int...>
@@ -787,7 +788,7 @@ namespace euler::pattern_mining {
     //std::cout << sum<ncols1, ncols2, ncols...>::value << std::endl;
     typedef typename std::conditional<has_labels, std::array<int, sum<ncols1, ncols2, ncols...>::value + 5>, std::array<int, 4>>::type key_type;
 
-    std::vector<std::map<int, typename std::conditional<mni, std::pair<std::string, std::vector<int>>, std::string>::type>> qp2cp(_Nthreads);
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>> qp2cp(_Nthreads);
     std::vector<std::vector<int>> qp_count(_Nthreads);
     for (auto& q : qp_count) q.resize(sgls.size(), 0);
     std::vector<std::vector<std::map<key_type, int>>> qp_idx(_Nthreads);

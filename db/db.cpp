@@ -117,9 +117,11 @@ namespace euler::db {
 
   template <class key_type, class value_type>
   void MyKV<key_type, value_type>::merge(const key_type& k, const void* a, size_t len,
-    bool store_value, size_t mni, const int* perm) {
+    bool store_value, size_t mni, const std::vector<std::vector<unsigned>>& orbits, const std::vector<unsigned>& perm) {
     size_t file_id;
     bool first = false;
+    //std::vector<int> rperm(len / sizeof(value_type) - 1);
+
     // check if the key is already in the KV_Store
     auto it = keys.find(k);
     if (it != keys.end()) {
@@ -129,30 +131,38 @@ namespace euler::db {
       file_id = nfiles++;
       keys[k] = file_id;
       file_exist.push_back(0);
-      if (perm == nullptr) {
-        buf.emplace_back((int*)a, (int*)a + len / sizeof(value_type));
-      } // TODO: performance optimization with pre-determined patterns
-      else {
-        std::vector<int> rperm(len / sizeof(value_type) - 1);
+      buf.emplace_back((int*)a, (int*)a + len / sizeof(value_type));
+      if (mni > 0) {
 
-        for (int i = 0; i < rperm.size(); i++) {
-          rperm[perm[i]] = i;
+        /*if (perm.size() > 0) {
+          for (int i = 0; i < rperm.size(); i++) {
+            rperm[perm[i]] = i;
+          }
+        }*/
+
+        std::vector<std::set<int>> vs;
+
+        //if (perm.size() > 0) {
+        //  for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + rperm[i - 1] + 1) });
+        //}
+        //else {
+          for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + i) });
+       // }
+
+        for (auto& o : orbits) {
+          std::set<int> vo;
+          for (unsigned s : o) {
+            vo.insert(vs[s].begin(), vs[s].end());
+          }
+          for (unsigned ss : o) {
+            vs[perm[ss]] = vo;
+          }
         }
-        std::vector<int> sg;
-        sg.push_back(*(int*)a);
-        for (int i = 1; i < len / sizeof(value_type); i++) {
-          sg.push_back(*((int*)a + rperm[i - 1] + 1));
-        }
-        buf.push_back(sg);
+        mni_met.push_back(false);
+        distinct_vertices.push_back(vs);
       }
       count.push_back(1);
-      mni_met.push_back(false);
-      if (mni > 0) {
-        std::vector<std::set<int>> vs;
-        for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + i) });
-        distinct_vertices.push_back(vs);
-        //mni_buf_size += len;
-      }
+
       first = true;
       data_size += len;
     }
@@ -161,12 +171,31 @@ namespace euler::db {
       if (mni > 0) {
         assert(ncols == len / sizeof(value_type));
         if (!mni_met[file_id]) {
-          auto& vs = distinct_vertices[file_id];
+
+          std::vector<std::set<int>> vs;
+          //if (perm.size() > 0) {
+           // for (int i = 1; i < ncols; i++) vs.push_back({ *((int*)a + rperm[i - 1] + 1) });
+         // }
+          //else {
+            for (int i = 1; i < ncols; i++) vs.push_back({ *((int*)a + i) });
+          //}
+
+          for (auto& o : orbits) {
+            std::set<int> vo;
+            for (unsigned s : o) {
+              vo.insert(vs[s].begin(), vs[s].end());
+            }
+            for (unsigned ss : o) {
+              vs[perm[ss]] = vo;
+            }
+          }
+
+          auto& vss = distinct_vertices[file_id];
           bool tflag = true;
-          for (int i = 1; i < ncols; i++) {
-            if (vs[perm[i - 1]].size() < mni && (vs[perm[i - 1]].find(*((int*)a + i)) == vs[perm[i - 1]].end())) {
+          for (int i = 0; i < ncols - 1; i++) {
+            if (vss[i].size() < mni) {
               //mni_buf_size += sizeof(int);
-              vs[perm[i - 1]].insert(*((int*)a + i));
+              vss[i].insert(vs[i].begin(), vs[i].end());
               tflag = false;
             }
           }
@@ -178,21 +207,8 @@ namespace euler::db {
       }
 
       if (store_value) {
-        if (perm == nullptr) {
-          for (int i = 0; i < len / sizeof(value_type); i++) {
-            buf[file_id].push_back(*((int*)a + i));
-          }
-        } // TODO: performance optimization with pre-determined patterns
-        else {
-          std::vector<int> rperm(len / sizeof(value_type) - 1);
-
-          for (int i = 0; i < rperm.size(); i++) {
-            rperm[perm[i]] = i;
-          }
-          buf[file_id].push_back(*(int*)a);
-          for (int i = 1; i < len / sizeof(value_type); i++) {
-            buf[file_id].push_back(*((int*)a + rperm[i - 1] + 1));
-          }
+        for (int i = 0; i < len / sizeof(value_type); i++) {
+          buf[file_id].push_back(*((int*)a + i));
         }
         data_size += len;
         //assert(buf[file_id].size() % 5 == 0);
@@ -205,9 +221,7 @@ namespace euler::db {
           file_exist[file_id] = 1;
         }
       }
-      else {
 
-      }
       count[file_id] += 1;
     }
 

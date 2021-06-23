@@ -598,12 +598,12 @@ namespace euler::pattern_mining {
 
 #pragma omp critical
           {
-            if (canonical_patterns.find(cp.first) == canonical_patterns.end()) {
-              canonical_patterns[cp.first] = std::make_pair(canonical_patterns.size(), ptt->permute(cp.second));
+            if (canonical_patterns.find(std::get<0>(cp)) == canonical_patterns.end()) {
+              canonical_patterns[std::get<0>(cp)] = std::make_pair(canonical_patterns.size(), ptt);
             }
             if (store_data) {
-              v[tid][0] = canonical_patterns[cp.first].first;
-              data->merge(std::to_string(v[tid][0]), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, cp.second.data());
+              v[tid][0] = canonical_patterns[std::get<0>(cp)].first;
+              data->merge(std::to_string(v[tid][0]), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
             }
           }
         }

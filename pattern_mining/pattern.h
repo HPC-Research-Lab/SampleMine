@@ -165,7 +165,7 @@ namespace euler::pattern_mining {
 
     std::string dfs_coding() const;
 
-    std::pair<std::string, std::vector<int>> canonical_form() const;
+    std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>> canonical_form() const;
 
     //bool is_separable(int sep) const;
 
