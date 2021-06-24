@@ -205,15 +205,15 @@ namespace euler::db {
           auto& vss = distinct_vertices[file_id];
           bool tflag = true;
           for (int i = 0; i < ncols - 1; i++) {
+            vss[i].insert(vs[i].begin(), vs[i].end());
             if (vss[i].size() < mni) {
               //mni_buf_size += sizeof(int);
-              vss[i].insert(vs[i].begin(), vs[i].end());
               tflag = false;
             }
           }
           if (tflag) {
             mni_met[file_id] = true;
-            vs.clear();
+            vss.clear();
           }
         }
       }

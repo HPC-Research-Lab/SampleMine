@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
       pattern_mining::PatListing().pattern_listing(2));
 
   cout << "start matchings pat2: " << endl;
-  auto d2 = match(g, pat2, true, false, true);
+  auto d2 = match(g, pat2, true, true, true);
 
   vector<SGList> sgls = {d2, d2, d2, d2};
 
@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess]  = join<true, false, false, false, 4, 3, 3, 3, 3>(g, H, sgls, true, none, {0, 0, 0, 0});
+  auto [d_res, ess]  = join<true, true, false, false, 4, 3, 3, 3, 3>(g, H, sgls, true, none, {0, 0, 0, 0});
   t.stop();
 
 
