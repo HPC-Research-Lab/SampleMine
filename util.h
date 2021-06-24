@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <set>
+#include <array>
 
 namespace euler::util {
 
@@ -44,6 +45,12 @@ class span {
 
 template <class T>
 void print_vec(const std::vector<T> &a) {
+  for (T i : a) std::cout << i << " ";
+  std::cout << std::endl;
+}
+
+template <class T, size_t S>
+void print_vec(const std::array<T, S> &a) {
   for (T i : a) std::cout << i << " ";
   std::cout << std::endl;
 }

@@ -19,10 +19,12 @@ int main(int argc, char* argv[]) {
   g.read_graph(argv[1]);
 
   auto pat3 = pattern_mining::PatListing::make_pattern(
-      pattern_mining::PatListing().pattern_listing(3));
+    pattern_mining::PatListing().pattern_listing(3));
   auto pat2 = pattern_mining::PatListing::make_pattern(
-      pattern_mining::PatListing().pattern_listing(2));
+    pattern_mining::PatListing().pattern_listing(2));
 
+  auto pat5 = pattern_mining::PatListing::make_pattern(
+    pattern_mining::PatListing().pattern_listing(5));
 
   cout << "start matchings pat3: " << endl;
   util::Timer match_time;
@@ -32,7 +34,16 @@ int main(int argc, char* argv[]) {
 
   cout << "match 3 time: " << match_time.get() << " sec" << endl;
 
-  vector<SGList> sgls = {d3, d3};
+  cout << "start matchings pat5: " << endl;
+  match_time.start();
+  auto d5 = match(g, pat5, true, true, true);
+  match_time.stop();
+
+  cout << "match 5 time: " << match_time.get() << " sec" << endl;
+
+  d5.print_counts();
+
+  vector<SGList> sgls = { d3, d3 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -40,30 +51,12 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess]  = join<true, true, false, false, 2, 4, 4>(g, H, sgls, true, none, {0, 0});
+  auto [d_res, ess] = join<true, true, false, false, 2, 4, 4>(g, H, sgls, false, none, { 0, 0 });
   t.stop();
 
-  vector<size_t> counts;
+  cout << "join time: " << t.get() << " sec" << endl;
 
-  if (d_res.sgl) {
-    cout << "total num of patterns: " << d_res.sgl->size() << endl;
-    cout << "join time: " << t.get() << " sec" << endl;
-
-    for (size_t v: d_res.sgl->count) {
-          counts.push_back(v);
-    }
-
-    sort(counts.begin(), counts.end(), greater<size_t>());
-
-    for (int i=0; i < counts.size(); i++) {
-      cout << counts[i] << endl;
-    }
-
-   // d_res.print();
-
-  } else {
-    cout << "num of patterns: 0" << endl;
-  }
+  d_res.print_counts();
 
   return 0;
 }

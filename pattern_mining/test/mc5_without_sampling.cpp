@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess]  = join<true, true, false, false, 4, 3, 3, 3, 3>(g, H, sgls, true, none, {0, 0, 0, 0});
+  auto [d_res, ess]  = join<true, true, false, false, 4, 3, 3, 3, 3>(g, H, sgls, false, none, {0, 0, 0, 0});
   t.stop();
 
 

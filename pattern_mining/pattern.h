@@ -16,6 +16,7 @@
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include <sstream>
 
 #include "db/db.h"
 #include "graph/graph.h"
@@ -56,6 +57,53 @@ namespace euler::pattern_mining {
 
     bool operator<(const Pattern& pp) const {
       return nn < pp.nn || ne < pp.ne || (use_vertex_label && pp.use_vertex_label && vertex_label < pp.vertex_label);
+    }
+
+
+    void remove_edge(int eidx) {
+      int idx = 0;
+      int p = -1;
+      int i = 0;
+      for (; i < adj_list.size(); i++) {
+        for (int j : adj_list[i]) {
+          if (i < j) {
+            if (idx == eidx) {
+              p = j;
+              //std::cout << p << std::endl;
+              break;
+            }
+            idx++;
+          }
+        }
+        if (p != -1) break;
+      }
+      if (p != -1) {
+        adj_list[i].erase(p);
+        adj_list[p].erase(i);
+        ne--;
+      }
+      else {
+        std::cout << "remove edge error" << std::endl;
+        exit(-1);
+      }
+    }
+
+    bool connected() {
+      std::vector<int> visited(nn, 0);
+      std::queue<int> q;
+      q.push(0);
+      while (!q.empty()) {
+        int cur = q.front();
+        q.pop();
+        visited[cur] = 1;
+        for (int nb : adj_list[cur]) {
+          if (!visited[nb]) q.push(nb);
+        }
+      }
+      for (int i = 0; i < visited.size(); i++) {
+        if (!visited[i]) return false;
+      }
+      return true;
     }
 
     void clear() {
@@ -210,6 +258,23 @@ namespace euler::pattern_mining {
         }
       }
       std::cout << "======== pat end ============" << std::endl;
+    }
+
+    std::string to_string() const {
+      std::ostringstream sout;
+      sout << " ======== pat start =========" << std::endl;
+      sout << "has label: " << use_vertex_label << std::endl;
+      sout << "nn: " << nn << "\t ne: " << ne << std::endl;
+      for (int i = 0; i < nn; i++) {
+        sout << "v " << i << " " << vertex_label[i] << std::endl;
+      }
+      for (int i = 0; i < nn; i++) {
+        for (int j : adj_list[i]) {
+          if (i < j) sout << "e " << i << " " << j << std::endl;
+        }
+      }
+      sout << "======== pat end ============" << std::endl;
+      return sout.str();
     }
 
     std::string serialize() const {

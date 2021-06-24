@@ -206,6 +206,12 @@ namespace euler::pattern_mining {
     else
       num_combinations = 1;
 
+    /*std::cout << "((((((((" << std::endl;
+    pat1->print();
+    pat2->print();
+    ptt->print();
+    std::cout << "))))))))" << std::endl;*/
+
     for (unsigned int i = 0; i < num_combinations; i++) {
       connection_t key = 0;
       std::shared_ptr<Pattern> pttt = std::make_shared<Pattern>(*ptt);
@@ -286,19 +292,21 @@ namespace euler::pattern_mining {
 #ifdef PROF
       auto_test_count++;
 #endif
+      bool valid = true;
       for (int start : start_vec) {
         for (int z = 0; z < visited.size(); z++) visited[z] = 0;
         int ret = list_left<visited.size()>(pttt, start, ncols1 - 2, visited, value, jp);
 
         if (ret == -1) {
           //    if (omp_get_thread_num() == 0) t_list_left.stop();
-
-          return { std::make_pair(1 << 31, nullptr) };
+          valid = false;
+          break;
         }
         if (ret == 1) break;
       }
       //  if (omp_get_thread_num() == 0) t_list_left.stop();
 
+      if (!valid) continue;
 
       unsigned int left_mask = 0;
       for (int xi = 1; xi < value.size(); xi++)
@@ -309,7 +317,7 @@ namespace euler::pattern_mining {
       }
 
       if (left_mask1 != left_mask) {
-        return { std::make_pair(1 << 31, nullptr) };
+        continue;
       }
 
       res.emplace_back(key, pttt);
@@ -325,6 +333,9 @@ namespace euler::pattern_mining {
     std::vector<SGList>& res,
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, size_t mni_threshold) {
     int tid = omp_get_thread_num();
+
+    //pat->print();
+    //util::print_vec(s);
 
     auto it = qp2cp[tid].find(s[0]);
     if (it != qp2cp[tid].end()) {
@@ -637,6 +648,15 @@ namespace euler::pattern_mining {
 
                   auto pat2 = Pattern::get_labels(g, it_d2, ncols2, pats2[type2]);
                   auto pat1 = Pattern::get_labels(g, it_d1, ncols1, pats1[type1]);
+
+                 /* if (it_d2[1] == 4 && it_d2[2] == 3) {
+                    std::cout << "here" << std::endl;
+                  }
+
+                  std::cout << "[[[[[" << std::endl;
+                  pat2->print();
+                  pat1->print();
+                  std::cout << "]]]]]" << std::endl;*/
 
                   auto key_pat_vec = get_connectivity<has_labels, edge_induced, ncols2, ncols1, value.size()>(
                     nbv, it_d2, it_d1, j + 1,

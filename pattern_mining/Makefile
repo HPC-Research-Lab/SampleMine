@@ -5,7 +5,7 @@ CXX=g++
 HOME_DIR = ..
 INCLUDE = -I../ -I$(BOOST_ROOT)
 OBJ = join.o match.o filter.o pattern.o patlist.o
-EXE = fsm4_without_sampling.exe fsm3_without_sampling.exe fsm5_without_sampling.exe mc5_without_sampling.exe mc5_without_sampling_two_vertex.exe
+EXE =  mc4_without_sampling_two_vertex.exe mc4_without_sampling.exe mc5_without_sampling_two_vertex.exe mc5_without_sampling.exe fsm4_without_sampling.exe
 
 all: $(EXE)
 
