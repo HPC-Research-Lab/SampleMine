@@ -27,13 +27,17 @@ namespace euler::pattern_mining {
       return sgl < sglist.sgl;
     }
 
-    void combine(SGList& other, bool mni, bool store) {
+    void combine(SGList& other, bool mni, bool store, bool adaptive_sampling=false) {
       assert(sgl != nullptr);
-      sgl->combine(*other.sgl, mni, store);
+      sgl->combine(*other.sgl, mni, store, adaptive_sampling);
     }
 
     void print() {
       sgl->print();
+    }
+
+    void get_quick_pattern_path(const std::vector<std::vector<int>> &qp_count) {
+      sgl->get_pattern_path(qp_count);
     }
 
     void print_counts() {

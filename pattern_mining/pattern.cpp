@@ -212,12 +212,26 @@ namespace euler::pattern_mining {
     std::vector<std::vector<unsigned>> orbits;
     const unsigned int* cl = g.canonical_form(stats, report_aut, &orbits);
 
+    //std::cout << "pat: " << std::endl;
+    //print();
+
 
     std::vector<unsigned> perm(cl, cl + nn);
     bliss::Graph* cf = g.permute(cl);
     std::ostringstream sout;
     cf->write_dimacs(sout);
     delete cf;
+
+/*
+    std::cout << sout.str() << std::endl;
+
+    std::cout << "orbits: " << std::endl;
+    for (auto &o : orbits) {
+      util::print_vec(o);
+    }
+
+    std::cout << "perm: " << std::endl;
+    util::print_vec(perm);*/
 
     return { sout.str(), orbits, perm };
   }

@@ -158,13 +158,25 @@ namespace euler::db {
           vos.push_back(vo);
         }
 
+        std::vector<std::set<int>> vs_new(vs.size());
+
+
         for (int i = 0; i < vos.size(); i++) {
           for (unsigned ss : orbits[i]) {
-            vs[perm[ss]] = vos[i];
+            vs_new[perm[ss]] = vos[i];
           }
         }
+
+        for (int si = 0; si < vs.size(); si++) {
+          if (vs_new[perm[si]].size() == 0) {
+            vs_new[perm[si]] = vs[si];
+          }
+        }
+
+        qp_set.push_back({*((int*)a)});
+
         mni_met.push_back(false);
-        distinct_vertices.push_back(vs);
+        distinct_vertices.push_back(vs_new);
       }
       count.push_back(1);
 
@@ -172,9 +184,12 @@ namespace euler::db {
       data_size += len;
     }
 
+
     if (!first) {
       if (mni > 0) {
         assert(ncols == len / sizeof(value_type));
+        qp_set[file_id].insert(*((int*)a));
+
         if (!mni_met[file_id]) {
 
           std::vector<std::set<int>> vs;
@@ -194,18 +209,25 @@ namespace euler::db {
             vos.push_back(vo);
           }
 
+          std::vector<std::set<int>> vs_new(vs.size());
+
           for (int i = 0; i < vos.size(); i++) {
             for (unsigned ss : orbits[i]) {
-              vs[perm[ss]] = vos[i];
+              vs_new[perm[ss]] = vos[i];
             }
           }
 
+          for (int si = 0; si < vs.size(); si++) {
+            if (vs_new[perm[si]].size() == 0) {
+              vs_new[perm[si]] = vs[si];
+            }
+          }
 
 
           auto& vss = distinct_vertices[file_id];
           bool tflag = true;
           for (int i = 0; i < ncols - 1; i++) {
-            vss[i].insert(vs[i].begin(), vs[i].end());
+            vss[i].insert(vs_new[i].begin(), vs_new[i].end());
             if (vss[i].size() < mni) {
               //mni_buf_size += sizeof(int);
               tflag = false;
@@ -251,6 +273,7 @@ namespace euler::db {
       data_size = 0;
     }
   }
+  
 
   template <class key_type, class value_type>
   size_t MyKV<key_type, value_type>::size() {
