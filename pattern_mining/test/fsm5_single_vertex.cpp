@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < sampling_rounds; i++) {
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 4, 3, 3, 3, 3>(g, H, sgls, false, adaptive_sampling, sm, { st, st , st, st}, sup, sw);
+    auto [d_res, ess] = join<true, true, true, false, 4, 3, 3, 3, 3>(g, H, sgls, false, sm, { st, st , st, st}, adaptive_sampling, sup, sw);
     t.stop();
 
     filter(d_res, sup);

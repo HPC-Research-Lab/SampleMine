@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
   vector<SGList> sgls = {d2, d2, d2, d2};
 
   cout << "building tables..." << endl;
-  auto H = build_tables(sgls);
+  auto [H, sw] = build_tables(sgls);
   cout << "build table done" << endl;
 
   util::Timer t;

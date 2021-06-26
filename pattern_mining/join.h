@@ -383,7 +383,7 @@ namespace euler::pattern_mining {
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
     std::vector<double> sampling_param,
-    bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, size_t mni_threshold, const std::vector<std::shared_ptr<std::vector<double>>> &sampling_weights, bool adaptive_sampling) {
+    bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, size_t mni_threshold, const std::vector<std::shared_ptr<std::vector<double>>>& sampling_weights, bool adaptive_sampling) {
     int tid = omp_get_thread_num();
 
     auto& pats1 = sgls[level].unlabeled_patterns;
@@ -426,9 +426,11 @@ namespace euler::pattern_mining {
         len += length;
 
         double tot_weight = 0;
-        for (size_t z = 0; z < length; z++) {
-          int type2 = it1.buffer[z * ncols];
-          tot_weight += (*sampling_weights[level])[type2];
+        if (adaptive_sampling) {
+          for (size_t z = 0; z < length; z++) {
+            int type2 = it1.buffer[z * ncols];
+            tot_weight += (*sampling_weights[level])[type2];
+          }
         }
 
         for (size_t z = 0; z < length; z++) {
@@ -490,10 +492,10 @@ namespace euler::pattern_mining {
                  // std::cerr << "qp_idx flushed" << std::endl;
                   // qp_idx[tid][level].clear();
                    //}
-                qp_idx[tid][level][key] = qp_count[tid][level-1].size() / 2;
-                value[0] = qp_count[tid][level-1].size() / 2;
-                qp_count[tid][level-1].push_back(key[0]);
-                qp_count[tid][level-1].push_back(key[1]);
+                qp_idx[tid][level][key] = qp_count[tid][level - 1].size() / 2;
+                value[0] = qp_count[tid][level - 1].size() / 2;
+                qp_count[tid][level - 1].push_back(key[0]);
+                qp_count[tid][level - 1].push_back(key[1]);
               }
               else {
                 value[0] = itt->second;
@@ -513,7 +515,7 @@ namespace euler::pattern_mining {
               }
             }
             else {
-              std::string t = for_loop2_end<mni, value.size()>(value, ptt, res, qp2cp, 
+              std::string t = for_loop2_end<mni, value.size()>(value, ptt, res, qp2cp,
                 store, mni_threshold);
               if constexpr (est) {
                 if (tp_estimate.find(t) == tp_estimate.end()) tp_estimate[t] = 0;
@@ -544,7 +546,7 @@ namespace euler::pattern_mining {
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<int>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
-    std::vector<double> sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, size_t mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::shared_ptr<std::vector<double>>> &sampling_weights, bool adaptive_sampling) {
+    std::vector<double> sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, size_t mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::shared_ptr<std::vector<double>>>& sampling_weights, bool adaptive_sampling) {
     if (level < H.size()) {
       for (int i = 0; i < H[level].size(); i++) {
         iterates.push_back(i);
@@ -608,10 +610,13 @@ namespace euler::pattern_mining {
             size_t length1 = it1.buffer_size / ncols1;
             len1 += length1;
 
+
             double tot_weight1 = 0;
-            for (size_t z = 0; z < length1; z++) {
-              int type1 = it1.buffer[z * ncols1];
-              tot_weight1 += (*sampling_weights[0])[type1];
+            if (adaptive_sampling) {
+              for (size_t z = 0; z < length1; z++) {
+                int type1 = it1.buffer[z * ncols1];
+                tot_weight1 += (*sampling_weights[0])[type1];
+              }
             }
 
 
@@ -652,9 +657,11 @@ namespace euler::pattern_mining {
                 len2 += length2;
 
                 double tot_weight2 = 0;
-                for (size_t z1 = 0; z1 < length2; z1++) {
-                  int type2 = it2.buffer[z1 * ncols2];
-                  tot_weight2 += (*sampling_weights[1])[type2];
+                if (adaptive_sampling) {
+                  for (size_t z1 = 0; z1 < length2; z1++) {
+                    int type2 = it2.buffer[z1 * ncols2];
+                    tot_weight2 += (*sampling_weights[1])[type2];
+                  }
                 }
 
                 for (size_t z1 = 0; z1 < length2; z1++) {
@@ -796,10 +803,10 @@ namespace euler::pattern_mining {
               }
             }
           }
-        }
       }
     }
   }
+}
 
   template<int...>
   struct sum;
@@ -822,8 +829,8 @@ namespace euler::pattern_mining {
   void update_sampling_weights(const std::vector<std::vector<std::vector<int>>>& frequent_qp_paths, std::vector<std::shared_ptr<std::vector<double>>>& sw);
 
   template <bool has_labels, bool edge_induced, bool mni, bool est, int K, size_t ncols1, size_t ncols2, size_t... ncols>
-  std::tuple<SGList, std::map<std::string, double>> join(const graph::Graph& g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, const std::vector<SGList>& sgls, bool store, bool adaptive_sampling, SamplingMethod sm,
-    std::vector<double> sampling_param, size_t mni_threshold = 0, const std::vector<std::shared_ptr<std::vector<double>>> &sampling_weights = dummy2, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = dummy1) {
+  std::tuple<SGList, std::map<std::string, double>> join(const graph::Graph& g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, const std::vector<SGList>& sgls, bool store, SamplingMethod sm,
+    std::vector<double> sampling_param, bool adaptive_sampling = false, size_t mni_threshold = 0, const std::vector<std::shared_ptr<std::vector<double>>>& sampling_weights = dummy2, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = dummy1) {
     assert((!mni && mni_threshold == 0) || (mni && mni_threshold > 0));
     assert(sm != none || adaptive_sampling == false);
     assert(adaptive_sampling == false || sampling_weights.size() > 0);
@@ -849,7 +856,7 @@ namespace euler::pattern_mining {
 
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>> qp2cp(_Nthreads);
     std::vector<std::vector<std::vector<int>>> qp_count(_Nthreads);
-    for (auto& q : qp_count) q.resize(sgls.size()-1);
+    for (auto& q : qp_count) q.resize(sgls.size() - 1);
     std::vector<std::vector<std::map<key_type, int>>> qp_idx(_Nthreads);
     for (auto& q : qp_idx) q.resize(sgls.size());
 

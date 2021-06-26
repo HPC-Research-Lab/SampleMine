@@ -43,11 +43,11 @@ namespace euler::pattern_mining {
 
   struct cmpByPattern {
     bool operator()(const std::shared_ptr<Pattern> a, const std::shared_ptr<Pattern> b) const {
-        return a->to_string() < b->to_string();
-        //std::cout << a->to_string() << std::endl;
-        //std::cout << b->to_string() << std::endl;
+      return a->to_string() < b->to_string();
+      //std::cout << a->to_string() << std::endl;
+      //std::cout << b->to_string() << std::endl;
     }
-};
+  };
 
   bool nested_for_loop(
     const graph::Graph& g, const std::set<std::pair<int, int>>& L,
@@ -56,12 +56,12 @@ namespace euler::pattern_mining {
     std::vector<std::vector<std::vector<int>>>& vertex_set,
     const std::vector<int>& start_set, std::atomic<size_t>& count,
     const std::shared_ptr<Pattern> pat, const std::vector<int>& node_order,
-    std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns,
+    std::map<std::shared_ptr<Pattern>, std::tuple<size_t, std::string, std::vector<std::vector<unsigned int>>, std::vector<unsigned int>>, cmpByPattern>& actual_patterns,
     std::string& key, bool store_data, bool has_label,
     std::vector<std::vector<std::pair<bool, std::vector<int>>>>& z,
     bool edge_induced, std::vector<size_t>& count_per_vertex, double sampling_threshold, size_t mni) {
     if (level == 0) {
-      #pragma omp parallel for num_threads(_Nthreads)
+#pragma omp parallel for num_threads(_Nthreads)
       for (int i = 0; i < start_set.size(); i++) {
         int tid = omp_get_thread_num();
         v[tid][level + 1] = start_set[i];
@@ -648,13 +648,20 @@ namespace euler::pattern_mining {
 
 #pragma omp critical
             {
-              if (actual_patterns.find(ptt) == actual_patterns.end()) {
-                actual_patterns[ptt] = actual_patterns.size();
-              }
-              if (store_data) {
+              auto it_pat = actual_patterns.find(ptt);
+              if (it_pat == actual_patterns.end()) {
                 auto cp = ptt->canonical_form();
-                v[tid][0] = actual_patterns[ptt];
-                data->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
+                actual_patterns[ptt] = std::make_tuple(actual_patterns.size(), std::get<0>(cp), std::get<1>(cp), std::get<2>(cp));
+                if (store_data) {
+                  v[tid][0] = actual_patterns.size() - 1;
+                  data->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
+                }
+              }
+              else {
+                if (store_data) {
+                  v[tid][0] = std::get<0>(it_pat->second);
+                  data->merge(std::get<1>(it_pat->second), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<2>(it_pat->second), std::get<3>(it_pat->second));
+                }
               }
             }
           }
@@ -716,7 +723,7 @@ namespace euler::pattern_mining {
 
     size_t pi = 0;
 
-    std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern> actual_patterns;
+    std::map<std::shared_ptr<Pattern>, std::tuple<size_t, std::string, std::vector<std::vector<unsigned int>>, std::vector<unsigned int>>, cmpByPattern> actual_patterns;
 
     for (auto& pat : patterns) {
 
@@ -823,7 +830,7 @@ namespace euler::pattern_mining {
     else {
       PatList labeled_patterns(actual_patterns.size());
       for (auto& [key, value] : actual_patterns) {
-        labeled_patterns[value] = key;
+        labeled_patterns[std::get<0>(value)] = key;
       }
       return SGList(data, labeled_patterns);
     }
