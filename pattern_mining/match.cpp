@@ -41,13 +41,7 @@ namespace euler::pattern_mining {
   }
 
 
-  struct cmpByPattern {
-    bool operator()(const std::shared_ptr<Pattern> a, const std::shared_ptr<Pattern> b) const {
-      return a->to_string() < b->to_string();
-      //std::cout << a->to_string() << std::endl;
-      //std::cout << b->to_string() << std::endl;
-    }
-  };
+
 
   bool nested_for_loop(
     const graph::Graph& g, const std::set<std::pair<int, int>>& L,

@@ -23,6 +23,8 @@
 #include "util.h"
 
 namespace euler::pattern_mining {
+
+
   struct Pattern {
     size_t nn;
     size_t ne;
@@ -294,6 +296,14 @@ namespace euler::pattern_mining {
       assert(ec == ne);
       res.pop_back();
       return res;
+    }
+  };
+
+  struct cmpByPattern {
+    bool operator()(const std::shared_ptr<Pattern> a, const std::shared_ptr<Pattern> b) const {
+      return a->to_string() < b->to_string();
+      //std::cout << a->to_string() << std::endl;
+      //std::cout << b->to_string() << std::endl;
     }
   };
 

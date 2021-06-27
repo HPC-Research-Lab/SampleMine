@@ -9,7 +9,7 @@
             "type": "cppdbg",
             "request": "launch",
             //"program": "${workspaceFolder}/pattern_mining/match_test.exe",
-            "program": "${workspaceFolder}/pattern_mining/fsm5_two_vertex.exe",
+            "program": "${workspaceFolder}/pattern_mining/fsm5.exe",
             //"args": ["${workspaceFolder}/pattern_mining/datasets/g1.lg"],
             "args": ["/data/not_backed_up/shared/gpm_data/citeseer.lg", "0.001", "1", "1"],
             //"args": ["${workspaceFolder}/pattern_mining/datasets/g1.lg"],

@@ -15,13 +15,13 @@ namespace euler::pattern_mining {
 
   struct SGList {
     std::shared_ptr<db::MyKV<std::string>> sgl = nullptr;
-    PatList unlabeled_patterns;
+    PatList patterns;
 
     SGList() {}
     SGList(const SGList& t)
-      : sgl(t.sgl), unlabeled_patterns(t.unlabeled_patterns) {}
+      : sgl(t.sgl), patterns(t.patterns) {}
     SGList(std::shared_ptr<db::MyKV<std::string>> sl, const PatList& up)
-      : sgl(move(sl)), unlabeled_patterns(up) {}
+      : sgl(move(sl)), patterns(up) {}
 
     bool operator<(const SGList& sglist) const {
       return sgl < sglist.sgl;

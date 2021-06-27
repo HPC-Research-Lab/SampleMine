@@ -54,7 +54,7 @@ namespace euler::db {
       for (auto& s : qp_set) {
         std::vector<std::vector<int>> res(s.size());
         int t = 0;
-        for (auto ss: s) {
+        for (auto ss : s) {
           int cur = ss;
           for (int i = qp_count.size() - 1; i > 0; i--) {
             int left = qp_count[i][2 * cur];
@@ -80,6 +80,28 @@ namespace euler::db {
             buf[buf.size() - 1].push_back(b);
           }
           count.push_back(other.count[value]);
+          file_exist.push_back(other.file_exist[value]);
+          if (other.file_exist[value]) {
+            std::string old_name = other.DBPath + "/" + std::to_string(value) + ".dat";
+            std::string new_name = DBPath + "/" + std::to_string(buf.size() - 1) + ".dat";
+            int wid = open(new_name.c_str(), O_CREAT | O_WRONLY, (mode_t)0600);
+            int rid = open(old_name.c_str(), O_RDONLY);
+            if (wid == -1) {
+              perror("append file wrong");
+              exit(-1);
+            }
+            if (rid != -1) {
+              char buf[1024 * 1024];
+              while (true) {
+                size_t rsize = read(rid, buf, 1024 * 1024);
+                if (rsize > 0) {
+                  write(wid, buf, rsize);
+                }
+                else break;
+              }
+            }
+            close(wid);
+          }
           keys[key] = nfiles;
           nfiles++;
 
@@ -100,6 +122,54 @@ namespace euler::db {
             }
           }
           count[fid] += other.count[value];
+          if (!file_exist[fid] && other.file_exist[value]) {
+            std::string old_name = other.DBPath + "/" + std::to_string(value) + ".dat";
+            std::string new_name = DBPath + "/" + std::to_string(fid) + ".dat";
+            int wid = open(new_name.c_str(), O_CREAT | O_WRONLY, (mode_t)0600);
+            int rid = open(old_name.c_str(), O_RDONLY);
+            if (wid == -1) {
+              perror("append file wrong");
+              exit(-1);
+            }
+            if (rid != -1) {
+              char buf[1024 * 1024];
+              while (true) {
+                size_t rsize = read(rid, buf, 1024 * 1024);
+                if (rsize > 0) {
+                  write(wid, buf, rsize);
+                }
+                else break;
+              }
+            }
+            close(wid);
+          }
+          else if (file_exist[fid] && other.file_exist[value]) {
+            std::string old_name = other.DBPath + "/" + std::to_string(value) + ".dat";
+            std::string new_name = DBPath + "/" + std::to_string(fid) + ".dat";
+
+            int wid = open(new_name.c_str(), O_WRONLY | O_APPEND);
+            int rid = open(old_name.c_str(), O_RDONLY);
+
+            if (wid == -1) {
+              perror("append file wrong");
+              exit(-1);
+            }
+
+            if (rid != -1) {
+              char buf[1024 * 1024];
+              while (true) {
+                size_t rsize = read(rid, buf, 1024 * 1024);
+                if (rsize > 0) {
+                  write(wid, buf, rsize);
+                }
+                else break;
+              }
+            }
+            close(wid);
+          }
+
+          file_exist[fid] |= other.file_exist[value];
+
           if (mni) {
             mni_met[fid] = (mni_met[fid] || other.mni_met[value]);
             if (!mni_met[fid]) {
@@ -161,7 +231,7 @@ namespace euler::db {
               // file exists
               int fd = open(fname.c_str(), O_RDONLY, (mode_t)0600);
               if (fd == -1) {
-                perror("Error opening file");
+                perror("Error opening file 4");
                 exit(EXIT_FAILURE);
               }
               size_t read_size = MAX_BUF_SIZE > (mybuf.total_length - global_offset) ? (mybuf.total_length - global_offset) : MAX_BUF_SIZE;
@@ -197,7 +267,7 @@ namespace euler::db {
             // TODO: some bug here
             int fd = open(fname.c_str(), O_RDONLY, (mode_t)0600);
             if (fd == -1) {
-              perror("Error opening file");
+              perror("Error opening file 1");
               exit(EXIT_FAILURE);
             }
             size_t read_size = MAX_BUF_SIZE > (mybuf.total_length - global_offset) ? (mybuf.total_length - global_offset) : MAX_BUF_SIZE;
@@ -248,7 +318,7 @@ namespace euler::db {
 
           int fd = open(fname.c_str(), O_RDONLY, (mode_t)0600);
           if (fd == -1) {
-            perror("Error opening file");
+            perror("Error opening file 2");
             exit(EXIT_FAILURE);
           }
           it.local_offset = it.global_offset = 0;
@@ -284,7 +354,7 @@ namespace euler::db {
             std::string fname = db->DBPath + "/" + std::to_string(file_idx) + ".dat";
             int fd = open(fname.c_str(), O_RDONLY, (mode_t)0600);
             if (fd == -1) {
-              perror("Error opening file");
+              perror("Error opening file 3");
               exit(EXIT_FAILURE);
             }
             off_t fsize = lseek(fd, (size_t)0, SEEK_END);
