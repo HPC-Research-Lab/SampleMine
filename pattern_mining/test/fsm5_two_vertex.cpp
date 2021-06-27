@@ -31,11 +31,6 @@ int main(int argc, char* argv[]) {
 
   int sampling_rounds = atoi(argv[4]);
 
-  int adaptive = atoi(argv[5]);
-  bool adaptive_sampling = adaptive > 0? true: false;
-
-  std::cout << "adaptive sampling: " << adaptive_sampling << std::endl;
-
   SamplingMethod sm;
 
   if (st > 0) {
@@ -94,13 +89,10 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < sampling_rounds; i++) {
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, sm, { st, st }, adaptive_sampling, sup, sw);
+    auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, sm, { st, st }, sw, sup);
     t.stop();
 
     filter(d_res, sup);
-
-    if (adaptive_sampling)
-      update_sampling_weights(d_res.sgl->qp_path, sw);
 
     if (tot_res.sgl == nullptr) tot_res = d_res;
     else

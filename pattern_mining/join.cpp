@@ -484,21 +484,27 @@ namespace euler::pattern_mining {
   }
   */
 
-  std::tuple<vector<vector<shared_ptr<db::MyKV<int>>>>, std::vector<std::shared_ptr<std::vector<double>>>> build_tables(const vector<SGList>& sgls) {
+  std::tuple<vector<vector<shared_ptr<db::MyKV<int>>>>, std::vector<std::vector<std::map<int, map<int, double>>>>> build_tables(const vector<SGList>& sgls) {
     vector<vector<shared_ptr<db::MyKV<int>>>> H;
+    std::vector<std::vector<std::map<int, std::map<int, double>>>> subgraph_hist;
+
     int res_size = 2;
-    map<SGList, vector<shared_ptr<db::MyKV<int>>>> processed;
+    map<SGList, std::pair<vector<shared_ptr<db::MyKV<int>>>, std::vector<std::map<int, std::map<int, double>>>>> processed;
     for (auto& sgl : sgls) {
       int n = sgl.sgl->ncols - 1;
       res_size += n - 1;
       auto it = processed.find(sgl);
       if (it != processed.end()) {
-        H.push_back(it->second);
+        H.push_back(it->second.first);
+        subgraph_hist.push_back(it->second.second);
       }
       else {
         vector<shared_ptr<db::MyKV<int>>> ht;
+        std::vector<std::map<int, std::map<int, double>>> hist;
         for (int i = 0; i < n; i++) {
           ht.push_back(make_shared<db::MyKV<int>>(sgl.sgl->ncols));
+          std::map<int, std::map<int, double>> his;
+
           for (auto kv1 : sgl.sgl->keys) {
             auto buf = sgl.sgl->getbuf(kv1.second, sgl.sgl->ncols);
             auto it_buf = buf.begin();
@@ -507,30 +513,24 @@ namespace euler::pattern_mining {
                 const int* it_d = it_buf.buffer + z * sgl.sgl->ncols;
                 int kk = it_d[i + 1];
                 ht.back()->merge(kk, it_d, sgl.sgl->ncols * sizeof(int));
+                if (his.find(kk) == his.end()) his[kk] = std::map<int, double>();
+                int type = it_d[0];
+                if (his[kk].find(type) == his[kk].end()) his[kk][type] = 0;
+                his[kk][type]++;
               }
               if (!it_buf.has_next) break;
               it_buf.next();
             }
           }
+          hist.push_back(his);
         }
+        subgraph_hist.push_back(hist);
         H.push_back(ht);
-        processed[sgl] = ht;
+        processed[sgl] = std::make_pair(ht, hist);
       }
     }
-    std::vector<std::shared_ptr<std::vector<double>>> sampling_weights;
-    std::map<SGList, std::shared_ptr<std::vector<double>>> processed2;
-    for (auto& sgl : sgls) {
-      auto it = processed2.find(sgl);
-      if (it != processed2.end()) {
-        sampling_weights.push_back(it->second);
-      }
-      else {
-        auto weights = std::make_shared<std::vector<double>>();
-        weights->resize(sgl.unlabeled_patterns.size(), 1);
-        sampling_weights.push_back(weights);
-      }
-    }
-    return { H, sampling_weights };
+
+    return { H, subgraph_hist };
   }
 
   void update_sampling_weights(const std::vector<std::vector<std::vector<int>>>& frequent_qp_paths, std::vector<std::shared_ptr<std::vector<double>>>& sw) {
