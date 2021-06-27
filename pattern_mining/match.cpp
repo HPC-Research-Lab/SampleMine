@@ -701,7 +701,7 @@ namespace euler::pattern_mining {
 
 
 
-  SGList match(const graph::Graph& g, const PatList& patterns, bool store_data, bool edge_induced, bool has_label, size_t mni, double sampling_threshold) {
+  SGList match(const graph::Graph& g, const PatList& patterns, bool store_data, bool edge_induced, bool has_label, double mni, double sampling_threshold) {
     // if mni, it must has_label
     assert(mni == 0 || has_label);
 

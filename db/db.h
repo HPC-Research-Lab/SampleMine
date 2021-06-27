@@ -305,7 +305,7 @@ namespace euler::db {
     void put(const void* a, size_t len);
 
     void merge(const key_type& k, const void* a, size_t len,
-      bool store_value = true, size_t mni = 0, const std::vector<std::vector<unsigned>>& orbits = dummy1, const std::vector<unsigned>& perm = dummy2);
+      bool store_value = true, double mni = -1, const std::vector<std::vector<unsigned>>& orbits = dummy1, const std::vector<unsigned>& perm = dummy2);
 
     MyBuf getbuf(size_t file_idx, size_t cs);
 

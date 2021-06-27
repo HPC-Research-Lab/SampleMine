@@ -46,8 +46,20 @@ int main(int argc, char* argv[]) {
   }
 
 
+  if (st > 0) {
+    sm = clustered;
+  }
+  else if (st < 0) {
+    sm = stratified;
+    st = -st;
+  }
+  else if (st == 0){
+    sm = none;
+  }
 
-  size_t sup = (size_t)round(thh * g.num_nodes());
+  cout << "sampling method: " << sm << endl;
+
+  double sup = (size_t)round(thh * g.num_nodes());
 
   cout << "support threshold: " << sup << endl;
 

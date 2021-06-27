@@ -438,11 +438,15 @@ namespace euler::pattern_mining {
           // cout << z << " " << z1 << endl;
           int type2 = it1.buffer[z * ncols];
 
-          if (sm == stratified && random_number() >= 1.0 / sampling_param[level])
+          //std::cout << (length * (*sampling_weights[level])[type2] / (tot_weight * sampling_param[level])) << std::endl;
+
+          if (sm == stratified && !adaptive_sampling && random_number() >= 1.0 / sampling_param[level])
             continue;
           else if (sm == clustered && !adaptive_sampling && random_number() >= sampling_param[level] / length)
             continue;
           else if (sm == clustered && adaptive_sampling && random_number() >= sampling_param[level] * (*sampling_weights[level])[type2] / tot_weight)
+            continue;
+          else if (sm == stratified && adaptive_sampling && random_number() >= (length * (*sampling_weights[level])[type2] / (tot_weight * sampling_param[level])))
             continue;
           lena++;
 
@@ -625,12 +629,15 @@ namespace euler::pattern_mining {
               int type1 = it1.buffer[z * ncols1];
               const int* it_d1 = it1.buffer + z * ncols1;
 
-              if (sm == stratified && random_number() >= 1.0 / sampling_param[0])
+
+              if (sm == stratified && !adaptive_sampling && random_number() >= 1.0 / sampling_param[0])
                 continue;
               else if (sm == clustered && !adaptive_sampling && random_number() >= (sampling_param[0] / length1))
                 continue;
               else if (sm == clustered && adaptive_sampling && random_number() >= (sampling_param[0] * (*sampling_weights[0])[type1] / tot_weight1))
                 continue;
+              else if (sm == stratified && adaptive_sampling && random_number() >= (length1 * (*sampling_weights[0])[type1] / (tot_weight1 * sampling_param[level])))
+              continue;
 
               lena1++;
 
@@ -667,11 +674,15 @@ namespace euler::pattern_mining {
                 for (size_t z1 = 0; z1 < length2; z1++) {
                   int type2 = it2.buffer[z1 * ncols2];
 
-                  if (sm == stratified && random_number() >= 1.0 / sampling_param[1])
+                 // std::cout << (length2 * (*sampling_weights[1])[type2] / (sampling_param[1] * tot_weight2)) << std::endl;
+
+                  if (sm == stratified && !adaptive_sampling && random_number() >= 1.0 / sampling_param[1])
                     continue;
                   else if (sm == clustered && !adaptive_sampling && random_number() >= (sampling_param[1] / length2))
                     continue;
                   else if (sm == clustered && adaptive_sampling && random_number() >= (sampling_param[1] * (*sampling_weights[1])[type2] / tot_weight2))
+                    continue;
+                  else if (sm == stratified && adaptive_sampling && random_number() >= (length2 * (*sampling_weights[1])[type2] / (sampling_param[1] * tot_weight2))) 
                     continue;
 
                   lena2++;
@@ -803,10 +814,10 @@ namespace euler::pattern_mining {
               }
             }
           }
+        }
       }
     }
   }
-}
 
   template<int...>
   struct sum;
@@ -831,7 +842,7 @@ namespace euler::pattern_mining {
   template <bool has_labels, bool edge_induced, bool mni, bool est, int K, size_t ncols1, size_t ncols2, size_t... ncols>
   std::tuple<SGList, std::map<std::string, double>> join(const graph::Graph& g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, const std::vector<SGList>& sgls, bool store, SamplingMethod sm,
     std::vector<double> sampling_param, bool adaptive_sampling = false, size_t mni_threshold = 0, const std::vector<std::shared_ptr<std::vector<double>>>& sampling_weights = dummy2, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = dummy1) {
-    assert((!mni && mni_threshold == 0) || (mni && mni_threshold > 0));
+    assert((!mni && mni_threshold == 0) || (mni && mni_threshold >= 0));
     assert(sm != none || adaptive_sampling == false);
     assert(adaptive_sampling == false || sampling_weights.size() > 0);
     int res_size = 2;

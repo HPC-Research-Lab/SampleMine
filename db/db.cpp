@@ -117,7 +117,7 @@ namespace euler::db {
 
   template <class key_type, class value_type>
   void MyKV<key_type, value_type>::merge(const key_type& k, const void* a, size_t len,
-    bool store_value, size_t mni, const std::vector<std::vector<unsigned>>& orbits, const std::vector<unsigned>& perm) {
+    bool store_value, double mni, const std::vector<std::vector<unsigned>>& orbits, const std::vector<unsigned>& perm) {
     size_t file_id;
     bool first = false;
     //std::vector<int> rperm(len / sizeof(value_type) - 1);
@@ -132,7 +132,7 @@ namespace euler::db {
       keys[k] = file_id;
       file_exist.push_back(0);
       buf.emplace_back((int*)a, (int*)a + len / sizeof(value_type));
-      if (mni > 0) {
+      if (mni >= 0) {
 
         /*if (perm.size() > 0) {
           for (int i = 0; i < rperm.size(); i++) {
@@ -186,7 +186,7 @@ namespace euler::db {
 
 
     if (!first) {
-      if (mni > 0) {
+      if (mni >= 0) {
         assert(ncols == len / sizeof(value_type));
         qp_set[file_id].insert(*((int*)a));
 

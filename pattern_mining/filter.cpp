@@ -15,7 +15,7 @@ namespace euler::pattern_mining {
 
   const static int _Nthreads = atoi(getenv("OMP_NUM_THREADS"));
 
-  void filter(SGList& d, int threshold) {
+  void filter(SGList& d, double threshold) {
     if (!d.sgl->distinct_vertices.empty()) {
       auto it = d.sgl->keys.begin();
       while (it != d.sgl->keys.end()) {
@@ -26,7 +26,7 @@ namespace euler::pattern_mining {
         }
         auto& distincts = d.sgl->distinct_vertices[file_id];
 
-        int mni = INT_MAX;
+        double mni = (double)INT_MAX;
         for (int j = 0; j < distincts.size(); j++) {
           auto& t = distincts[j];
           std::string mni_fname = d.sgl->DBPath + "/mni_" + std::to_string(file_id) + "_" + std::to_string(j) + ".dat";

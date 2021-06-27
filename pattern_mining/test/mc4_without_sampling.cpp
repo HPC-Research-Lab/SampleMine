@@ -59,6 +59,5 @@ int main(int argc, char* argv[]) {
   } else {
     cout << "num of patterns: 0" << endl;
   }
-
   return 0;
 }

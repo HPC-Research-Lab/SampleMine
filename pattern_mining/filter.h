@@ -7,6 +7,6 @@
 
 namespace euler::pattern_mining {
 
-void filter(SGList &d, int threshold);
+void filter(SGList &d, double threshold);
 
 }
