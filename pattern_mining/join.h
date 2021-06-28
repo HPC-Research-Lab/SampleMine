@@ -422,7 +422,7 @@ namespace euler::pattern_mining {
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<int>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
-    std::vector<double> sampling_param,
+    std::vector<std::vector<double>> sampling_param,
     bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns) {
     int tid = omp_get_thread_num();
 
@@ -472,9 +472,7 @@ namespace euler::pattern_mining {
 
           //std::cout << (length * (*sampling_weights[level])[type2] / (tot_weight * sampling_param[level])) << std::endl;
 
-          if (sm == stratified && random_number() >= 1.0 / sampling_param[level])
-            continue;
-          else if (sm == clustered && random_number() >= sampling_param[level] / subgraph_hist[level][j].at(s[i]).at(type2))
+         if (sm == clustered && random_number() >= sampling_param[level][j] / subgraph_hist[level][j].at(s[i]).at(type2))
             continue;
           lena++;
 
@@ -571,7 +569,7 @@ namespace euler::pattern_mining {
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<int>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
-    std::vector<double> sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns) {
+    std::vector<std::vector<double>> sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns) {
     if (level < H.size()) {
       for (int i = 0; i < H[level].size(); i++) {
         iterates.push_back(i);
@@ -641,9 +639,7 @@ namespace euler::pattern_mining {
               const int* it_d1 = it1.buffer + z * ncols1;
 
 
-              if (sm == stratified && random_number() >= 1.0 / sampling_param[0])
-                continue;
-              else if (sm == clustered && random_number() >= (sampling_param[0] / subgraph_hist[0][i].at(bi->first).at(type1)))
+              if (sm == clustered && random_number() >= (sampling_param[0][i] / subgraph_hist[0][i].at(bi->first).at(type1)))
                 continue;
 
 
@@ -676,9 +672,7 @@ namespace euler::pattern_mining {
 
                   // std::cout << (length2 * (*sampling_weights[1])[type2] / (sampling_param[1] * tot_weight2)) << std::endl;
 
-                  if (sm == stratified && random_number() >= 1.0 / sampling_param[1])
-                    continue;
-                  else if (sm == clustered && random_number() >= (sampling_param[1] / subgraph_hist[1][j].at(it_tab2->first).at(type2)))
+                 if (sm == clustered && random_number() >= (sampling_param[1][j] / subgraph_hist[1][j].at(it_tab2->first).at(type2)))
                     continue;
 
                   lena2++;
@@ -877,8 +871,21 @@ namespace euler::pattern_mining {
 
     std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern> actual_patterns;
 
+    std::vector<std::vector<double>> scaled_sampling_param;
+
+    for (int i=0; i<subgraph_hist.size(); i++) {
+      scaled_sampling_param.push_back(std::vector<double>());
+      for (int j=0; j<subgraph_hist[i].size(); j++) {
+        size_t tot_types = 0;
+        for (auto &m: subgraph_hist[i][j]) {
+          tot_types += m.second.size();
+        }
+        scaled_sampling_param[i].push_back(sampling_param[i] / tot_types);
+      }
+    }
+
     for_loop1<has_labels, edge_induced, mni, est, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, 0, res, qp2cp, qp_count, qp_idx, g,
-      sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns);
+      sm, scaled_sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns);
 
     //std::cout << "exploration space size: " << exploration_space_size << std::endl;
 
@@ -898,6 +905,7 @@ namespace euler::pattern_mining {
         res[i].get_quick_pattern_path(qp_count[i]);
       }
     }*/
+
     for (int i = 1; i < res.size(); i++) {
       res[0].combine(res[i], mni, store);
     }

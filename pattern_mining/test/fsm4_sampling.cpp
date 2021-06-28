@@ -25,6 +25,7 @@ int main(int argc, char* argv[]) {
 
   graph::Graph_CSR_CPU g;
 
+
   g.read_graph(argv[1]);
 
   auto pat2 = pattern_mining::PatListing::make_pattern(
@@ -33,6 +34,7 @@ int main(int argc, char* argv[]) {
     pattern_mining::PatListing().pattern_listing(3));
 
   double thh = atof(argv[2]);
+
   double st = atof(argv[3]);
 
   SamplingMethod sm;
@@ -55,8 +57,12 @@ int main(int argc, char* argv[]) {
   cout << "start matchings pat2: " << endl;
   auto d2 = match(g, pat2, true, false, true, sup);
 
+
   filter(d2, sup);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
+
+
+
 
   cout << "start matchings pat3: " << endl;
   util::Timer match_time;
@@ -73,7 +79,13 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 frequent patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 };
+  //auto d5 = match(g, pat5, false, false, true, sup);
+  //  filter(d5, sup);
+  //cout << "num of size-5 frequent patterns: " << d5.sgl->size() << endl;
+
+
+
+  vector<SGList> sgls = { d3, d2 };
 
   cout << "building tables..." << endl;
   auto [H, subgraph_hist] = build_tables(sgls);
@@ -87,7 +99,7 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, false, true, false, 2, 4, 4>(g, H, sgls, false, sm, { st, st }, subgraph_hist, sup);
+    auto [d_res, ess] = join<true, false, true, false, 2, 4, 3>(g, H, sgls, false, sm, { st, st }, subgraph_hist, sup);
     t.stop();
 
     filter(d_res, sup);
@@ -108,6 +120,7 @@ int main(int argc, char* argv[]) {
     }
 
   }
+
 
   return 0;
 }

@@ -281,6 +281,15 @@ namespace euler::db {
   }
 
   template <class key_type, class value_type>
+  size_t MyKV<key_type, value_type>::num_subgraphs() {
+    size_t tot_num = 0;
+    for (auto &k: keys) {
+      tot_num += buf[k.second].size() / ncols;
+    }
+    return tot_num;
+  }
+
+  template <class key_type, class value_type>
   MyKV<key_type, value_type>::~MyKV() {
     system(("rm -rf " + DBPath).c_str());
   }
