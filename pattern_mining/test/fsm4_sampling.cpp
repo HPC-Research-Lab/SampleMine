@@ -62,8 +62,6 @@ int main(int argc, char* argv[]) {
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
 
 
-
-
   cout << "start matchings pat3: " << endl;
   util::Timer match_time;
   match_time.start();
@@ -96,7 +94,6 @@ int main(int argc, char* argv[]) {
 
 */
 
-
   vector<SGList> sgls = { d3, d2 };
 
   cout << "building tables..." << endl;
@@ -114,8 +111,8 @@ int main(int argc, char* argv[]) {
     auto [d_res, ess] = join<true, true, true, false, 2, 4, 3>(g, H, sgls, false, sm, { st, st }, subgraph_hist, sup);
     t.stop();
 
-    filter(d_res, sup);
-    //test_and_filter(g, d_res, sup);
+    //filter(d_res, sup);
+    test_and_filter(g, d_res, sup);
 
     if (tot_res.sgl == nullptr) tot_res = d_res;
     else

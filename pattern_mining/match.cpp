@@ -53,12 +53,14 @@ namespace euler::pattern_mining {
     std::map<std::shared_ptr<Pattern>, std::tuple<size_t, std::string, std::vector<std::vector<unsigned int>>, std::vector<unsigned int>>, cmpByPattern>& actual_patterns,
     std::string& key, bool store_data, bool has_label,
     std::vector<std::vector<std::pair<bool, std::vector<int>>>>& z,
-    bool edge_induced, std::vector<size_t>& count_per_vertex, double sampling_threshold, size_t mni) {
+    bool edge_induced, std::vector<size_t>& count_per_vertex, double sampling_threshold, size_t mni, bool testing, bool labeled) {
     if (level == 0) {
 #pragma omp parallel for num_threads(_Nthreads)
       for (int i = 0; i < start_set.size(); i++) {
         int tid = omp_get_thread_num();
         v[tid][level + 1] = start_set[i];
+
+        if (labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
 
         auto& vertex_set_next = vertex_set[tid][level + 1];
         vertex_set_next.clear();
@@ -80,7 +82,7 @@ namespace euler::pattern_mining {
             break;
           }
         }
-        if (pivot != -1) {
+        if (!testing && pivot != -1) {
           int pos = std::lower_bound(vertex_set_next.begin(),
             vertex_set_next.end(), v[tid][pivot]) -
             vertex_set_next.begin();
@@ -108,7 +110,7 @@ namespace euler::pattern_mining {
             }
             set_size = pos;
           }
-          else if (true || !edge_induced) {
+          else if (!testing) {
             int pi = 0, pj = 0, pos = 0, pos2 = 0;
             while (pi != set_size && pj != set_size_j) {
               if (vertex_set_next[pi] < vertex_set_vj[pj])
@@ -225,7 +227,7 @@ namespace euler::pattern_mining {
               }
               set_size_z = pos;
             }
-            else if (true || !edge_induced) {
+            else if (!testing) {
               int pi = 0, pj = 0, pos = 0, pos2 = 0;
               while (pi != set_size_z && pj != set_size_j) {
                 if (z_next[pi] < vertex_set_vj[pj])
@@ -264,7 +266,7 @@ namespace euler::pattern_mining {
         // std::cout << "vs: " << vertex_set[tid][level+1].size() << std::endl;
 
         nested_for_loop(g, L, data, level + 1, nn, v, vertex_set, start_set,
-          count, pat, node_order, actual_patterns, key, store_data, has_label, z, edge_induced, count_per_vertex, sampling_threshold, mni);
+          count, pat, node_order, actual_patterns, key, store_data, has_label, z, edge_induced, count_per_vertex, sampling_threshold, mni, testing, labeled);
       }
       return true;
     }
@@ -275,6 +277,9 @@ namespace euler::pattern_mining {
       }
       for (int i = 0; i < vertex_set[tid][level].size(); i++) {
         v[tid][level + 1] = vertex_set[tid][level][i];
+
+        if (labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
+
 
         auto& vertex_set_next = vertex_set[tid][level + 1];
         vertex_set_next.clear();
@@ -297,7 +302,7 @@ namespace euler::pattern_mining {
               break;
             }
           }
-          if (pivot != -1) {
+          if (!testing && pivot != -1) {
             int pos = std::lower_bound(vertex_set_next.begin(),
               vertex_set_next.end(), v[tid][pivot]) -
               vertex_set_next.begin();
@@ -325,7 +330,7 @@ namespace euler::pattern_mining {
               }
               set_size = pos;
             }
-            else if (true || !edge_induced) {
+            else if (!testing) {
               int pi = 0, pj = 0, pos = 0, pos2 = 0;
               while (pi != set_size && pj != set_size_j) {
                 if (vertex_set_next[pi] < vertex_set_vj[pj])
@@ -366,7 +371,7 @@ namespace euler::pattern_mining {
               break;
             }
           }
-          if (pivot != -1) {
+          if (!testing && pivot != -1) {
             int pos = std::lower_bound(vertex_set_next.begin(),
               vertex_set_next.end(), v[tid][pivot]) -
               vertex_set_next.begin();
@@ -393,7 +398,7 @@ namespace euler::pattern_mining {
             }
             set_size = pos;
           }
-          else if (true || !edge_induced) {
+          else if (!testing) {
             int pi = 0, pj = 0, pos = 0, pos2 = 0;
             while (pi != set_size && pj != set_size_j) {
               if (vertex_set_next[pi] < vertex_set_vj[pj])
@@ -510,7 +515,7 @@ namespace euler::pattern_mining {
               }
               set_size_z = pos;
             }
-            else if (true || !edge_induced) {
+            else if (!testing) {
               int pi = 0, pj = 0, pos = 0, pos2 = 0;
               while (pi != set_size_z && pj != set_size_j) {
                 if (z_next[pi] < vertex_set_vj[pj])
@@ -548,7 +553,7 @@ namespace euler::pattern_mining {
         //  print_vec(vertex_set_next);
 
         bool ret = nested_for_loop(g, L, data, level + 1, nn, v, vertex_set, start_set,
-          count, pat, node_order, actual_patterns, key, store_data, has_label, z, edge_induced, count_per_vertex, sampling_threshold, mni);
+          count, pat, node_order, actual_patterns, key, store_data, has_label, z, edge_induced, count_per_vertex, sampling_threshold, mni, testing, labeled);
 
         if (!ret) return false;
       }
@@ -561,6 +566,9 @@ namespace euler::pattern_mining {
       }
       for (int i = 0; i < vertex_set[tid][level].size(); i++) {
         v[tid][level + 1] = vertex_set[tid][level][i];
+
+        if (labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
+
         if (level > 0) {
           bool to_break = false;
 
@@ -572,7 +580,7 @@ namespace euler::pattern_mining {
               break;
             }
           }
-          if (to_break)
+          if (!testing && to_break)
             break;
         }
         // std::cout << tid << " " << level << std::endl;
@@ -580,6 +588,7 @@ namespace euler::pattern_mining {
 
         std::vector<std::shared_ptr<Pattern>> possible_patterns;
         //util::print_vec(v[tid]);
+
 
         if (edge_induced) {
           auto patt = Pattern::get_pattern(g, v[tid], nn + 1, false);
@@ -625,8 +634,8 @@ namespace euler::pattern_mining {
 
           if (has_label) {
             auto ptt = std::make_shared<Pattern>(*ptr);
-            ptt->enable_label();
 
+            ptt->enable_label();
             for (int k = 1; k < nn + 1; k++) {
               int l = g.get_vertex_label(v[tid][k]);
               ptt->add_label(l);
@@ -646,10 +655,8 @@ namespace euler::pattern_mining {
               if (it_pat == actual_patterns.end()) {
                 auto cp = ptt->canonical_form();
                 actual_patterns[ptt] = std::make_tuple(actual_patterns.size(), std::get<0>(cp), std::get<1>(cp), std::get<2>(cp));
-                if (store_data) {
-                  v[tid][0] = actual_patterns.size() - 1;
-                  data->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
-                }
+                v[tid][0] = actual_patterns.size() - 1;
+                data->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
               }
               else {
                 if (store_data) {
@@ -695,9 +702,9 @@ namespace euler::pattern_mining {
 
 
 
-  SGList match(const graph::Graph& g, const PatList& patterns, bool store_data, bool edge_induced, bool has_label, double mni, double sampling_threshold) {
-    // if mni, it must has_label
-    assert(mni == 0 || has_label);
+  SGList match(const graph::Graph& g, const PatList& patterns, bool store_data, bool edge_induced, bool output_labeled, double mni, bool testing, bool pattern_labeled, double sampling_threshold) {
+    // if mni, the output subgraph has to be labeled
+    assert(mni == 0 || output_labeled);
 
     if (patterns.size() == 0)
       return SGList();
@@ -814,11 +821,13 @@ namespace euler::pattern_mining {
       std::vector<size_t> count_per_vertex(g.num_nodes(), 0);
 
       nested_for_loop(g, L, data, 0, pat->nn, vv, vertex_set, start_set, count,
-        pat, node_order, actual_patterns, key, store_data, has_label, z, edge_induced, count_per_vertex, sampling_threshold, mni);
-      std::cout << "count: " << count << std::endl;
+        pat, node_order, actual_patterns, key, store_data, output_labeled, z, edge_induced, count_per_vertex, sampling_threshold, mni, testing, pattern_labeled);
+
+      if (!testing)
+        std::cout << "count: " << count << std::endl;
     }
 
-    if (!has_label) {
+    if (!output_labeled) {
       return SGList(data, patterns);
     }
     else {

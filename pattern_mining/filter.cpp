@@ -104,8 +104,10 @@ namespace euler::pattern_mining {
         }
         if (mni < threshold) {
 
-          auto dd = match(g, { Pattern::get_pattern(g, d.sgl->buf[file_id], d.sgl->ncols) }, false, true, true, threshold);
-          cout << dd.sgl->keys.size() << endl;
+          auto ppt = Pattern::get_pattern(g, d.sgl->buf[file_id], d.sgl->ncols);
+
+          auto dd = match(g, { ppt }, false, false, true, threshold, true, true);
+          //cout << "num_keys: " << dd.sgl->keys.size() << endl;
           assert(dd.sgl->keys.size() == 1);
           auto it_dd = dd.sgl->keys.begin();
           if (dd.sgl->mni_met.size() > 0 && dd.sgl->mni_met[it_dd->second]) continue;

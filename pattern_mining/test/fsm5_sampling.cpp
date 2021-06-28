@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
   cout << "support threshold: " << sup << endl;
 
   cout << "start matchings pat2: " << endl;
-  auto d2 = match(g, pat2, true, true, true, sup);
+  auto d2 = match(g, pat2, true, true, true,  sup);
 
   filter(d2, sup);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
@@ -90,8 +90,9 @@ int main(int argc, char* argv[]) {
     auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, sm, { st, st }, subgraph_hist, sup);
     t.stop();
 
-    filter(d_res, sup);
-    //test_and_filter(g, d_res, sup);
+    std::cout << "testing ..." << std::endl;
+    //filter(d_res, sup);
+    test_and_filter(g, d_res, sup);
 
     if (tot_res.sgl == nullptr) tot_res = d_res;
     else
