@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 3, 4, 4, 3>(g, H, sgls, false, sm, { st, st }, sw, sup);
+    auto [d_res, ess] = join<true, true, true, false, 3, 4, 4, 3>(g, H, sgls, false, sm, { st, st, st}, sw, sup);
     t.stop();
 
     filter(d_res, sup);
