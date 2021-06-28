@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
   cout << "support threshold: " << sup << endl;
 
   cout << "start matchings pat2: " << endl;
-  auto d2 = match(g, pat2, true, false, true, sup);
+  auto d2 = match(g, pat2, true, true, true, sup);
 
   filter(d2, sup);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
   cout << "start matchings pat3: " << endl;
   util::Timer match_time;
   match_time.start();
-  auto d3 = match(g, pat3, true, false, true, sup);
+  auto d3 = match(g, pat3, true, true, true, sup);
   match_time.stop();
 
   cout << "match 3 time: " << match_time.get() << " sec" << endl;
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, false, true, false, 2, 4, 4>(g, H, sgls, false, sm, { st, st }, subgraph_hist, sup);
+    auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, sm, { st, st }, subgraph_hist, sup);
     t.stop();
 
     filter(d_res, sup);
