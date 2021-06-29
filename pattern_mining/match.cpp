@@ -51,16 +51,16 @@ namespace euler::pattern_mining {
     const std::vector<int>& start_set, std::atomic<size_t>& count,
     const std::shared_ptr<Pattern> pat, const std::vector<int>& node_order,
     std::map<std::shared_ptr<Pattern>, std::tuple<size_t, std::string, std::vector<std::vector<unsigned int>>, std::vector<unsigned int>>, cmpByPattern>& actual_patterns,
-    std::string& key, bool store_data, bool has_label,
+    std::string& key, bool store_data, bool output_labeled,
     std::vector<std::vector<std::pair<bool, std::vector<int>>>>& z,
-    bool edge_induced, std::vector<size_t>& count_per_vertex, double sampling_threshold, size_t mni, bool testing, bool labeled) {
+    bool edge_induced, std::vector<size_t>& count_per_vertex, double sampling_threshold, size_t mni, bool testing, bool pattern_labeled) {
     if (level == 0) {
 #pragma omp parallel for num_threads(_Nthreads)
       for (int i = 0; i < start_set.size(); i++) {
         int tid = omp_get_thread_num();
         v[tid][level + 1] = start_set[i];
 
-        if (labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
+        if (pattern_labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
 
         auto& vertex_set_next = vertex_set[tid][level + 1];
         vertex_set_next.clear();
@@ -266,7 +266,7 @@ namespace euler::pattern_mining {
         // std::cout << "vs: " << vertex_set[tid][level+1].size() << std::endl;
 
         nested_for_loop(g, L, data, level + 1, nn, v, vertex_set, start_set,
-          count, pat, node_order, actual_patterns, key, store_data, has_label, z, edge_induced, count_per_vertex, sampling_threshold, mni, testing, labeled);
+          count, pat, node_order, actual_patterns, key, store_data, output_labeled, z, edge_induced, count_per_vertex, sampling_threshold, mni, testing, pattern_labeled);
       }
       return true;
     }
@@ -278,7 +278,7 @@ namespace euler::pattern_mining {
       for (int i = 0; i < vertex_set[tid][level].size(); i++) {
         v[tid][level + 1] = vertex_set[tid][level][i];
 
-        if (labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
+        if (pattern_labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
 
 
         auto& vertex_set_next = vertex_set[tid][level + 1];
@@ -553,7 +553,7 @@ namespace euler::pattern_mining {
         //  print_vec(vertex_set_next);
 
         bool ret = nested_for_loop(g, L, data, level + 1, nn, v, vertex_set, start_set,
-          count, pat, node_order, actual_patterns, key, store_data, has_label, z, edge_induced, count_per_vertex, sampling_threshold, mni, testing, labeled);
+          count, pat, node_order, actual_patterns, key, store_data, output_labeled, z, edge_induced, count_per_vertex, sampling_threshold, mni, testing, pattern_labeled);
 
         if (!ret) return false;
       }
@@ -567,7 +567,7 @@ namespace euler::pattern_mining {
       for (int i = 0; i < vertex_set[tid][level].size(); i++) {
         v[tid][level + 1] = vertex_set[tid][level][i];
 
-        if (labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
+        if (pattern_labeled && g.get_vertex_label(v[tid][level + 1]) != pat->vertex_label[node_order[level]]) continue;
 
         if (level > 0) {
           bool to_break = false;
@@ -632,7 +632,7 @@ namespace euler::pattern_mining {
             return false;
           }
 
-          if (has_label) {
+          if (output_labeled) {
             auto ptt = std::make_shared<Pattern>(*ptr);
 
             ptt->enable_label();

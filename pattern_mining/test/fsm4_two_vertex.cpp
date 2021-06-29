@@ -11,12 +11,12 @@ using namespace euler::pattern_mining;
 typedef vector<pair<int, int>> pat_t;
 
 
-/* Example: ./fsm5_sampling.exe /data/not_backed_up/shared/gpm_data/citeseer.lg 0.001 1 10
+/* Example: ./fsm4_sampling.exe /data/not_backed_up/shared/gpm_data/citeseer.lg 0.001 0 1
 
 
  0.001 is the support threshold
- 1 is the samping threshold, set it to 1 or 2 for experiment
- 10 is the sampling rounds, let's use 10
+ 1 is the samping threshold, 0 means no sampling
+ 1 is the experiments rounds
 
 */
 
@@ -24,6 +24,7 @@ int main(int argc, char* argv[]) {
   // system("rm test_temp/*");
 
   graph::Graph_CSR_CPU g;
+
 
   g.read_graph(argv[1]);
 
@@ -33,6 +34,7 @@ int main(int argc, char* argv[]) {
     pattern_mining::PatListing().pattern_listing(3));
 
   double thh = atof(argv[2]);
+
   double st = atof(argv[3]);
 
   SamplingMethod sm;
@@ -46,8 +48,6 @@ int main(int argc, char* argv[]) {
 
   cout << "sampling method: " << sm << endl;
 
-  st *= g.num_nodes();
-
   int sampling_rounds = atoi(argv[4]);
 
   double sup = (size_t)round(thh * g.num_nodes());
@@ -55,10 +55,14 @@ int main(int argc, char* argv[]) {
   cout << "support threshold: " << sup << endl;
 
   cout << "start matchings pat2: " << endl;
-  auto d2 = match(g, pat2, true, true, true,  sup);
+  auto d2 = match(g, pat2, true, true, true, sup);
+
 
   filter(d2, sup);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
+
+
+
 
   cout << "start matchings pat3: " << endl;
   util::Timer match_time;
@@ -75,7 +79,29 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 frequent patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 };
+  double st_scaled = scale_sampling_param(d2, st);
+
+  cout << "scaled sampling param: " << st_scaled << endl;
+
+
+  //  auto pat4 = pattern_mining::PatListing::make_pattern(
+    //  pattern_mining::PatListing().pattern_listing(4));
+
+  /*
+    cout << "start matchings pat4: " << endl;
+    match_time.start();
+    auto d4 = match(g, pat4, true, true, true, sup);
+    match_time.stop();
+
+    cout << "match 4 time: " << match_time.get() << " sec" << endl;
+
+    filter(d4, sup);
+
+    cout << "num of size-4 frequent patterns: " << d4.sgl->size() << endl;
+
+  */
+
+  vector<SGList> sgls = { d3, d2 };
 
   cout << "building tables..." << endl;
   auto [H, subgraph_hist] = build_tables(sgls);
@@ -89,12 +115,10 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, sm, { st, st }, subgraph_hist, sup);
+    auto [d_res, ess] = join<true, false, true, false, 2, 4, 3>(g, H, sgls, false, sm, { st_scaled * st_scaled, st_scaled }, subgraph_hist, sup);
     t.stop();
 
-    std::cout << "testing ..." << std::endl;
     filter(d_res, sup);
-    //test_and_filter(g, d_res, sup);
 
     if (tot_res.sgl == nullptr) tot_res = d_res;
     else
@@ -111,6 +135,7 @@ int main(int argc, char* argv[]) {
     }
 
   }
+
 
   return 0;
 }
