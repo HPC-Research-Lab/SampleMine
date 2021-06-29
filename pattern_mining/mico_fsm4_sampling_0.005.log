@@ -1,0 +1,9 @@
+nohup: ignoring input
+Graph read complete. Number of vertex: 100000
+sampling method: 2
+support threshold: 500
+start matchings pat2: 
+db path: ./db/1278805954
+count: 1080156
+num of size-2 frequent patterns: 250
+start matchings pat3: 
