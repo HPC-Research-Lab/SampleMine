@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 frequent patterns: " << d3.sgl->size() << endl;
 
 
-  vector<SGList> sgls = { d2, d3 };
+  vector<SGList> sgls = { d3, d2 };
 
   cout << "building tables..." << endl;
   auto [H, sw] = build_tables(sgls);
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 2, 3, 4>(g, H, sgls, false, sm, { st, st }, sw, sup);
+    auto [d_res, ess] = join<true, true, true, false, 2, 4, 3>(g, H, sgls, false, sm, { st, st }, sw, sup);
     t.stop();
 
     filter(d_res, sup);
