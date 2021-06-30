@@ -7,3 +7,10 @@ db path: ./db/1278805954
 count: 1080156
 num of size-2 frequent patterns: 250
 start matchings pat3: 
+count: 53546459
+count: 50139840
+match 3 time: 4073.21 sec
+num of size-3 frequent patterns: 3400
+building tables...
+build table done
+Time: 42468.8 sec, Num patterns: 54164
