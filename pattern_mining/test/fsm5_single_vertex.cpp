@@ -10,6 +10,7 @@ using namespace euler::pattern_mining;
 
 typedef vector<pair<int, int>> pat_t;
 
+
 int main(int argc, char* argv[]) {
   // system("rm test_temp/*");
 
@@ -25,18 +26,20 @@ int main(int argc, char* argv[]) {
 
   double st = atof(argv[3]);
 
-  int sampling_rounds = atoi(argv[4]);
-
   SamplingMethod sm;
 
   if (st > 0) {
     sm = clustered;
   }
-  else if (st == 0){
+  else {
     sm = none;
   }
 
   cout << "sampling method: " << sm << endl;
+
+
+
+  int sampling_rounds = atoi(argv[4]);
 
   double sup = (size_t)round(thh * g.num_nodes());
 
@@ -49,19 +52,27 @@ int main(int argc, char* argv[]) {
   filter(d2, sup);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
 
+  double st_scaled = scale_sampling_param(d2, st);
+
+  cout << "scaled sampling param: " << st_scaled << endl;
+
+
+
   vector<SGList> sgls = { d2, d2, d2, d2 };
 
   cout << "building tables..." << endl;
-  auto [H, sw] = build_tables(sgls);
+  auto [H, subgraph_hist] = build_tables(sgls);
   cout << "build table done" << endl;
+
 
   double tot_time = 0;
   SGList tot_res;
 
   for (int i = 0; i < sampling_rounds; i++) {
+
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 4, 3, 3, 3, 3>(g, H, sgls, false, sm, { st, st , st, st}, sw, sup);
+    auto [d_res, ess] = join<true, true, true, false, 4, 3, 3, 3, 3>(g, H, sgls, false, sm, { st_scaled, st_scaled, st_scaled, st_scaled }, subgraph_hist, sup);
     t.stop();
 
     filter(d_res, sup);
