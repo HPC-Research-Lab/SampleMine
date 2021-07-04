@@ -39,10 +39,6 @@ int main(int argc, char* argv[]) {
 
   double thh = atof(argv[2]);
 
-  double st1 = atof(argv[3]);
-  double st2 = atof(argv[4]);
-
-  int sampling_rounds = atoi(argv[5]);
 
   double sup = (size_t)round(thh * g.num_nodes());
 
@@ -54,6 +50,30 @@ int main(int argc, char* argv[]) {
   filter(d2, sup);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
 
+  double st1 = atof(argv[3]);
+  double st2 = atof(argv[4]);
+
+  double scaled_st1 = scale_sampling_param(d2, st1);
+  double scaled_st2 = scale_sampling_param(d2, st2);
+
+  SamplingMethod sm1, sm2;
+
+  if (st1 > 0) {
+    sm1 = clustered;
+  }
+  else {
+    sm1 = none;
+  }
+
+  if (st2 > 0) {
+    sm2 = clustered;
+  }
+  else {
+    sm2 = none;
+  }
+
+
+  int sampling_rounds = atoi(argv[5]);
 
   double tot_time = 0;
   SGList tot_res;
@@ -64,9 +84,9 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < sampling_rounds; i++) {
     util::Timer match_time;
     match_time.start();
-    auto [H2, sw2] = build_tables(sgls2);
+    auto [H2, subgraph_hist2] = build_tables(sgls2);
 
-    auto [d3, ess3] = join<true, true, true, false, 2, 3, 3>(g, H2, sgls2, true, clustered, { st1, st1 }, sw2, sup, true);
+    auto [d3, ess3] = join<true, true, true, false, 2, 3, 3>(g, H2, sgls2, true, sm1, { scaled_st1, scaled_st1 }, subgraph_hist2, sup, true);
 
     match_time.stop();
 
@@ -81,12 +101,12 @@ int main(int argc, char* argv[]) {
     vector<SGList> sgls = { d3, d3 };
 
     cout << "building tables..." << endl;
-    auto [H, sw] = build_tables(sgls);
+    auto [H, subgraph_hist] = build_tables(sgls);
     cout << "build table done" << endl;
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, clustered, { st2, st2 }, sw, sup);
+    auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, sm2, { scaled_st2 * scaled_st2, scaled_st2 * scaled_st2 }, subgraph_hist, sup);
     t.stop();
 
     filter(d_res, sup);

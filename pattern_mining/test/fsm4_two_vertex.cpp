@@ -35,20 +35,30 @@ int main(int argc, char* argv[]) {
 
   double thh = atof(argv[2]);
 
-  double st = atof(argv[3]);
+  double st1 = atof(argv[3]);
 
-  SamplingMethod sm;
+  double st2 = atof(argv[4]);
 
-  if (st > 0) {
-    sm = clustered;
+  SamplingMethod sm1, sm2;
+
+  if (st1 > 0) {
+    sm1 = clustered;
   }
   else {
-    sm = none;
+    sm1 = none;
   }
 
-  cout << "sampling method: " << sm << endl;
+  if (st2 > 0) {
+    sm2 = clustered;
+  }
+  else {
+    sm2 = none;
+  }
 
-  int sampling_rounds = atoi(argv[4]);
+
+  cout << "sampling method: " << sm1 << " " << sm2 << endl;
+
+  int sampling_rounds = atoi(argv[5]);
 
   double sup = (size_t)round(thh * g.num_nodes());
 
@@ -61,16 +71,21 @@ int main(int argc, char* argv[]) {
   filter(d2, sup);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
 
+  double scaled_st1 = scale_sampling_param(d2, st1);
+  double scaled_st2 = scale_sampling_param(d2, st2);
 
+  cout << "start join for pat3: " << endl;
+  vector<SGList> sgls2 = { d2, d2 };
 
-
-  cout << "start matchings pat3: " << endl;
   util::Timer match_time;
   match_time.start();
-  auto d3 = match(g, pat3, true, true, true, sup);
+  auto [H2, subgraph_hist2] = build_tables(sgls2);
+
+  auto [d3, ess3] = join<true, true, true, false, 2, 3, 3>(g, H2, sgls2, true, sm1, { scaled_st1, scaled_st1 }, subgraph_hist2, sup, true);
+
   match_time.stop();
 
-  cout << "match 3 time: " << match_time.get() << " sec" << endl;
+  cout << "join for pat3 time: " << match_time.get() << " sec" << endl;
 
   filter(d3, sup);
 
@@ -79,9 +94,9 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 frequent patterns: " << npat3 << endl;
 
 
-  double st_scaled = scale_sampling_param(d2, st);
+  double st2_scaled = scale_sampling_param(d2, st2);
 
-  cout << "scaled sampling param: " << st_scaled << endl;
+  cout << "scaled sampling param: " << st2_scaled << endl;
 
 
   //  auto pat4 = pattern_mining::PatListing::make_pattern(
@@ -115,7 +130,7 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, false, true, false, 2, 4, 3>(g, H, sgls, false, sm, { st_scaled * st_scaled, st_scaled }, subgraph_hist, sup);
+    auto [d_res, ess] = join<true, true, true, false, 2, 4, 3>(g, H, sgls, false, sm2, { st2_scaled * st2_scaled, st2_scaled }, subgraph_hist, sup);
     t.stop();
 
     filter(d_res, sup);

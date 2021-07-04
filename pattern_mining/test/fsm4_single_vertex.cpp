@@ -21,8 +21,6 @@ int main(int argc, char* argv[]) {
 
   auto pat2 = pattern_mining::PatListing::make_pattern(
     pattern_mining::PatListing().pattern_listing(2));
-  auto pat3 = pattern_mining::PatListing::make_pattern(
-    pattern_mining::PatListing().pattern_listing(3));
 
   double thh = atof(argv[2]);
 
@@ -74,7 +72,7 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, false, true, false, 3, 3, 3, 3>(g, H, sgls, false, sm, { st_scaled, st_scaled, st_scaled }, subgraph_hist, sup);
+    auto [d_res, ess] = join<true, true, true, false, 3, 3, 3, 3>(g, H, sgls, false, sm, { st_scaled, st_scaled, st_scaled }, subgraph_hist, sup);
     t.stop();
 
     filter(d_res, sup);
