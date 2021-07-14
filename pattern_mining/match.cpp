@@ -659,10 +659,8 @@ namespace euler::pattern_mining {
                 data->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
               }
               else {
-                if (store_data) {
-                  v[tid][0] = std::get<0>(it_pat->second);
-                  data->merge(std::get<1>(it_pat->second), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<2>(it_pat->second), std::get<3>(it_pat->second));
-                }
+                v[tid][0] = std::get<0>(it_pat->second);
+                data->merge(std::get<1>(it_pat->second), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<2>(it_pat->second), std::get<3>(it_pat->second));
               }
             }
           }
