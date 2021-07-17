@@ -117,7 +117,7 @@ namespace euler::db {
 
   template <class key_type, class value_type>
   void MyKV<key_type, value_type>::merge(const key_type& k, const void* a, size_t len,
-    bool store_value, double mni, const std::vector<std::vector<unsigned>>& orbits, const std::vector<unsigned>& perm) {
+    bool store_value, double mni, const std::vector<std::vector<unsigned>>& orbits, const std::vector<unsigned>& perm, bool adaptive_sampling) {
     size_t file_id;
     bool first = false;
     //std::vector<int> rperm(len / sizeof(value_type) - 1);
@@ -173,7 +173,8 @@ namespace euler::db {
           }
         }
 
-        qp_set.push_back({*((int*)a)});
+        if (adaptive_sampling)
+          qp_set.push_back({ {*((int*)a), 1} });
 
         mni_met.push_back(false);
         distinct_vertices.push_back(vs_new);
@@ -188,7 +189,11 @@ namespace euler::db {
     if (!first) {
       if (mni >= 0) {
         assert(ncols == len / sizeof(value_type));
-        qp_set[file_id].insert(*((int*)a));
+        if (adaptive_sampling)
+        {
+          if (qp_set[file_id].find(*((int*)a)) == qp_set[file_id].end()) qp_set[file_id][*((int*)a)] = 0;
+          qp_set[file_id][*((int*)a)] += 1;
+        }
 
         if (!mni_met[file_id]) {
 
@@ -273,7 +278,7 @@ namespace euler::db {
       data_size = 0;
     }
   }
-  
+
 
   template <class key_type, class value_type>
   size_t MyKV<key_type, value_type>::size() {
@@ -283,7 +288,7 @@ namespace euler::db {
   template <class key_type, class value_type>
   size_t MyKV<key_type, value_type>::num_subgraphs() {
     size_t tot_num = 0;
-    for (auto &k: keys) {
+    for (auto& k : keys) {
       tot_num += buf[k.second].size() / ncols;
     }
     return tot_num;

@@ -30,8 +30,6 @@ int main(int argc, char* argv[]) {
 
   auto pat2 = pattern_mining::PatListing::make_pattern(
     pattern_mining::PatListing().pattern_listing(2));
-  auto pat3 = pattern_mining::PatListing::make_pattern(
-    pattern_mining::PatListing().pattern_listing(3));
 
   double thh = atof(argv[2]);
 
@@ -62,7 +60,12 @@ int main(int argc, char* argv[]) {
 
   double sup = (size_t)round(thh * g.num_nodes());
 
+
   cout << "support threshold: " << sup << endl;
+
+
+  bool adaptive_sampling = atoi(argv[6]) > 0 ? true : false;
+
 
   cout << "start matchings pat2: " << endl;
   auto d2 = match(g, pat2, true, true, true, sup);
@@ -99,23 +102,6 @@ int main(int argc, char* argv[]) {
   cout << "scaled sampling param: " << st2_scaled << endl;
 
 
-  //  auto pat4 = pattern_mining::PatListing::make_pattern(
-    //  pattern_mining::PatListing().pattern_listing(4));
-
-  /*
-    cout << "start matchings pat4: " << endl;
-    match_time.start();
-    auto d4 = match(g, pat4, true, true, true, sup);
-    match_time.stop();
-
-    cout << "match 4 time: " << match_time.get() << " sec" << endl;
-
-    filter(d4, sup);
-
-    cout << "num of size-4 frequent patterns: " << d4.sgl->size() << endl;
-
-  */
-
   vector<SGList> sgls = { d3, d2 };
 
   cout << "building tables..." << endl;
@@ -126,14 +112,27 @@ int main(int argc, char* argv[]) {
   double tot_time = 0;
   SGList tot_res;
 
+  auto original_table_size = get_table_size(subgraph_hist);
+
   for (int i = 0; i < sampling_rounds; i++) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 2, 4, 3>(g, H, sgls, false, sm2, { st2_scaled * st2_scaled, st2_scaled }, subgraph_hist, sup);
+    auto [d_res, ess] = join<true, true, true, false, 2, 4, 3>(g, H, sgls, false, sm2, { st2_scaled * st2_scaled, st2_scaled }, subgraph_hist, sup, false, adaptive_sampling);
     t.stop();
 
+    double ntot = d_res.sgl->tot_count();
+
+    cout << "total num of subgraphs before filtering: " << ntot << endl;
+
     filter(d_res, sup);
+
+
+
+    if (adaptive_sampling) {
+      update_sampling_weights(ntot, d_res, original_table_size, subgraph_hist);
+      cout << "update weights done" << endl;
+    }
 
     if (tot_res.sgl == nullptr) tot_res = d_res;
     else

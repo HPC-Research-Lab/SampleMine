@@ -36,8 +36,9 @@ namespace euler::db {
     std::vector<std::vector<std::set<value_type>>> distinct_vertices;
     std::vector<int> file_exist;
 
-    std::vector<std::set<int>> qp_set;
-    std::vector<std::vector<std::vector<int>>> qp_path;
+    // the set of quick patterns for different canonical patterns
+    std::vector<std::map<int, size_t>> qp_set;
+    std::vector<std::map<std::vector<std::array<int, 2>>, size_t>> qp_path;
 
     void print() {
       for (auto& [key, value] : keys) {
@@ -49,26 +50,33 @@ namespace euler::db {
       }
     }
 
-    void get_pattern_path(const std::vector<std::vector<int>>& qp_count) {
+    double tot_count() {
+      double sum = 0.0;
+      for (auto d: count) sum += d;
+      return sum;
+    }
 
+    void get_pattern_path(const std::vector<std::vector<std::array<int, 4>>>& qp_count) {
+
+      // iterating over different canonical patterns
       for (auto& s : qp_set) {
-        std::vector<std::vector<int>> res(s.size());
-        int t = 0;
-        for (auto ss : s) {
+        qp_path.push_back({});
+        for (auto& [ss, v] : s) {
+          std::vector<std::array<int, 2>> res;
           int cur = ss;
           for (int i = qp_count.size() - 1; i > 0; i--) {
-            int left = qp_count[i][2 * cur];
-            int right = qp_count[i][2 * cur + 1];
-            res[t].push_back(right);
+            int left = qp_count[i][cur][0];
+            int right = qp_count[i][cur][1];
+            res.push_back({ right, qp_count[i][cur][3] });
             cur = left;
           }
-          int left = qp_count[0][2 * cur];
-          int right = qp_count[0][2 * cur + 1];
-          res[t].push_back(right);
-          res[t].push_back(left);
-          t++;
+          int left = qp_count[0][cur][0];
+          int right = qp_count[0][cur][1];
+          res.push_back({ right, qp_count[0][cur][3] });
+          res.push_back({ left, qp_count[0][cur][2] });
+          if (qp_path.back().find(res) == qp_path.back().end()) qp_path.back()[res] = 0;
+          qp_path.back()[res] += v;
         }
-        qp_path.push_back(res);
       }
     }
 
@@ -178,7 +186,7 @@ namespace euler::db {
               }
             }
             if (adaptive_sampling) {
-              qp_path[fid].insert(qp_path[fid].end(), other.qp_path[value].begin(), other.qp_path[value].end());
+              qp_path[fid].insert(other.qp_path[value].begin(), other.qp_path[value].end());
             }
             //qp_set[fid].insert(other.qp_set[value].begin(), other.qp_set[value].end());
           }
@@ -375,7 +383,7 @@ namespace euler::db {
     void put(const void* a, size_t len);
 
     void merge(const key_type& k, const void* a, size_t len,
-      bool store_value = true, double mni = -1, const std::vector<std::vector<unsigned>>& orbits = dummy1, const std::vector<unsigned>& perm = dummy2);
+      bool store_value = true, double mni = -1, const std::vector<std::vector<unsigned>>& orbits = dummy1, const std::vector<unsigned>& perm = dummy2, bool adaptive_sampling = false);
 
     MyBuf getbuf(size_t file_idx, size_t cs);
 

@@ -84,7 +84,7 @@ namespace euler::pattern_mining {
       }
 
       double s = st * his.size() / tot_types;
-      if (max_s < s) max_s = s; 
+      if (max_s < s) max_s = s;
     }
     return max_s;
   }
@@ -138,22 +138,53 @@ namespace euler::pattern_mining {
     return { H, subgraph_hist };
   }
 
-  void update_sampling_weights(const std::vector<std::vector<std::vector<int>>>& frequent_qp_paths, std::vector<std::shared_ptr<std::vector<double>>>& sw) {
-    double smallest_weight = 1;
-    for (auto& qp_path : frequent_qp_paths) {
-      for (auto& path : qp_path) {
-        for (int i = 0; i < path.size(); i++) {
-          // because the qp path was stored in reverse order in get_quick_pattern_path function.
-          (*sw[i])[path[path.size() - 1 - i]] -= 1;
-          if (smallest_weight > (*sw[i])[path[path.size() - 1 - i]]) smallest_weight = (*sw[i])[path[path.size() - 1 - i]];
+  std::vector<std::vector<double>> get_table_size(const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist) {
+    std::vector<std::vector<double>> res(subgraph_hist.size());
+    for (int i = 0; i < subgraph_hist.size(); i++) {
+      for (int j = 0; j < subgraph_hist[i].size(); j++) {
+        double sum = 0;
+        for (auto& [k1, v1] : subgraph_hist[i][j]) {
+          for (auto& [k2, v2] : v1) {
+            sum += v2;
+          }
+        }
+        res[i].push_back(sum);
+      }
+    }
+    return res;
+  }
+
+  void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist) {
+
+    double avgc = 0.0;
+    for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
+      avgc += d.sgl->count[it->second];
+    }
+    avgc /= d.sgl->size();
+    for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
+      if (d.sgl->count[it->second] < avgc) continue;
+      for (auto& [qp, c] : d.sgl->qp_path[it->second]) {
+        double s = ntot / (ntot - c);
+        size_t length = qp.size();
+        for (int j = 0; j < length; j++) {
+          for (auto& [k, v] : subgraph_hist[length - j - 1][qp[j][1]]) {
+            auto pt = v.find(qp[j][0]);
+            pt->second *= s;
+          }
         }
       }
     }
+    // }
 
-    if (smallest_weight < 1) {
-      for (auto& ptr : sw) {
-        for (auto& s : *ptr) {
-          s += 1 - smallest_weight;
+    auto table_size = get_table_size(subgraph_hist);
+
+#pragma omp parallel for num_threads(_Nthreads)
+    for (int i = 0; i < subgraph_hist.size(); i++) {
+      for (int j = 0; j < subgraph_hist[i].size(); j++) {
+        for (auto& [k1, v1] : subgraph_hist[i][j]) {
+          for (auto& [k2, v2] : v1) {
+            v2 *= original_table_size[i][j] / table_size[i][j];
+          }
         }
       }
     }

@@ -334,7 +334,7 @@ namespace euler::pattern_mining {
   std::string for_loop2_end(std::array<int, ncols_left>& s,
     std::shared_ptr<Pattern> pat,
     std::vector<SGList>& res,
-    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns) {
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling) {
     int tid = omp_get_thread_num();
 
     //pat->print();
@@ -362,7 +362,7 @@ namespace euler::pattern_mining {
 
 
       if constexpr (mni) {
-        res[tid].sgl->merge(std::get<0>(it->second), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(it->second), std::get<2>(it->second));
+        res[tid].sgl->merge(std::get<0>(it->second), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(it->second), std::get<2>(it->second), adaptive_sampling);
 
         return std::get<0>(it->second);
       }
@@ -402,7 +402,7 @@ namespace euler::pattern_mining {
       if constexpr (mni) {
         auto coding = pat->canonical_form();
         qp2cp[tid][s0] = coding;
-        res[tid].sgl->merge(std::get<0>(coding), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(coding), std::get<2>(coding));
+        res[tid].sgl->merge(std::get<0>(coding), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(coding), std::get<2>(coding), adaptive_sampling);
         return std::get<0>(coding);
       }
       else {
@@ -419,7 +419,7 @@ namespace euler::pattern_mining {
     std::shared_ptr<Pattern> pat,
     const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, int level,
     std::vector<int>& iterates, std::vector<SGList>& res,
-    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<int>>>& qp_count,
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<std::array<int, 4>>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
     const std::vector<double>& sampling_param,
@@ -515,10 +515,9 @@ namespace euler::pattern_mining {
                  // std::cerr << "qp_idx flushed" << std::endl;
                   // qp_idx[tid][level].clear();
                    //}
-                qp_idx[tid][level][key] = qp_count[tid][level - 1].size() / 2;
-                value[0] = qp_count[tid][level - 1].size() / 2;
-                qp_count[tid][level - 1].push_back(key[0]);
-                qp_count[tid][level - 1].push_back(key[1]);
+                qp_idx[tid][level][key] = qp_count[tid][level - 1].size();
+                value[0] = qp_count[tid][level - 1].size();
+                qp_count[tid][level - 1].push_back({ key[0], key[1], i - 1, j });
               }
               else {
                 value[0] = itt->second;
@@ -566,15 +565,15 @@ namespace euler::pattern_mining {
   void for_loop1(const std::vector<SGList>& sgls,
     const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H,
     std::vector<int>& iterates, int level, std::vector<SGList>& res,
-    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<int>>>& qp_count,
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<std::array<int, 4>>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
-    const std::vector<double>& sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns) {
+    const std::vector<double>& sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling) {
     if (level < H.size()) {
       for (int i = 0; i < H[level].size(); i++) {
         iterates.push_back(i);
         for_loop1<has_labels, edge_induced, mni, est, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, level + 1, res, qp2cp, qp_count, qp_idx, g,
-          sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns);
+          sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns, adaptive_sampling);
         iterates.pop_back();
       }
     }
@@ -742,10 +741,9 @@ namespace euler::pattern_mining {
                       // std::cerr << "qp_idx flushed 2" << std::endl;
                       //qp_idx[tid][0].clear();
                      // }
-                      qp_idx[tid][0][key] = qp_count[tid][0].size() / 2;
-                      value[0] = qp_count[tid][0].size() / 2;
-                      qp_count[tid][0].push_back(key[0]);
-                      qp_count[tid][0].push_back(key[1]);
+                      qp_idx[tid][0][key] = qp_count[tid][0].size();
+                      value[0] = qp_count[tid][0].size();
+                      qp_count[tid][0].push_back({ key[0], key[1], i, j });
 
                     }
                     else {
@@ -756,7 +754,7 @@ namespace euler::pattern_mining {
                     if constexpr (K > 2) {
                       std::map<std::string, double> tp = for_loop2<has_labels, edge_induced, mni, est, K - 2, key_type, value.size(), ncols...>(sgls, value, ptt, H, 2, iterates, res, qp2cp,
                         qp_count, qp_idx, g, sm,
-                        sampling_param, store, sgl3, mni_threshold, subgraph_hist, need_actual_pattern, actual_patterns);
+                        sampling_param, store, sgl3, mni_threshold, subgraph_hist, need_actual_pattern, actual_patterns, adaptive_sampling);
                       if constexpr (est) {
                         for (auto& [k, v] : tp) {
                           if (tp_estimate2.find(k) == tp_estimate2.end()) tp_estimate2[k] = 0;
@@ -766,7 +764,7 @@ namespace euler::pattern_mining {
                     }
                     else {
                       std::string t = for_loop2_end<mni, value.size()>(value, ptt, res, qp2cp,
-                        store, mni_threshold, need_actual_pattern, actual_patterns);
+                        store, mni_threshold, need_actual_pattern, actual_patterns, adaptive_sampling);
                       if constexpr (est) {
                         if (tp_estimate2.find(t) == tp_estimate2.end()) tp_estimate2[t] = 0;
                         tp_estimate2[t] += 1;
@@ -830,11 +828,13 @@ namespace euler::pattern_mining {
 
   double scale_sampling_param(const SGList& d2, double st);
 
-  void update_sampling_weights(const std::vector<std::vector<std::vector<int>>>& frequent_qp_paths, std::vector<std::shared_ptr<std::vector<double>>>& sw);
+  void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist);
+
+  std::vector<std::vector<double>> get_table_size(const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist);
 
   template <bool has_labels, bool edge_induced, bool mni, bool est, int K, size_t ncols1, size_t ncols2, size_t... ncols>
   std::tuple<SGList, std::map<std::string, double>> join(const graph::Graph& g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, const std::vector<SGList>& sgls, bool store, SamplingMethod sm,
-    std::vector<double> sampling_param, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, double mni_threshold = 0, bool need_actual_pattern = false, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = dummy1) {
+    std::vector<double> sampling_param, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, double mni_threshold = 0, bool need_actual_pattern = false, bool adaptive_sampling = false, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = dummy1) {
     assert((!mni && mni_threshold == 0) || (mni && mni_threshold >= 0));
     int res_size = 2;
     for (auto& d : sgls) {
@@ -857,7 +857,7 @@ namespace euler::pattern_mining {
     typedef typename std::conditional<has_labels, std::array<int, sum<ncols1, ncols2, ncols...>::value + 5>, std::array<int, 4>>::type key_type;
 
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>> qp2cp(_Nthreads);
-    std::vector<std::vector<std::vector<int>>> qp_count(_Nthreads);
+    std::vector<std::vector<std::vector<std::array<int, 4>>>> qp_count(_Nthreads);
     for (auto& q : qp_count) q.resize(sgls.size() - 1);
     std::vector<std::vector<std::map<key_type, int>>> qp_idx(_Nthreads);
     for (auto& q : qp_idx) q.resize(sgls.size());
@@ -893,7 +893,7 @@ namespace euler::pattern_mining {
     }*/
 
     for_loop1<has_labels, edge_induced, mni, est, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, 0, res, qp2cp, qp_count, qp_idx, g,
-      sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns);
+      sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns, adaptive_sampling);
 
     //std::cout << "exploration space size: " << exploration_space_size << std::endl;
 
@@ -908,14 +908,14 @@ namespace euler::pattern_mining {
     cout << "auto test count: " << auto_test_count << endl;
 
 #endif
-    /*if (adaptive_sampling) {
+    if (adaptive_sampling) {
       for (int i = 0; i < res.size(); i++) {
         res[i].get_quick_pattern_path(qp_count[i]);
       }
-    }*/
+    }
 
     for (int i = 1; i < res.size(); i++) {
-      res[0].combine(res[i], mni, store);
+      res[0].combine(res[i], mni, store, adaptive_sampling);
     }
 
     if (need_actual_pattern) {

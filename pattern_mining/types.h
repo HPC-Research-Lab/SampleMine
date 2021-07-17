@@ -36,7 +36,7 @@ namespace euler::pattern_mining {
       sgl->print();
     }
 
-    void get_quick_pattern_path(const std::vector<std::vector<int>> &qp_count) {
+    void get_quick_pattern_path(const std::vector<std::vector<std::array<int, 4>>> &qp_count) {
       sgl->get_pattern_path(qp_count);
     }
 
