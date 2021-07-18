@@ -101,6 +101,8 @@ int main(int argc, char* argv[]) {
 
   cout << "scaled sampling param: " << st2_scaled << endl;
 
+  auto q3 = get_pattern3(d3);
+
 
   vector<SGList> sgls = { d3, d3 };
 

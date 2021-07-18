@@ -836,4 +836,63 @@ namespace euler::pattern_mining {
       return SGList(data, labeled_patterns);
     }
   }
+
+
+  std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> get_pattern3(const SGList& sgl) {
+    assert(sizeof(unsigned long) == 8);
+    std::unordered_set<unsigned long> triangles;
+    std::unordered_set<unsigned long> wedges;
+    for (auto& s : sgl.patterns) {
+      //std::cout << s->ne << std::endl;
+      if (s->ne == 3) {
+        unsigned long lab = 0;
+        int labs[3];
+        for (int i = 0; i < 3; i++) {
+          int l = s->vertex_label[i];
+          assert(l < 63);
+          labs[i] = l;
+          lab |= (1ULL << l);
+        }
+        if ((labs[0] == labs[1]) && (labs[0] < labs[2])) lab |= (1ULL << 63);
+        if ((labs[0] == labs[2]) && (labs[0] < labs[1])) lab |= (1ULL << 63);
+        if ((labs[1] == labs[2]) && (labs[1] < labs[0])) lab |= (1ULL << 63);
+        triangles.insert(lab);
+      }
+      else if (s->ne == 2) {
+        unsigned long lab = 0;
+        int labs[3];
+        int key;
+        for (int i = 0; i < 3; i++) {
+          int l = s->vertex_label[i];
+          assert(l < 61);
+          labs[i] = l;
+          // std::cout << l << " ";
+          lab |= (1ULL << l);
+          if (s->adj_list[i].size() == 2) {
+            key = l;
+          }
+        }
+        //  std::cout << key << " ";
+        int c = 0;
+        int e = 0;
+        for (int i = 0; i < 3; i++) {
+          if (labs[i] > key) c++;
+          if (labs[i] == key) e++;
+        }
+        if (c == 1) lab |= (1ULL << 63);
+        if (c == 2) lab |= (1ULL << 62);
+        if (c == 0 && e == 2) lab |= (1ULL << 61);
+
+        // std::cout << " : " << std::bitset<64>(lab) << std::endl;
+
+        wedges.insert(lab);
+      }
+      else {
+        exit(-1);
+      }
+    }
+    //std::cout << triangles.size() << " " << wedges.size() << " " << sgl.patterns.size() << std::endl;
+    //assert(triangles.size() + wedges.size() == sgl.patterns.size());
+    return std::make_pair(triangles, wedges);
+  }
 }  // namespace euler::pattern_mining
