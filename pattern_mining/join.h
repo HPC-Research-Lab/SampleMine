@@ -25,7 +25,7 @@ namespace euler::pattern_mining {
   std::tuple<std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>, std::vector<std::vector<std::map<int, std::map<int, double>>>>> build_tables(const std::vector<SGList>& sgls);
 
 
-  bool bsearch(const int* x, size_t s, int y);
+  bool bsearch(const size_t* x, size_t s, int y);
 
   double random_number();
 
@@ -128,7 +128,7 @@ namespace euler::pattern_mining {
 
   template <bool has_labels, bool edge_induced, size_t ncols1, size_t ncols2, size_t ncols>
   std::vector<std::pair<connection_t, std::shared_ptr<Pattern>>> get_connectivity(
-    const std::array<std::pair<const int*, size_t>, ncols2 - 2>& nbv, const int* d1, const int* d2,
+    const std::array<std::pair<const size_t*, size_t>, ncols2 - 2>& nbv, const int* d1, const int* d2,
     int c1, int c2,
     std::shared_ptr<Pattern> pat1, std::shared_ptr<Pattern> pat2, std::array<int, ncols>& value,
     const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3) {
@@ -449,7 +449,7 @@ namespace euler::pattern_mining {
 
       int type1 = s[0];
       int t = 0;
-      std::array<std::pair<const int*, size_t>, ncols_left - 2> nbv;
+      std::array<std::pair<const size_t*, size_t>, ncols_left - 2> nbv;
       for (int li = 1; li < s.size(); li++) {
         if (li == i) continue;
         nbv[t++] = (g.get_neighbors(s[li]));
@@ -647,7 +647,7 @@ namespace euler::pattern_mining {
 
               int tid = omp_get_thread_num();
 
-              std::array<std::pair<const int*, size_t>, ncols1 - 2> nbv;
+              std::array<std::pair<const size_t*, size_t>, ncols1 - 2> nbv;
               int t = 0;
               for (int li = 1; li < ncols1; li++) {
                 if (li == i + 1) continue;

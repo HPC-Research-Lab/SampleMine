@@ -40,11 +40,11 @@ namespace euler::pattern_mining {
     return dis(gen);
   }
 
-  bool bsearch(const int* x, size_t s, int y) {
-    int low = 0;
-    int high = s - 1;
+  bool bsearch(const size_t* x, size_t s, int y) {
+    long long low = 0;
+    long long high = s - 1;
     while (low <= high) {
-      int mid = (low + high) / 2;
+      size_t mid = (low + high) / 2;
       if (x[mid] == y) {
         return true;
       }

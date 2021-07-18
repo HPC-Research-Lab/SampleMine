@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
 
 
   cout << "start matchings pat2: " << endl;
-  auto d2 = match(g, pat2, true, true, true, sup);
+  auto d2 = match(g, pat2, true, false, true, sup);
 
 
   filter(d2, sup);
