@@ -16,7 +16,7 @@ class Timer {
  public:
   Timer() : duration(0.0) {}
 
-  void start() { begin = std::chrono::high_resolution_clock::now(); }
+  void start() { begin = std::chrono::high_resolution_clock::now(); duration = 0; }
 
   void stop() {
     end = std::chrono::high_resolution_clock::now();

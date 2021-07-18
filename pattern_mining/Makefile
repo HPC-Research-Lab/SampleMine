@@ -1,4 +1,4 @@
-DEBUG=-O2
+DEBUG=-ggdb
 OPTIONS=
 CXX=g++
 

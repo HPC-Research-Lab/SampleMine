@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
   cout << "support threshold: " << sup << endl;
 
 
-    bool adaptive_sampling = atoi(argv[6]) > 0 ? true : false;
+  bool adaptive_sampling = atoi(argv[6]) > 0 ? true : false;
 
 
   cout << "start matchings pat2: " << endl;

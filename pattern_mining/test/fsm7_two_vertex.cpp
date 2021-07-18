@@ -70,10 +70,26 @@ int main(int argc, char* argv[]) {
   auto [H3, subgraph_hist3] = build_tables(sgls);
   cout << "build table done" << endl;
 
+  SamplingMethod sm;
 
-  double st_scaled = scale_sampling_param(d2, atof(argv[3]));
+  double st = atof(argv[3]);
+
+  if (st > 0) sm = clustered;
+  else sm = none;
+
+
+  double st_scaled = scale_sampling_param(d2, st);
 
   cout << "st_scaled: " << st_scaled << endl;
+
+
+  int sampling_rounds = atoi(argv[4]);
+
+  bool adaptive_sampling = atoi(argv[5]) > 0 ? true : false;
+
+  double tot_time = 0;
+  SGList tot_res;
+
 
 
   util::Timer t;
@@ -83,26 +99,47 @@ int main(int argc, char* argv[]) {
 
   filter(d5, sup);
 
+  t.stop();
+
+  cout << "join for d5 time: " << t.get() << endl;
   cout << "num of size-5 frequent patterns: " << d5.sgl->size() << endl;
 
   auto [H5, subgraph_hist5] = build_tables({ d5, d3 });
 
   cout << "build d5 table done" << endl;
-  
 
+  auto original_table_size = get_table_size(subgraph_hist5);
 
-  auto [d7, ess7] = join<true, true, true, false, 2, 6, 4>(g, H5, { d5, d3 }, false, none, { st_scaled*st_scaled*st_scaled*st_scaled, st_scaled*st_scaled }, subgraph_hist5, sup, false);
+  for (int i = 0; i < sampling_rounds; i++) {
 
-  filter(d7, sup);
+    t.start();
 
-  t.stop();
+    auto [d7, ess7] = join<true, true, true, false, 2, 6, 4>(g, H5, { d5, d3 }, false, sm, { st_scaled * st_scaled * st_scaled * st_scaled, st_scaled * st_scaled }, subgraph_hist5, sup, false, adaptive_sampling);
 
-  cout << "Time: " << t.get() << " sec, ";
-  if (d7.sgl) {
-    cout << "Num patterns: " << d7.sgl->keys.size() << endl;
-  }
-  else {
-    cout << "Num patterns: 0" << endl;
+    t.stop();
+
+    double ntot = d7.sgl->tot_count();
+
+    filter(d7, sup);
+
+    if (adaptive_sampling) {
+      update_sampling_weights(ntot, d7, original_table_size, subgraph_hist5);
+      cout << "update weights done" << endl;
+    }
+
+    if (tot_res.sgl == nullptr) tot_res = d7;
+    else
+      tot_res.combine(d7, true, false);
+
+    tot_time += t.get();
+
+    cout << "Time: " << tot_time << " sec, ";
+    if (tot_res.sgl) {
+      cout << "Num patterns: " << tot_res.sgl->keys.size() << endl;
+    }
+    else {
+      cout << "Num patterns: 0" << endl;
+    }
   }
 
 

@@ -156,13 +156,19 @@ namespace euler::pattern_mining {
 
   void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist) {
 
-    double avgc = 0.0;
+    std::vector<double> vecc;
     for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
-      avgc += d.sgl->count[it->second];
+      vecc.push_back(d.sgl->count[it->second]);
     }
-    avgc /= d.sgl->size();
+    
+    std::sort(vecc.begin(), vecc.end(), std::greater<double>());
+
+    size_t pos = vecc.size() / 10;
+    if (pos == 0) pos = 1;
+    double threshold = vecc[pos];
+
     for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
-      if (d.sgl->count[it->second] < avgc) continue;
+      if (d.sgl->count[it->second] < threshold) continue;
       for (auto& [qp, c] : d.sgl->qp_path[it->second]) {
         double s = ntot / (ntot - c);
         size_t length = qp.size();
