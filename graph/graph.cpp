@@ -75,7 +75,7 @@ void Graph_CSR_CPU::read_graph(const char *filename) {
     vertex_labels.push_back(label);
     nnodes++;
   } while (std::getline(fin, line) && (line[0] == 'v'));
-  std::vector<std::set<int>> adj_list(nnodes);
+  std::vector<std::vector<int>> adj_list(nnodes);
   do {
     std::istringstream sin(line);
     std::string tmp;
@@ -84,12 +84,18 @@ void Graph_CSR_CPU::read_graph(const char *filename) {
     assert(tmp == "e");
     // edge_set.insert(std::make_pair(v1, v2));
     // edge_set.insert(std::make_pair(v2, v1));
-    adj_list[v1].insert(v2);
-    adj_list[v2].insert(v1);
+    adj_list[v1].push_back(v2);
+    adj_list[v2].push_back(v1);
   } while (getline(fin, line));
   rowptr.push_back(0);
   for (int i = 0; i < nnodes; i++) {
-    copy(adj_list[i].begin(), adj_list[i].end(),
+    sort(adj_list[i].begin(), adj_list[i].end());
+    int pos = 0;
+    for (int j=1; j<adj_list[i].size(); j++) {
+      if (adj_list[i][j] != adj_list[i][pos]) adj_list[i][++pos] = adj_list[i][j];
+    }
+
+    copy(adj_list[i].data(), adj_list[i].data() + pos + 1,
          back_inserter(colidx));  // adj_list is sorted
     rowptr.push_back(colidx.size());
   }
