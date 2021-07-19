@@ -64,9 +64,6 @@ int main(int argc, char* argv[]) {
   cout << "support threshold: " << sup << endl;
 
 
-  bool adaptive_sampling = atoi(argv[6]) > 0 ? true : false;
-
-
   cout << "start matchings pat2: " << endl;
   auto d2 = match(g, pat2, true, false, true, sup);
 
@@ -120,7 +117,7 @@ int main(int argc, char* argv[]) {
 
     util::Timer t;
     t.start();
-    auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, sm2, { st2_scaled * st2_scaled, st2_scaled * st2_scaled }, subgraph_hist, sup, false, adaptive_sampling);
+    auto [d_res, ess] = join<true, true, true, false, 2, 4, 4>(g, H, sgls, false, sm2, { st2_scaled * st2_scaled, st2_scaled * st2_scaled }, subgraph_hist, sup, false);
     t.stop();
 
     double ntot = d_res.sgl->tot_count();
@@ -129,10 +126,6 @@ int main(int argc, char* argv[]) {
 
     filter(d_res, sup);
 
-    if (adaptive_sampling) {
-      update_sampling_weights(ntot, d_res, original_table_size, subgraph_hist);
-      cout << "update weights done" << endl;
-    }
 
     if (tot_res.sgl == nullptr) tot_res = d_res;
     else

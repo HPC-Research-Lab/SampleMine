@@ -89,12 +89,12 @@ namespace euler::pattern_mining {
     return max_s;
   }
 
-  std::tuple<vector<vector<shared_ptr<db::MyKV<int>>>>, std::vector<std::vector<std::map<int, map<int, double>>>>> build_tables(const vector<SGList>& sgls) {
+  std::tuple<vector<vector<shared_ptr<db::MyKV<int>>>>, std::vector<std::shared_ptr<std::vector<std::map<int, map<int, double>>>>>> build_tables(const vector<SGList>& sgls) {
     vector<vector<shared_ptr<db::MyKV<int>>>> H;
-    std::vector<std::vector<std::map<int, std::map<int, double>>>> subgraph_hist;
+    std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>> subgraph_hist;
 
     int res_size = 2;
-    map<SGList, std::pair<vector<shared_ptr<db::MyKV<int>>>, std::vector<std::map<int, std::map<int, double>>>>> processed;
+    map<SGList, std::pair<vector<shared_ptr<db::MyKV<int>>>, std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>> processed;
     for (auto& sgl : sgls) {
       int n = sgl.sgl->ncols - 1;
       res_size += n - 1;
@@ -105,10 +105,12 @@ namespace euler::pattern_mining {
       }
       else {
         vector<shared_ptr<db::MyKV<int>>> ht;
-        std::vector<std::map<int, std::map<int, double>>> hist;
+        subgraph_hist.push_back(std::make_shared<std::vector<std::map<int, std::map<int, double>>>>());
         for (int i = 0; i < n; i++) {
           ht.push_back(make_shared<db::MyKV<int>>(sgl.sgl->ncols));
-          std::map<int, std::map<int, double>> his;
+          subgraph_hist.back()->push_back(std::map<int, std::map<int, double>>());
+
+          auto &his = subgraph_hist.back()->back();
 
           for (auto kv1 : sgl.sgl->keys) {
             auto buf = sgl.sgl->getbuf(kv1.second, sgl.sgl->ncols);
@@ -127,23 +129,22 @@ namespace euler::pattern_mining {
               it_buf.next();
             }
           }
-          hist.push_back(his);
         }
-        subgraph_hist.push_back(hist);
+
         H.push_back(ht);
-        processed[sgl] = std::make_pair(ht, hist);
+        processed[sgl] = std::make_pair(ht, subgraph_hist.back());
       }
     }
 
     return { H, subgraph_hist };
   }
 
-  std::vector<std::vector<double>> get_table_size(const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist) {
+  std::vector<std::vector<double>> get_table_size(const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist) {
     std::vector<std::vector<double>> res(subgraph_hist.size());
     for (int i = 0; i < subgraph_hist.size(); i++) {
-      for (int j = 0; j < subgraph_hist[i].size(); j++) {
+      for (int j = 0; j < subgraph_hist[i]->size(); j++) {
         double sum = 0;
-        for (auto& [k1, v1] : subgraph_hist[i][j]) {
+        for (auto& [k1, v1] : subgraph_hist[i]->at(j)) {
           for (auto& [k2, v2] : v1) {
             sum += v2;
           }
@@ -154,13 +155,14 @@ namespace euler::pattern_mining {
     return res;
   }
 
-  void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist) {
+/*
+  void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist) {
 
     std::vector<double> vecc;
     for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
       vecc.push_back(d.sgl->count[it->second]);
     }
-    
+
     std::sort(vecc.begin(), vecc.end(), std::greater<double>());
 
     size_t pos = vecc.size() / 10;
@@ -196,7 +198,7 @@ namespace euler::pattern_mining {
     }
   }
 
-
+*/
 
   /*
   vector<vector<shared_ptr<db::MyKV<int>>>> build_tables(const vector<SGList> &sgls) {

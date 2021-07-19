@@ -22,7 +22,7 @@ namespace euler::pattern_mining {
   static std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> dummy1 = {};
   static std::vector<std::shared_ptr<std::vector<double>>> dummy2 = {};
 
-  std::tuple<std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>, std::vector<std::vector<std::map<int, std::map<int, double>>>>> build_tables(const std::vector<SGList>& sgls);
+  std::tuple<std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>, std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>> build_tables(const std::vector<SGList>& sgls);
 
 
   bool bsearch(const size_t* x, size_t s, int y);
@@ -423,7 +423,7 @@ namespace euler::pattern_mining {
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
     const std::vector<double>& sampling_param,
-    bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns) {
+    bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns) {
     int tid = omp_get_thread_num();
 
     auto& pats1 = sgls[level].patterns;
@@ -472,7 +472,7 @@ namespace euler::pattern_mining {
 
           //std::cout << (length * (*sampling_weights[level])[type2] / (tot_weight * sampling_param[level])) << std::endl;
 
-          if (sm == clustered && random_number() >= sampling_param[level] / subgraph_hist[level][j].at(s[i]).at(type2))
+          if (sm == clustered && random_number() >= sampling_param[level] / subgraph_hist[level]->at(j).at(s[i]).at(type2))
             continue;
           lena++;
 
@@ -568,7 +568,7 @@ namespace euler::pattern_mining {
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<std::array<int, 4>>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
-    const std::vector<double>& sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling) {
+    const std::vector<double>& sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling) {
     if (level < H.size()) {
       for (int i = 0; i < H[level].size(); i++) {
         iterates.push_back(i);
@@ -638,7 +638,7 @@ namespace euler::pattern_mining {
               const int* it_d1 = it1.buffer + z * ncols1;
 
 
-              if (sm == clustered && random_number() >= (sampling_param[0] / subgraph_hist[0][i].at(bi->first).at(type1)))
+              if (sm == clustered && random_number() >= (sampling_param[0] / subgraph_hist[0]->at(i).at(bi->first).at(type1)))
                 continue;
 
 
@@ -671,7 +671,7 @@ namespace euler::pattern_mining {
 
                   // std::cout << (length2 * (*sampling_weights[1])[type2] / (sampling_param[1] * tot_weight2)) << std::endl;
 
-                  if (sm == clustered && random_number() >= (sampling_param[1] / subgraph_hist[1][j].at(it_tab2->first).at(type2)))
+                  if (sm == clustered && random_number() >= (sampling_param[1] / subgraph_hist[1]->at(j).at(it_tab2->first).at(type2)))
                     continue;
 
                   lena2++;
@@ -828,13 +828,13 @@ namespace euler::pattern_mining {
 
   double scale_sampling_param(const SGList& d2, double st);
 
-  void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist);
+  //void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist);
 
-  std::vector<std::vector<double>> get_table_size(const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist);
+  std::vector<std::vector<double>> get_table_size(const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist);
 
   template <bool has_labels, bool edge_induced, bool mni, bool est, int K, size_t ncols1, size_t ncols2, size_t... ncols>
   std::tuple<SGList, std::map<std::string, double>> join(const graph::Graph& g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, const std::vector<SGList>& sgls, bool store, SamplingMethod sm,
-    std::vector<double> sampling_param, const std::vector<std::vector<std::map<int, std::map<int, double>>>>& subgraph_hist, double mni_threshold = 0, bool need_actual_pattern = false, bool adaptive_sampling = false, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = dummy1) {
+    std::vector<double> sampling_param, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, double mni_threshold = 0, bool need_actual_pattern = false, bool adaptive_sampling = false, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = dummy1) {
     assert((!mni && mni_threshold == 0) || (mni && mni_threshold >= 0));
     int res_size = 2;
     for (auto& d : sgls) {
