@@ -838,7 +838,7 @@ namespace euler::pattern_mining {
     assert((!mni && mni_threshold == 0) || (mni && mni_threshold >= 0));
     int res_size = 2;
     for (auto& d : sgls) {
-      if (d.sgl->keys.empty()) return { SGList(), std::map<std::string, double>() };
+      if (d.patterns.empty()) return { SGList(), std::map<std::string, double>() };
       int n = d.sgl->ncols - 1;
       res_size += n - 1;
     }

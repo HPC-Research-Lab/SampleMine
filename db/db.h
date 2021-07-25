@@ -397,6 +397,8 @@ namespace euler::db {
 
     size_t num_subgraphs();
 
+    void clear();
+
     ~MyKV();
   };
 }  // namespace euler::db

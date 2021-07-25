@@ -296,6 +296,19 @@ namespace euler::db {
 
   template <class key_type, class value_type>
   MyKV<key_type, value_type>::~MyKV() {
+    clear();
+  }
+
+   template <class key_type, class value_type>
+  void MyKV<key_type, value_type>::clear() {
+    keys.clear();
+    buf.clear();
+    count.clear();
+    mni_met.clear();
+    distinct_vertices.clear();
+    file_exist.clear();
+    qp_set.clear();
+    qp_path.clear();
     system(("rm -rf " + DBPath).c_str());
   }
 

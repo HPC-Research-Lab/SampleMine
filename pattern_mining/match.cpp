@@ -45,7 +45,7 @@ namespace euler::pattern_mining {
 
   bool nested_for_loop(
     const graph::Graph& g, const std::set<std::pair<int, int>>& L,
-    std::shared_ptr<db::MyKV<std::string>> data, int level, int nn,
+    std::vector<std::shared_ptr<db::MyKV<std::string>>> data, int level, int nn,
     std::vector<std::vector<int>>& v,
     std::vector<std::vector<std::vector<int>>>& vertex_set,
     const std::vector<int>& start_set, std::atomic<size_t>& count,
@@ -53,7 +53,7 @@ namespace euler::pattern_mining {
     std::map<std::shared_ptr<Pattern>, std::tuple<size_t, std::string, std::vector<std::vector<unsigned int>>, std::vector<unsigned int>>, cmpByPattern>& actual_patterns,
     std::string& key, bool store_data, bool output_labeled,
     std::vector<std::vector<std::pair<bool, std::vector<int>>>>& z,
-    bool edge_induced, std::vector<size_t>& count_per_vertex, double sampling_threshold, size_t mni, bool testing, bool pattern_labeled) {
+    bool edge_induced, std::vector<size_t>& count_per_vertex, double sampling_threshold, double mni, bool testing, bool pattern_labeled) {
     if (level == 0) {
 #pragma omp parallel for num_threads(_Nthreads)
       for (int i = 0; i < start_set.size(); i++) {
@@ -649,28 +649,28 @@ namespace euler::pattern_mining {
             //std::cout << std::get<0>(cp) << std::endl;
             //util::print_vec(cp.second);
 
+            std::tuple<std::string, std::vector<std::vector<unsigned int>>, std::vector<unsigned int>> cp;
 #pragma omp critical
             {
               auto it_pat = actual_patterns.find(ptt);
               if (it_pat == actual_patterns.end()) {
-                auto cp = ptt->canonical_form();
+                cp = ptt->canonical_form();
                 actual_patterns[ptt] = std::make_tuple(actual_patterns.size(), std::get<0>(cp), std::get<1>(cp), std::get<2>(cp));
                 v[tid][0] = actual_patterns.size() - 1;
-                data->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
               }
               else {
                 v[tid][0] = std::get<0>(it_pat->second);
-                data->merge(std::get<1>(it_pat->second), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<2>(it_pat->second), std::get<3>(it_pat->second));
+                cp = std::make_tuple(std::get<1>(it_pat->second), std::get<2>(it_pat->second), std::get<3>(it_pat->second));
               }
             }
+            data[tid]->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
           }
           else {
             // if the matching is unlabeled, we simply aggregate them based on the unlabeled patterns
             // The first entry of each subgaph is the unlabeled pattern id. 
             if (store_data) {
-#pragma omp critical
               {
-                data->merge(key, v[tid].data(), v[tid].size() * sizeof(int));
+                data[tid]->merge(key, v[tid].data(), v[tid].size() * sizeof(int));
               }
             }
           }
@@ -712,7 +712,11 @@ namespace euler::pattern_mining {
     static int tag = 0;
     const int s1 = patterns[0]->nn + 1;
 
-    auto data = std::make_shared<db::MyKV<std::string>>(s1);
+    auto data = std::vector<std::shared_ptr<db::MyKV<std::string>>>();
+
+    for (int i = 0; i < _Nthreads; i++) {
+      data.push_back(std::make_shared<db::MyKV<std::string>>(s1));
+    }
 
     std::vector<int> p1;
     for (int i = 0; i < s1 - 1; i++)
@@ -825,15 +829,20 @@ namespace euler::pattern_mining {
         std::cout << "count: " << count << std::endl;
     }
 
+
+    for (int i = 1; i < data.size(); i++) {
+      data[0]->combine(*data[i], mni >= 0, store_data, false);
+    }
+
     if (!output_labeled) {
-      return SGList(data, patterns);
+      return SGList(data[0], patterns);
     }
     else {
       PatList labeled_patterns(actual_patterns.size());
       for (auto& [key, value] : actual_patterns) {
         labeled_patterns[std::get<0>(value)] = key;
       }
-      return SGList(data, labeled_patterns);
+      return SGList(data[0], labeled_patterns);
     }
   }
 
