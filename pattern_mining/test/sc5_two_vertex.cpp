@@ -11,7 +11,7 @@ using namespace euler::pattern_mining;
 typedef vector<pair<int, int>> pat_t;
 
 
-// citeseer 4,5,6,7
+// citeseer 4,5,6,7  // sampling ratio: 2,3,4
 // mico 4
 int main(int argc, char* argv[]) {
   // system("rm test_temp/*");
@@ -93,7 +93,6 @@ int main(int argc, char* argv[]) {
         cout << counts[i] << endl;
       }
     }
-
   }
   else {
     cout << "Num patterns: 0" << endl;
