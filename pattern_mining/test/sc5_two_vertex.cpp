@@ -10,6 +10,9 @@ using namespace euler::pattern_mining;
 
 typedef vector<pair<int, int>> pat_t;
 
+
+// citeseer 4,5,6,7
+// mico 4
 int main(int argc, char* argv[]) {
   // system("rm test_temp/*");
 
@@ -43,7 +46,7 @@ int main(int argc, char* argv[]) {
   match_time.start();
   auto [H2, subgraph_hist2] = build_tables(sgls2);
 
-  auto [d3, ess3] = join<true, true, false, false, 4, 2, 3, 3>(g, H2, sgls2, true, none, { 0, 0 }, subgraph_hist2, -1, true);
+  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, none, { 0, 0 }, subgraph_hist2, -1, true);
 
   match_time.stop();
 
@@ -62,7 +65,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, false, false, 6, 2, 4, 4>(g, H, sgls, false, sm2, { st2, st2 }, subgraph_hist, -1, false, st2 > 0);
+  auto [d_res, ess] = join<true, true, false, false, 2, 4, 4>(g, H, sgls, false, sm2, { st2, st2 }, subgraph_hist, -1, false, st2 > 0);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
