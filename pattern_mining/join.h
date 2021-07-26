@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <type_traits>
+
 
 #include "graph/graph.h"
 #include "pattern.h"
@@ -19,10 +21,13 @@ namespace euler::pattern_mining {
   const static int _Nthreads = atoi(getenv("OMP_NUM_THREADS"));
   const static size_t MAX_NUM_QPATTERN_PER_THREAD = 1024l * 1024l;
 
-  static std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> dummy1 = {};
-  static std::vector<std::shared_ptr<std::vector<double>>> dummy2 = {};
+  extern std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> join_dummy1;
 
   std::tuple<std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>, std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>> build_tables(const std::vector<SGList>& sgls);
+
+
+  int default_query(const graph::Graph& g, const int* s, std::shared_ptr<Pattern> pat, int step);
+
 
 
   bool bsearch(const size_t* x, size_t s, int y);
@@ -330,91 +335,101 @@ namespace euler::pattern_mining {
     return res;
   }
 
-  template <bool mni, size_t ncols_left>
-  std::string for_loop2_end(std::array<int, ncols_left>& s,
-    std::shared_ptr<Pattern> pat,
+  template <bool pat_agg, bool mni,  size_t ncols_left>
+  std::string for_loop2_end(const graph::Graph& g, std::array<int, ncols_left>& s,
+    std::shared_ptr<Pattern> pat, int level,
     std::vector<SGList>& res,
-    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling) {
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, int (*query)(const graph::Graph&, const int*, std::shared_ptr<Pattern>, int)) {
+
+
     int tid = omp_get_thread_num();
 
-    //pat->print();
-    //util::print_vec(s);
+    int q = query(g, s.data(), pat, level - 1);
 
+    if (q == -1) return std::string();
 
+    if constexpr (pat_agg) {
 
-    auto it = qp2cp[tid].find(s[0]);
-    if (it != qp2cp[tid].end()) {
+      auto it = qp2cp[tid].find(s[0]);
+      if (it != qp2cp[tid].end()) {
 
-      if (need_actual_pattern) {
-        int pat_id = -1;
+        if (need_actual_pattern) {
+          int pat_id = -1;
 #pragma omp critical
-        {
-          if (actual_patterns.find(pat) == actual_patterns.end()) {
-            pat_id = actual_patterns.size();
-            actual_patterns[pat] = pat_id;
+          {
+            if (actual_patterns.find(pat) == actual_patterns.end()) {
+              pat_id = actual_patterns.size();
+              actual_patterns[pat] = pat_id;
+            }
+            else {
+              pat_id = actual_patterns[pat];
+            }
           }
-          else {
-            pat_id = actual_patterns[pat];
-          }
+          s[0] = pat_id;
         }
-        s[0] = pat_id;
-      }
 
 
-      if constexpr (mni) {
-        res[tid].sgl->merge(std::get<0>(it->second), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(it->second), std::get<2>(it->second), adaptive_sampling);
+        if constexpr (mni) {
+          res[tid].sgl->merge(std::get<0>(it->second), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(it->second), std::get<2>(it->second), adaptive_sampling);
 
-        return std::get<0>(it->second);
+          return std::get<0>(it->second);
+        }
+        else {
+          res[tid].sgl->merge(it->second, s.data(), s.size() * sizeof(int), store);
+          return it->second;
+
+        }
       }
       else {
-        res[tid].sgl->merge(it->second, s.data(), s.size() * sizeof(int), store);
-        return it->second;
+#ifdef PROF
+        iso_test_count++;
+#endif
+        // if (qp2cp[tid].size() > MAX_NUM_QPATTERN_PER_THREAD) {
+         //  std::cerr << "qp2cp flushed" << std::endl;
+         // qp2cp[tid].clear();
+        // }
 
+        int s0 = s[0];
+
+        if (need_actual_pattern) {
+          int pat_id = -1;
+#pragma omp critical
+          {
+            if (actual_patterns.find(pat) == actual_patterns.end()) {
+              pat_id = actual_patterns.size();
+              actual_patterns[pat] = pat_id;
+            }
+            else {
+              pat_id = actual_patterns[pat];
+            }
+          }
+          s[0] = pat_id;
+        }
+
+
+        if constexpr (mni) {
+          auto coding = pat->canonical_form();
+          qp2cp[tid][s0] = coding;
+          res[tid].sgl->merge(std::get<0>(coding), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(coding), std::get<2>(coding), adaptive_sampling);
+          return std::get<0>(coding);
+        }
+        else {
+          std::string coding = pat->dfs_coding();
+          qp2cp[tid][s0] = coding;
+          res[tid].sgl->merge(coding, s.data(), s.size() * sizeof(int), store);
+          return coding;
+        }
       }
     }
     else {
-#ifdef PROF
-      iso_test_count++;
-#endif
-      // if (qp2cp[tid].size() > MAX_NUM_QPATTERN_PER_THREAD) {
-       //  std::cerr << "qp2cp flushed" << std::endl;
-       // qp2cp[tid].clear();
-      // }
+      std::string kk = std::to_string(q);
+      res[tid].sgl->merge(kk, s.data(), s.size() * sizeof(int), store);
+      return kk;
 
-      int s0 = s[0];
-
-      if (need_actual_pattern) {
-        int pat_id = -1;
-#pragma omp critical
-        {
-          if (actual_patterns.find(pat) == actual_patterns.end()) {
-            pat_id = actual_patterns.size();
-            actual_patterns[pat] = pat_id;
-          }
-          else {
-            pat_id = actual_patterns[pat];
-          }
-        }
-        s[0] = pat_id;
-      }
-
-
-      if constexpr (mni) {
-        auto coding = pat->canonical_form();
-        qp2cp[tid][s0] = coding;
-        res[tid].sgl->merge(std::get<0>(coding), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(coding), std::get<2>(coding), adaptive_sampling);
-        return std::get<0>(coding);
-      }
-      else {
-        std::string coding = pat->dfs_coding();
-        qp2cp[tid][s0] = coding;
-        res[tid].sgl->merge(coding, s.data(), s.size() * sizeof(int), store);
-        return coding;
-      }
     }
   }
 
-  template <bool has_labels, bool edge_induced, bool mni, int K, typename key_type, size_t ncols_left, size_t ncols, size_t... ncols_right>
+  template <bool pat_agg, bool has_labels, bool edge_induced, bool mni, int K, typename key_type, size_t ncols_left, size_t ncols, size_t... ncols_right>
   std::map<std::string, double> for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
     std::shared_ptr<Pattern> pat,
     const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, int level,
@@ -423,7 +438,13 @@ namespace euler::pattern_mining {
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
     const std::vector<double>& sampling_param,
-    bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool est) {
+    bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool est, bool adaptive_sampling, int (*query)(const graph::Graph&, const int*, std::shared_ptr<Pattern>, int)) {
+
+
+    int qret = query(g, s.data(), pat, level - 1);
+    if (qret < 0) return std::map<std::string, double>();
+
+
     int tid = omp_get_thread_num();
 
     auto& pats1 = sgls[level].patterns;
@@ -529,22 +550,26 @@ namespace euler::pattern_mining {
 
 
             if constexpr (K > 1) {
-              std::map<std::string, double> tp = for_loop2<has_labels, edge_induced, mni, K - 1, key_type, value.size(), ncols_right...>(sgls, value, ptt, H, level + 1, iterates, res, qp2cp,
+              std::map<std::string, double> tp = for_loop2<pat_agg, has_labels, edge_induced, mni, K - 1, key_type,  value.size(), ncols_right...>(sgls, value, ptt, H, level + 1, iterates, res, qp2cp,
                 qp_count, qp_idx, g, sm, sampling_param,
-                store, sgl3, mni_threshold, subgraph_hist, need_actual_pattern, actual_patterns, est);
+                store, sgl3, mni_threshold, subgraph_hist, need_actual_pattern, actual_patterns, est, adaptive_sampling, query);
               if (est) {
                 for (auto& [k, v] : tp) {
-                  if (tp_estimate.find(k) == tp_estimate.end()) tp_estimate[k] = 0;
-                  tp_estimate[k] += v;
+                  if (k.length() > 0) {
+                    if (tp_estimate.find(k) == tp_estimate.end()) tp_estimate[k] = 0;
+                    tp_estimate[k] += v;
+                  }
                 }
               }
             }
             else {
-              std::string t = for_loop2_end<mni, value.size()>(value, ptt, res, qp2cp,
-                store, mni_threshold, need_actual_pattern, actual_patterns);
+              std::string t = for_loop2_end<pat_agg, mni,  value.size()>(g, value, ptt, level + 1, res, qp2cp,
+                store, mni_threshold, need_actual_pattern, actual_patterns, adaptive_sampling, query);
               if (est) {
-                if (tp_estimate.find(t) == tp_estimate.end()) tp_estimate[t] = 0;
-                tp_estimate[t] += 1;
+                if (t.length() > 0) {
+                  if (tp_estimate.find(t) == tp_estimate.end()) tp_estimate[t] = 0;
+                  tp_estimate[t] += 1;
+                }
               }
             }
           }
@@ -555,8 +580,10 @@ namespace euler::pattern_mining {
       if (est) {
         if (lena > 0) {
           for (auto& [k, v] : tp_estimate) {
-            if (tp_res.find(k) == tp_res.end()) tp_res[k] = 0;
-            tp_res[k] += v * double(len) / double(lena);
+            if (k.length() > 0) {
+              if (tp_res.find(k) == tp_res.end()) tp_res[k] = 0;
+              tp_res[k] += v * double(len) / double(lena);
+            }
           }
         }
       }
@@ -564,19 +591,19 @@ namespace euler::pattern_mining {
     return tp_res;
   }
 
-  template <bool has_labels, bool edge_induced, bool mni, int K, typename key_type, size_t ncols1, size_t ncols2, size_t... ncols>
+  template <bool pat_agg, bool has_labels, bool edge_induced, bool mni, int K, typename key_type, size_t ncols1, size_t ncols2, size_t... ncols>
   void for_loop1(const std::vector<SGList>& sgls,
     const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H,
     std::vector<int>& iterates, int level, std::vector<SGList>& res,
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<std::array<int, 4>>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
-    const std::vector<double>& sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, bool est) {
+    const std::vector<double>& sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, bool est, int (*query)(const graph::Graph&, const int*, std::shared_ptr<Pattern>, int)) {
     if (level < H.size()) {
       for (int i = 0; i < H[level].size(); i++) {
         iterates.push_back(i);
-        for_loop1<has_labels, edge_induced, mni, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, level + 1, res, qp2cp, qp_count, qp_idx, g,
-          sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns, adaptive_sampling, est);
+        for_loop1<pat_agg, has_labels, edge_induced, mni, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, level + 1, res, qp2cp, qp_count, qp_idx, g,
+          sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns, adaptive_sampling, est, query);
         iterates.pop_back();
       }
     }
@@ -645,6 +672,9 @@ namespace euler::pattern_mining {
                 continue;
               if (sm == stratified && random_number() >= 1 / sampling_param[0])
                 continue;
+
+              int qret = query(g, it_d1, pats1[type1], 0);
+              if (qret < 0) continue;
 
 
               lena1++;
@@ -715,8 +745,6 @@ namespace euler::pattern_mining {
                       continue;
                     }
 
-                    //count++;f
-
                     key_type key{};
                     // key.reserve(4);
 
@@ -759,22 +787,27 @@ namespace euler::pattern_mining {
 
                     // if(omp_get_thread_num() == 0) t_for_loop.start();
                     if constexpr (K > 2) {
-                      std::map<std::string, double> tp = for_loop2<has_labels, edge_induced, mni, K - 2, key_type, value.size(), ncols...>(sgls, value, ptt, H, 2, iterates, res, qp2cp,
+
+                      std::map<std::string, double> tp = for_loop2<pat_agg, has_labels, edge_induced, mni, K - 2, key_type, value.size(), ncols...>(sgls, value, ptt, H, 2, iterates, res, qp2cp,
                         qp_count, qp_idx, g, sm,
-                        sampling_param, store, sgl3, mni_threshold, subgraph_hist, need_actual_pattern, actual_patterns, adaptive_sampling, est);
+                        sampling_param, store, sgl3, mni_threshold, subgraph_hist, need_actual_pattern, actual_patterns, est, adaptive_sampling, query);
                       if (est) {
                         for (auto& [k, v] : tp) {
-                          if (tp_estimate2.find(k) == tp_estimate2.end()) tp_estimate2[k] = 0;
-                          tp_estimate2[k] += v;
+                          if (k.length() > 0) {
+                            if (tp_estimate2.find(k) == tp_estimate2.end()) tp_estimate2[k] = 0;
+                            tp_estimate2[k] += v;
+                          }
                         }
                       }
                     }
                     else {
-                      std::string t = for_loop2_end<mni, value.size()>(value, ptt, res, qp2cp,
-                        store, mni_threshold, need_actual_pattern, actual_patterns, adaptive_sampling);
+                      std::string t = for_loop2_end<pat_agg, mni,  value.size()>(g, value, ptt, 2, res, qp2cp,
+                        store, mni_threshold, need_actual_pattern, actual_patterns, adaptive_sampling, query);
                       if (est) {
-                        if (tp_estimate2.find(t) == tp_estimate2.end()) tp_estimate2[t] = 0;
-                        tp_estimate2[t] += 1;
+                        if (t.length() > 0) {
+                          if (tp_estimate2.find(t) == tp_estimate2.end()) tp_estimate2[t] = 0;
+                          tp_estimate2[t] += 1;
+                        }
                       }
                     }
                   }
@@ -790,8 +823,10 @@ namespace euler::pattern_mining {
 #pragma omp critical 
                   {
                     for (auto& [k, v] : tp_estimate2) {
-                      if (tp_estimate1.find(k) == tp_estimate1.end()) tp_estimate1[k] = 0;
-                      tp_estimate1[k] += v * double(len2) / double(lena2);
+                      if (k.length() > 0) {
+                        if (tp_estimate1.find(k) == tp_estimate1.end()) tp_estimate1[k] = 0;
+                        tp_estimate1[k] += v * double(len2) / double(lena2);
+                      }
                     }
                   }
                 }
@@ -804,8 +839,10 @@ namespace euler::pattern_mining {
           if (est) {
             if (lena1 > 0) {
               for (auto& [k, v] : tp_estimate1) {
-                if (estimate_counts.find(k) == estimate_counts.end()) estimate_counts[k] = 0;
-                estimate_counts[k] += v * double(len1) / double(lena1);
+                if (k.length() > 0) {
+                  if (estimate_counts.find(k) == estimate_counts.end()) estimate_counts[k] = 0;
+                  estimate_counts[k] += v * double(len1) / double(lena1);
+                }
               }
             }
           }
@@ -839,9 +876,9 @@ namespace euler::pattern_mining {
 
   std::vector<std::vector<double>> get_table_size(const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist);
 
-  template <bool has_labels, bool edge_induced, bool mni, int K, size_t ncols1, size_t ncols2, size_t... ncols>
+  template <bool pat_agg, bool has_labels, bool edge_induced, bool mni,  int K, size_t ncols1, size_t ncols2, size_t... ncols>
   std::tuple<SGList, std::map<std::string, double>> join(const graph::Graph& g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, const std::vector<SGList>& sgls, bool store, SamplingMethod sm,
-    std::vector<double> sampling_param, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, double mni_threshold = -1, bool need_actual_pattern = false, bool est = false, bool adaptive_sampling = false, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = dummy1) {
+    std::vector<double> sampling_param, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, double mni_threshold = -1, bool need_actual_pattern = false, bool est = false, bool adaptive_sampling = false, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = join_dummy1, int (*query)(const graph::Graph&, const int*, std::shared_ptr<Pattern>, int) = default_query) {
     assert((!mni && mni_threshold == -1) || (mni && mni_threshold >= 0));
     int res_size = 2;
     for (auto& d : sgls) {
@@ -899,8 +936,8 @@ namespace euler::pattern_mining {
       }
     }*/
 
-    for_loop1<has_labels, edge_induced, mni, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, 0, res, qp2cp, qp_count, qp_idx, g,
-      sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns, adaptive_sampling, est);
+    for_loop1<pat_agg, has_labels, edge_induced, mni, K, key_type, ncols1, ncols2, ncols...>(sgls, H, iterates, 0, res, qp2cp, qp_count, qp_idx, g,
+      sm, sampling_param, store, sgl3, mni_threshold, estimate_counts, subgraph_hist, need_actual_pattern, actual_patterns, adaptive_sampling, est, query);
 
     //std::cout << "exploration space size: " << exploration_space_size << std::endl;
 

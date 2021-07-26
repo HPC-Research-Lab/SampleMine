@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
   match_time.start();
   auto [H2, subgraph_hist2] = build_tables(sgls2);
 
-  auto [d3, ess3] = join<true, true, true, false, 2, 3, 3>(g, H2, sgls2, true, none, { 0, 0 }, subgraph_hist2, sup, true);
+  auto [d3, ess3] = join<true, true, true, true, 4, 2, 3, 3>(g, H2, sgls2, true, none, { 0, 0 }, subgraph_hist2, sup, true);
 
   match_time.stop();
 
@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, true, 2, 4, 4>(g, H, sgls, false, sm2, { st2_scaled * st2_scaled, st2_scaled * st2_scaled }, subgraph_hist, sup, false);
+  auto [d_res, ess] = join<true, true, true, true, 6, 2, 4, 4>(g, H, sgls, false, sm2, { st2_scaled * st2_scaled, st2_scaled * st2_scaled }, subgraph_hist, sup, false);
   t.stop();
 
   filter(d_res, sup);

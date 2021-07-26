@@ -15,7 +15,7 @@
 
 namespace euler::pattern_mining {
 
-static std::vector<size_t> dummy = {};
+//static std::vector<size_t> dummy_match = {};
 
 
 SGList match(

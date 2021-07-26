@@ -10,6 +10,29 @@ using namespace euler::pattern_mining;
 
 typedef vector<pair<int, int>> pat_t;
 
+
+
+// find the subgraphs with at least two label 1
+int my_query(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat, int step) {
+  if (step == 2) {
+    int n1 = 0;
+    for (int i=1; i<7; i++) {
+      int l = g.get_vertex_label(s[i]);
+      if (l == 1) n1++;
+    }
+    if (n1 == 0) return -1;
+  } else if (step == 3) {
+    int n1 = 0;
+    for (int i=1; i<8; i++) {
+      int l = g.get_vertex_label(s[i]);
+      if (l == 1) n1++;
+    }
+    if (n1 < 2) return -1;
+  }
+  return 0;
+}
+
+
 int main(int argc, char* argv[]) {
   // system("rm test_temp/*");
 
@@ -43,7 +66,7 @@ int main(int argc, char* argv[]) {
   match_time.start();
   auto [H2, subgraph_hist2] = build_tables(sgls2);
 
-  auto [d3, ess3] = join<true, true, false, false, 4, 2, 3, 3>(g, H2, sgls2, true, none, { 0, 0 }, subgraph_hist2, -1, true);
+  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, none, { 0, 0 }, subgraph_hist2, -1, true);
 
   match_time.stop();
 
@@ -54,7 +77,7 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 };
+  vector<SGList> sgls = { d3, d3, d2, d2 };
 
   cout << "building tables..." << endl;
   auto [H, subgraph_hist] = build_tables(sgls);
@@ -62,7 +85,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, false, false, 6, 2, 4, 4>(g, H, sgls, false, sm2, { st2, st2 }, subgraph_hist, -1, false, st2 > 0);
+  auto [d_res, ess] = join<false, true, false, false, 4, 4, 4, 3, 3>(g, H, sgls, false, sm2, { st2, st2, st2, 1 }, subgraph_hist, -1, false, st2 > 0, false, join_dummy1, my_query);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
@@ -82,7 +105,9 @@ int main(int argc, char* argv[]) {
 
       vector<double> counts;
 
-      for (auto& [k, v] : ess) counts.push_back(v);
+      for (auto& [k, v] : ess) {
+        counts.push_back(v);
+      }
 
       sort(counts.begin(), counts.end(), std::greater<double>());
 

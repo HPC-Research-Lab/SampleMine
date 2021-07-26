@@ -40,6 +40,10 @@ namespace euler::pattern_mining {
     return dis(gen);
   }
 
+
+  std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>> join_dummy1 = {};
+
+
   bool bsearch(const size_t* x, size_t s, int y) {
     long long low = 0;
     long long high = s - 1;
@@ -57,6 +61,11 @@ namespace euler::pattern_mining {
     }
     return false;
   }
+
+  int default_query(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat, int step) {
+    return 0;
+  }
+
 
   double scale_sampling_param(const SGList& d2, double st) {
     double max_s = -1;
@@ -110,7 +119,7 @@ namespace euler::pattern_mining {
           ht.push_back(make_shared<db::MyKV<int>>(sgl.sgl->ncols));
           subgraph_hist.back()->push_back(std::map<int, std::map<int, double>>());
 
-          auto &his = subgraph_hist.back()->back();
+          auto& his = subgraph_hist.back()->back();
 
           for (auto kv1 : sgl.sgl->keys) {
             auto buf = sgl.sgl->getbuf(kv1.second, sgl.sgl->ncols);
@@ -155,50 +164,50 @@ namespace euler::pattern_mining {
     return res;
   }
 
-/*
-  void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist) {
+  /*
+    void update_sampling_weights(double ntot, const SGList& d, const std::vector<std::vector<double>>& original_table_size, std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist) {
 
-    std::vector<double> vecc;
-    for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
-      vecc.push_back(d.sgl->count[it->second]);
-    }
+      std::vector<double> vecc;
+      for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
+        vecc.push_back(d.sgl->count[it->second]);
+      }
 
-    std::sort(vecc.begin(), vecc.end(), std::greater<double>());
+      std::sort(vecc.begin(), vecc.end(), std::greater<double>());
 
-    size_t pos = vecc.size() / 10;
-    if (pos == 0) pos = 1;
-    double threshold = vecc[pos];
+      size_t pos = vecc.size() / 10;
+      if (pos == 0) pos = 1;
+      double threshold = vecc[pos];
 
-    for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
-      if (d.sgl->count[it->second] < threshold) continue;
-      for (auto& [qp, c] : d.sgl->qp_path[it->second]) {
-        double s = ntot / (ntot - c);
-        size_t length = qp.size();
-        for (int j = 0; j < length; j++) {
-          for (auto& [k, v] : subgraph_hist[length - j - 1][qp[j][1]]) {
-            auto pt = v.find(qp[j][0]);
-            pt->second *= s;
+      for (auto it = d.sgl->keys.begin(); it != d.sgl->keys.end(); it++) {
+        if (d.sgl->count[it->second] < threshold) continue;
+        for (auto& [qp, c] : d.sgl->qp_path[it->second]) {
+          double s = ntot / (ntot - c);
+          size_t length = qp.size();
+          for (int j = 0; j < length; j++) {
+            for (auto& [k, v] : subgraph_hist[length - j - 1][qp[j][1]]) {
+              auto pt = v.find(qp[j][0]);
+              pt->second *= s;
+            }
+          }
+        }
+      }
+      // }
+
+      auto table_size = get_table_size(subgraph_hist);
+
+  #pragma omp parallel for num_threads(_Nthreads)
+      for (int i = 0; i < subgraph_hist.size(); i++) {
+        for (int j = 0; j < subgraph_hist[i].size(); j++) {
+          for (auto& [k1, v1] : subgraph_hist[i][j]) {
+            for (auto& [k2, v2] : v1) {
+              v2 *= original_table_size[i][j] / table_size[i][j];
+            }
           }
         }
       }
     }
-    // }
 
-    auto table_size = get_table_size(subgraph_hist);
-
-#pragma omp parallel for num_threads(_Nthreads)
-    for (int i = 0; i < subgraph_hist.size(); i++) {
-      for (int j = 0; j < subgraph_hist[i].size(); j++) {
-        for (auto& [k1, v1] : subgraph_hist[i][j]) {
-          for (auto& [k2, v2] : v1) {
-            v2 *= original_table_size[i][j] / table_size[i][j];
-          }
-        }
-      }
-    }
-  }
-
-*/
+  */
 
   /*
   vector<vector<shared_ptr<db::MyKV<int>>>> build_tables(const vector<SGList> &sgls) {
