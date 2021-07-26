@@ -13,6 +13,7 @@ typedef vector<pair<int, int>> pat_t;
 //     find the frequent subgraphs with a label 1 OR a label 2
 //    ./q3.exe /data/not_backed_up/shared/gpm_data/citeseer.lg 0.001 0
 //    ./q3.exe /data/not_backed_up/shared/gpm_data/citeseer.lg 0.005 0
+// sampling threshold 4,6,8,10
 
 
 // citeseer 4,5,6,7
