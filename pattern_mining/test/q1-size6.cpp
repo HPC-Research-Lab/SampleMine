@@ -23,10 +23,10 @@ typedef vector<pair<int, int>> pat_t;
 // mico-4
 // find the size-5 subgraphs with a label 1 AND a label 2
 int my_query(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat2, int step) {
-  if (step == 1) {
+  if (step == 2) {
     int n1 = 0;
     int n2 = 0;
-    for (int i=1; i<6; i++) {
+    for (int i=1; i<7; i++) {
       int l = g.get_vertex_label(s[i]);
       if (l == 1) n1++;
       if (l == 2) n2++;
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 };
+  vector<SGList> sgls = { d3, d3, d2 };
 
   cout << "building tables..." << endl;
   auto [H, subgraph_hist] = build_tables(sgls);
@@ -89,7 +89,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<false, true, false, false, 2, 4, 4>(g, H, sgls, false, sm2, { st2, st2 }, subgraph_hist, -1, false, st2 > 0, false, join_dummy1, my_query);
+  auto [d_res, ess] = join<false, true, false, false, 3, 4, 4, 3>(g, H, sgls, false, sm2, { st2, st2, 1 }, subgraph_hist, -1, false, st2 > 0, false, join_dummy1, my_query);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";

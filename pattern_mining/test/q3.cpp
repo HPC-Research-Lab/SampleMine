@@ -12,6 +12,14 @@ typedef vector<pair<int, int>> pat_t;
 
 //     find the frequent subgraphs with a label 1 OR a label 2
 //    ./q3.exe /data/not_backed_up/shared/gpm_data/citeseer.lg 0.001 0
+//    ./q3.exe /data/not_backed_up/shared/gpm_data/citeseer.lg 0.005 0
+
+
+// citeseer 4,5,6,7
+// mico 4
+// size-5
+// 3 + 3 (step=1)
+// 3 + 3 + 3 (step=2)
 int my_query(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat2, int step) {
   if (step == 1) {
     int n1 = 0;

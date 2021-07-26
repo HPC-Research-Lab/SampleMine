@@ -11,8 +11,13 @@ using namespace euler::pattern_mining;
 typedef vector<pair<int, int>> pat_t;
 
 
-
+// size-5
+// 3 + 2 (step=1) + 2 (step=2)
+// citeseer size-6
+// 3 + 3 (step=1) + 2 (step=2)
+// citeseer size-7
 // find the subgraphs with at least two label 1
+// 3 (step=0) + 3 (step=1) + 2 (step=2) + 2 (step=3)
 int my_query(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat, int step) {
   if (step == 2) {
     int n1 = 0;
@@ -85,7 +90,7 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<false, true, false, false, 4, 4, 4, 3, 3>(g, H, sgls, false, sm2, { st2, st2, st2, 1 }, subgraph_hist, -1, false, st2 > 0, false, join_dummy1, my_query);
+  auto [d_res, ess] = join<false, true, false, false, 4, 4, 4, 3, 3>(g, H, sgls, false, sm2, { st2, st2, 1, 1 }, subgraph_hist, -1, false, st2 > 0, false, join_dummy1, my_query);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
