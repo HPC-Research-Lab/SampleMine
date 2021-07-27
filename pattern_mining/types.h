@@ -9,6 +9,8 @@
 namespace euler::pattern_mining {
   typedef std::vector<std::shared_ptr<Pattern>> PatList;
   typedef __uint64_t cpp_int;
+  
+  typedef int (*Query)(const graph::Graph& g, const int* subgraph, std::shared_ptr<Pattern> pat, int step);
 
 
   enum SamplingMethod { stratified, clustered, none };

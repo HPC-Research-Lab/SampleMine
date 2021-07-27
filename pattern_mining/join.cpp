@@ -62,10 +62,6 @@ namespace euler::pattern_mining {
     return false;
   }
 
-  int default_query(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat, int step) {
-    return 0;
-  }
-
 
   double scale_sampling_param(const SGList& d2, double st) {
     double max_s = -1;

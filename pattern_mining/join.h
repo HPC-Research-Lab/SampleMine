@@ -26,7 +26,9 @@ namespace euler::pattern_mining {
   std::tuple<std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>, std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>> build_tables(const std::vector<SGList>& sgls);
 
 
-  int default_query(const graph::Graph& g, const int* s, std::shared_ptr<Pattern> pat, int step);
+  const static Query default_query { [](const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat, int step) {
+    return 0;
+  } };
 
 
 
@@ -339,7 +341,7 @@ namespace euler::pattern_mining {
   std::string for_loop2_end(const graph::Graph& g, std::array<int, ncols_left>& s,
     std::shared_ptr<Pattern> pat, int level,
     std::vector<SGList>& res,
-    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, int (*query)(const graph::Graph&, const int*, std::shared_ptr<Pattern>, int)) {
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, Query query) {
 
 
     int tid = omp_get_thread_num();
@@ -438,7 +440,7 @@ namespace euler::pattern_mining {
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
     const std::vector<double>& sampling_param,
-    bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool est, bool adaptive_sampling, int (*query)(const graph::Graph&, const int*, std::shared_ptr<Pattern>, int)) {
+    bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool est, bool adaptive_sampling, Query query) {
 
 
     int qret = query(g, s.data(), pat, level - 1);
@@ -598,7 +600,7 @@ namespace euler::pattern_mining {
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<std::array<int, 4>>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, SamplingMethod sm,
-    const std::vector<double>& sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, bool est, int (*query)(const graph::Graph&, const int*, std::shared_ptr<Pattern>, int)) {
+    const std::vector<double>& sampling_param, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::map<std::string, double>& estimate_counts, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, bool est, Query query) {
     if (level < H.size()) {
       for (int i = 0; i < H[level].size(); i++) {
         iterates.push_back(i);
@@ -878,7 +880,7 @@ namespace euler::pattern_mining {
 
   template <bool pat_agg, bool has_labels, bool edge_induced, bool mni,  int K, size_t ncols1, size_t ncols2, size_t... ncols>
   std::tuple<SGList, std::map<std::string, double>> join(const graph::Graph& g, const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, const std::vector<SGList>& sgls, bool store, SamplingMethod sm,
-    std::vector<double> sampling_param, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, double mni_threshold = -1, bool need_actual_pattern = false, bool est = false, bool adaptive_sampling = false, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = join_dummy1, int (*query)(const graph::Graph&, const int*, std::shared_ptr<Pattern>, int) = default_query) {
+    std::vector<double> sampling_param, const std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>& subgraph_hist, double mni_threshold = -1, bool need_actual_pattern = false, bool est = false, bool adaptive_sampling = false, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3 = join_dummy1, Query query = default_query) {
     assert((!mni && mni_threshold == -1) || (mni && mni_threshold >= 0));
     int res_size = 2;
     for (auto& d : sgls) {
