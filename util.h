@@ -38,9 +38,11 @@ namespace euler::util {
     size_t len;
 
   public:
+    span() : addr(nullptr), len(0) {}
     span(const T* a, size_t l) : addr(a), len(l) {}
     const T* data() { return addr; }
     size_t size() { return len; }
+    T& operator[](size_t idx) {return addr[idx];}
   };
 
   template <class T>

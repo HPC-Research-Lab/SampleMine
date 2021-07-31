@@ -13,7 +13,7 @@ namespace euler::pattern_mining {
 
   class Query {
   public:
-    virtual int operator()(const graph::Graph& g, const int* s, std::shared_ptr<Pattern> pat, int step) {
+    virtual int operator()(const graph::Graph& g, util::span<const int> s, std::shared_ptr<Pattern> pat, int step) {
       return 0;
     }
   };

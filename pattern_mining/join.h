@@ -292,10 +292,10 @@ namespace euler::pattern_mining {
         while (j > 0 && value[start_vec[j - 1]] > value[xi]) {
           start_vec[j] = start_vec[j - 1];
           j--;
-      }
+        }
         start_vec[j] = xi;
         nelem++;
-    }
+      }
 
       std::array<int, ncols> visited{};
 
@@ -332,11 +332,11 @@ namespace euler::pattern_mining {
       }
 
       res.emplace_back(key, pttt);
-  }
+    }
 
     // assert(key != (1 << 31));
     return res;
-}
+  }
 
   template <bool pat_agg, bool mni, size_t ncols_left>
   std::string for_loop2_end(const graph::Graph& g, std::array<int, ncols_left>& s,
@@ -347,7 +347,7 @@ namespace euler::pattern_mining {
 
     int tid = omp_get_thread_num();
 
-    int q = query(g, s.data(), pat, level - 1);
+    int q = query(g, { s.data(), s.size() }, pat, level - 1);
 
     if (q == -1) return std::string();
 
@@ -443,7 +443,7 @@ namespace euler::pattern_mining {
     bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool est, bool adaptive_sampling, Query& query) {
 
 
-    int qret = query(g, s.data(), pat, level - 1);
+    int qret = query(g, { s.data(), s.size() }, pat, level - 1);
     if (qret < 0) return std::map<std::string, double>();
 
 
@@ -479,14 +479,11 @@ namespace euler::pattern_mining {
       }
 
       auto it1 = buf.begin();
-      size_t lena = 0, len = 0;
-
       std::map<std::string, double> tp_estimate;
 
       while (true) {
         size_t length = it1.buffer_size / ncols;
 
-        len += length;
 
         for (size_t z = 0; z < length; z++) {
           //size_t z = indices[zi];
@@ -499,9 +496,8 @@ namespace euler::pattern_mining {
           const int* it_buf = it1.buffer + z * ncols;
 
 
-          if (sampler(s.data(), it_buf, i - 1, j, level)) continue;
-
-          lena++;
+          double pr = sampler.smp_prob({ s.data(), s.size() }, { it_buf, ncols }, i - 1, j, level);
+          if (util::random_number() >= pr) continue;
 
 
           std::array<int, ncols_left + ncols - 2> value;
@@ -558,7 +554,7 @@ namespace euler::pattern_mining {
                 for (auto& [k, v] : tp) {
                   if (k.length() > 0) {
                     if (tp_estimate.find(k) == tp_estimate.end()) tp_estimate[k] = 0;
-                    tp_estimate[k] += v;
+                    if (pr > 0) tp_estimate[k] += v / pr;
                   }
                 }
               }
@@ -569,7 +565,7 @@ namespace euler::pattern_mining {
               if (est) {
                 if (t.length() > 0) {
                   if (tp_estimate.find(t) == tp_estimate.end()) tp_estimate[t] = 0;
-                  tp_estimate[t] += 1;
+                  if (pr > 0) tp_estimate[t] += 1 / pr;
                 }
               }
             }
@@ -579,16 +575,14 @@ namespace euler::pattern_mining {
         it1.next();
       }
       if (est) {
-        if (lena > 0) {
-          for (auto& [k, v] : tp_estimate) {
-            if (k.length() > 0) {
-              if (tp_res.find(k) == tp_res.end()) tp_res[k] = 0;
-              tp_res[k] += v * double(len) / double(lena);
-            }
+        for (auto& [k, v] : tp_estimate) {
+          if (k.length() > 0) {
+            if (tp_res.find(k) == tp_res.end()) tp_res[k] = 0;
+            tp_res[k] += v;
           }
         }
       }
-  }
+    }
     return tp_res;
   }
 
@@ -654,15 +648,12 @@ namespace euler::pattern_mining {
           auto it1 = reordered_d1.begin();
 
           std::map<std::string, double> tp_estimate1;
-          size_t lena1 = 0;
-          size_t len1 = 0;
 
 
           while (true) {
             size_t length1 = it1.buffer_size / ncols1;
-            len1 += length1;
 
-#pragma omp parallel for num_threads(_Nthreads) reduction(+: lena1)
+#pragma omp parallel for num_threads(_Nthreads) 
             for (size_t z = 0; z < length1; z++) {
               int type1 = it1.buffer[z * ncols1];
               const int* it_d1 = it1.buffer + z * ncols1;
@@ -670,14 +661,12 @@ namespace euler::pattern_mining {
 
 
 
-              int qret = query(g, it_d1, pats1[type1], 0);
+              int qret = query(g, { it_d1, ncols1 }, pats1[type1], 0);
               if (qret < 0) continue;
 
-              if (sampler(nullptr, it_d1, -1, i, 0)) continue;
+              double pr1 = sampler.smp_prob({ nullptr,0 }, { it_d1, ncols1 }, -1, i, 0);
 
-
-              lena1++;
-
+              if (util::random_number() >= pr1) continue;
 
               int tid = omp_get_thread_num();
 
@@ -692,13 +681,9 @@ namespace euler::pattern_mining {
 
 
               std::map<std::string, double> tp_estimate2;
-              size_t lena2 = 0;
-              size_t len2 = 0;
 
               while (true) {
                 size_t length2 = it2.buffer_size / ncols2;
-
-                len2 += length2;
 
                 for (size_t z1 = 0; z1 < length2; z1++) {
                   int type2 = it2.buffer[z1 * ncols2];
@@ -707,10 +692,9 @@ namespace euler::pattern_mining {
 
                   const int* it_d2 = it2.buffer + z1 * ncols2;
 
+                  double pr2 = sampler.smp_prob({ it_d1, ncols1 }, { it_d2, ncols2 }, i, j, 1);
+                  if (util::random_number() >= pr2) continue;
 
-                  if (sampler(it_d1, it_d2, i, j, 1)) continue;
-
-                  lena2++;
 
                   auto key_pat_vec = get_connectivity<has_labels, edge_induced, ncols2, ncols1, value.size()>(
                     nbv, it_d2, it_d1, j + 1,
@@ -773,7 +757,7 @@ namespace euler::pattern_mining {
                         for (auto& [k, v] : tp) {
                           if (k.length() > 0) {
                             if (tp_estimate2.find(k) == tp_estimate2.end()) tp_estimate2[k] = 0;
-                            tp_estimate2[k] += v;
+                            if (pr2 > 0) tp_estimate2[k] += v / pr2;
                           }
                         }
                       }
@@ -784,7 +768,7 @@ namespace euler::pattern_mining {
                       if (est) {
                         if (t.length() > 0) {
                           if (tp_estimate2.find(t) == tp_estimate2.end()) tp_estimate2[t] = 0;
-                          tp_estimate2[t] += 1;
+                          if (pr2 > 0) tp_estimate2[t] += 1 / pr2;
                         }
                       }
                     }
@@ -797,14 +781,12 @@ namespace euler::pattern_mining {
               }
 
               if (est) {
-                if (lena2 > 0) {
 #pragma omp critical 
-                  {
-                    for (auto& [k, v] : tp_estimate2) {
-                      if (k.length() > 0) {
-                        if (tp_estimate1.find(k) == tp_estimate1.end()) tp_estimate1[k] = 0;
-                        tp_estimate1[k] += v * double(len2) / double(lena2);
-                      }
+                {
+                  for (auto& [k, v] : tp_estimate2) {
+                    if (k.length() > 0) {
+                      if (tp_estimate1.find(k) == tp_estimate1.end()) tp_estimate1[k] = 0;
+                      if (pr1 > 0) tp_estimate1[k] += v / pr1;
                     }
                   }
                 }
@@ -815,12 +797,11 @@ namespace euler::pattern_mining {
             it1.next();
           }
           if (est) {
-            if (lena1 > 0) {
-              for (auto& [k, v] : tp_estimate1) {
-                if (k.length() > 0) {
-                  if (estimate_counts.find(k) == estimate_counts.end()) estimate_counts[k] = 0;
-                  estimate_counts[k] += v * double(len1) / double(lena1);
-                }
+
+            for (auto& [k, v] : tp_estimate1) {
+              if (k.length() > 0) {
+                if (estimate_counts.find(k) == estimate_counts.end()) estimate_counts[k] = 0;
+                estimate_counts[k] += v;
               }
             }
           }

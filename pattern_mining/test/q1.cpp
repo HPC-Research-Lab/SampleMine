@@ -23,7 +23,7 @@ typedef vector<pair<int, int>> pat_t;
 // mico-4
 // find the size-5 subgraphs with a label 1 AND a label 2
 class MyQuery: public Query {
-int operator()(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat, int step) {
+int operator()(const graph::Graph& g, util::span<const int> s, std::shared_ptr<Pattern> pat, int step) {
   if (step == 1) {
     int n1 = 0;
     int n2 = 0;

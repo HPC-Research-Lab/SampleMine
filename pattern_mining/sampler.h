@@ -17,8 +17,11 @@ namespace euler::pattern_mining {
 
   class Sampler {
   public:
-    virtual bool operator()(const int* s, const int* t, int i, int j, int step) {
+    virtual bool operator()(util::span<const int> s, util::span<const int> t, int i, int j, int step) {
       return false;
+    }
+    virtual double smp_prob(util::span<const int> s, util::span<const int> t, int i, int j, int step) {
+      return 1.0;
     }
   };
 
@@ -26,8 +29,8 @@ namespace euler::pattern_mining {
     std::vector<double> sampling_ratio;
   public:
     ProportionalSampler(const std::vector<double>& sample_ratio) : sampling_ratio(sample_ratio) {}
-    inline bool operator()(const int* s, const int* t, int i, int j, int step) {
-      return util::random_number() >= 1 / sampling_ratio[step];
+    inline double smp_prob(util::span<const int> s, util::span<const int> t, int i, int j, int step) {
+      return 1 / sampling_ratio[step];
     }
   };
 
@@ -39,8 +42,8 @@ namespace euler::pattern_mining {
     BudgetSampler(
        std::shared_ptr<std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>> hist,  const std::vector<double> &sample_budget) : subgraph_hist(hist), sampling_budget(sample_budget) {
       }
-    inline bool operator()(const int* s, const int* t, int i, int j, int step) {
-      return util::random_number() >= sampling_budget[step] / subgraph_hist->at(step)->at(j).at(t[j+1]).at(t[0]);
+    inline double smp_prob(util::span<const int> s, util::span<const int> t, int i, int j, int step) {
+      return sampling_budget[step] / subgraph_hist->at(step)->at(j).at(t[j+1]).at(t[0]);
     }
   };
 
