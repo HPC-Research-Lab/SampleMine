@@ -5,6 +5,7 @@
 #include "db/db.h"
 #include "pattern_mining/filter.h"
 #include "pattern_mining/types.h"
+#include "pattern_mining/sampler.h"
 
 
 

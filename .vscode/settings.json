@@ -107,5 +107,6 @@
       "source_location": "cpp",
       "bit": "cpp"
     },
-    "python.pythonPath": "/data/not_backed_up/penjiang/conda_env/pytorch/bin/python"
+    "python.pythonPath": "/data/not_backed_up/penjiang/conda_env/pytorch/bin/python",
+    "C_Cpp.errorSquiggles": "Disabled"
 }

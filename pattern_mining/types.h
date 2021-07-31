@@ -9,12 +9,15 @@
 namespace euler::pattern_mining {
   typedef std::vector<std::shared_ptr<Pattern>> PatList;
   typedef __uint64_t cpp_int;
+
+
+  class Query {
+  public:
+    virtual int operator()(const graph::Graph& g, const int* s, std::shared_ptr<Pattern> pat, int step) {
+      return 0;
+    }
+  };
   
-  typedef int (*Query)(const graph::Graph& g, const int* subgraph, std::shared_ptr<Pattern> pat, int step);
-
-
-  enum SamplingMethod { stratified, clustered, none };
-
   struct SGList {
     std::shared_ptr<db::MyKV<std::string>> sgl = nullptr;
     PatList patterns;

@@ -22,7 +22,8 @@ typedef vector<pair<int, int>> pat_t;
 // citeseer-4,5,6,7
 // mico-4
 // find the size-5 subgraphs with a label 1 AND a label 2
-int my_query(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat2, int step) {
+class MyQuery: public Query {
+int operator()(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat, int step) {
   if (step == 1) {
     int n1 = 0;
     int n2 = 0;
@@ -35,6 +36,7 @@ int my_query(const graph::Graph& g, const int *s, std::shared_ptr<Pattern> pat2,
   }
   return 0;
 }
+};
 
 
 int main(int argc, char* argv[]) {
@@ -51,15 +53,6 @@ int main(int argc, char* argv[]) {
 
   double st2 = atof(argv[2]);
 
-  SamplingMethod sm2;
-
-  if (st2 > 0) {
-    sm2 = stratified;
-  }
-  else {
-    sm2 = none;
-  }
-
   cout << "start matchings pat2: " << endl;
   auto d2 = match(g, pat2, true, false, true);
 
@@ -68,9 +61,10 @@ int main(int argc, char* argv[]) {
 
   util::Timer match_time;
   match_time.start();
-  auto [H2, subgraph_hist2] = build_tables(sgls2);
+  auto H2 = build_tables(sgls2);
 
-  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, none, { 0, 0 }, subgraph_hist2, -1, true);
+
+  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, default_sampler, -1, true);
 
   match_time.stop();
 
@@ -84,12 +78,19 @@ int main(int argc, char* argv[]) {
   vector<SGList> sgls = { d3, d3 };
 
   cout << "building tables..." << endl;
-  auto [H, subgraph_hist] = build_tables(sgls);
+  auto H = build_tables(sgls);
   cout << "build table done" << endl;
+
+  Sampler *sm2;
+  if (st2 > 0)
+    sm2 = new ProportionalSampler({ st2, st2 });
+  else sm2 = &default_sampler;
+
+  auto query = MyQuery();
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<false, true, false, false, 2, 4, 4>(g, H, sgls, false, sm2, { st2, st2 }, subgraph_hist, -1, false, st2 > 0, false, join_dummy1, my_query);
+  auto [d_res, ess] = join<false, true, false, false, 2, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 0, false, join_dummy1, query);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
