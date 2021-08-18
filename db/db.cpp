@@ -34,7 +34,7 @@ namespace euler::db {
     struct stat sb;
 
     if (stat(DBPath.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) {
-      system(("rm -r " + DBPath).c_str());
+      int s = system(("rm -r " + DBPath).c_str());
     }
 
     assert(mkdir(DBPath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH) == 0);
@@ -50,7 +50,11 @@ namespace euler::db {
       perror("store data failed");
       exit(EXIT_FAILURE);
     }
-    write(fd, a, len);
+    ssize_t r = write(fd, a, len);
+    if (r < 0) {
+      perror("db error 1");
+      exit(-1);
+    }
     close(fd);
     data_size += len;
     buf.push_back(std::vector<int>());
@@ -86,7 +90,11 @@ namespace euler::db {
         //    assert(fsize == length * sizeof(int));
         size_t os = tmpbuf.size();
         tmpbuf.resize(tmpbuf.size() + length);
-        read(fd, tmpbuf.data() + os, fsize);
+        ssize_t r = read(fd, tmpbuf.data() + os, fsize);
+        if (r < 0) {
+          perror("db error 1");
+          exit(-1);
+        }
         close(fd);
       }
       tmpbuf.insert(tmpbuf.end(), buf[idx].begin(), buf[idx].end());
@@ -105,7 +113,11 @@ namespace euler::db {
         }
         size_t os = tmpbuf.size();
         tmpbuf.resize(tmpbuf.size() + size);
-        read(fd, tmpbuf.data() + os, size * sizeof(int));
+        ssize_t r = read(fd, tmpbuf.data() + os, size * sizeof(int));
+        if (r < 0) {
+          perror("db error 1");
+          exit(-1);
+        }
         close(fd);
       }
       else {
@@ -299,7 +311,7 @@ namespace euler::db {
     clear();
   }
 
-   template <class key_type, class value_type>
+  template <class key_type, class value_type>
   void MyKV<key_type, value_type>::clear() {
     keys.clear();
     buf.clear();
@@ -309,7 +321,7 @@ namespace euler::db {
     file_exist.clear();
     qp_set.clear();
     qp_path.clear();
-    system(("rm -rf " + DBPath).c_str());
+    int s = system(("rm -rf " + DBPath).c_str());
   }
 
   template class MyKV<int>;

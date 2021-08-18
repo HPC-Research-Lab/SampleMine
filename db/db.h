@@ -103,7 +103,11 @@ namespace euler::db {
               while (true) {
                 size_t rsize = read(rid, buf, 1024 * 1024);
                 if (rsize > 0) {
-                  write(wid, buf, rsize);
+                  ssize_t r = write(wid, buf, rsize);
+                  if (r < 0) {
+                    perror("db error 1");
+                    exit(-1);
+                  }
                 }
                 else break;
               }
@@ -142,9 +146,13 @@ namespace euler::db {
             if (rid != -1) {
               char buf[1024 * 1024];
               while (true) {
-                size_t rsize = read(rid, buf, 1024 * 1024);
+                ssize_t rsize = read(rid, buf, 1024 * 1024);
                 if (rsize > 0) {
-                  write(wid, buf, rsize);
+                  ssize_t r = write(wid, buf, rsize);
+                  if (r < 0) {
+                    perror("db error 1");
+                    exit(-1);
+                  }
                 }
                 else break;
               }
@@ -168,7 +176,11 @@ namespace euler::db {
               while (true) {
                 size_t rsize = read(rid, buf, 1024 * 1024);
                 if (rsize > 0) {
-                  write(wid, buf, rsize);
+                  ssize_t r = write(wid, buf, rsize);
+                  if (r < 0) {
+                    perror("db error 1");
+                    exit(-1);
+                  }
                 }
                 else break;
               }

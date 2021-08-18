@@ -35,15 +35,6 @@ int main(int argc, char* argv[]) {
 
   double st2 = atof(argv[3]);
 
-  SamplingMethod sm2;
-
-  if (st2 > 0) {
-    sm2 = clustered;
-  }
-  else {
-    sm2 = none;
-  }
-
   double sup = (size_t)round(thh * g.num_nodes());
 
 
@@ -64,9 +55,9 @@ int main(int argc, char* argv[]) {
 
   util::Timer match_time;
   match_time.start();
-  auto [H2, subgraph_hist2] = build_tables(sgls2);
+  auto H2 = build_tables(sgls2);
 
-  auto [d3, ess3] = join<true, true, true, true, 4, 2, 3, 3>(g, H2, sgls2, true, none, { 0, 0 }, subgraph_hist2, sup, true);
+  auto [d3, ess3] = join<true, true, true, true, 2, 3, 3>(g, H2, sgls2, true, default_sampler, sup, true);
 
   match_time.stop();
 
@@ -87,12 +78,18 @@ int main(int argc, char* argv[]) {
   vector<SGList> sgls = { d3, d3 };
 
   cout << "building tables..." << endl;
-  auto [H, subgraph_hist] = build_tables(sgls);
+  auto H = build_tables(sgls);
+  auto  subgraph_hist = get_subgraph_hist(sgls);
   cout << "build table done" << endl;
+
+  Sampler *sm2;
+  if (st2 > 0)
+    sm2 = new BudgetSampler(subgraph_hist, {st2_scaled, st2_scaled});
+  else sm2 = &default_sampler;
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, true, true, 6, 2, 4, 4>(g, H, sgls, false, sm2, { st2_scaled * st2_scaled, st2_scaled * st2_scaled }, subgraph_hist, sup, false);
+  auto [d_res, ess] = join<true, true, true, true, 2, 4, 4>(g, H, sgls, false, *sm2, sup, false, false);
   t.stop();
 
   filter(d_res, sup);
