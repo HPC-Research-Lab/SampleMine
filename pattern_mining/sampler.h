@@ -17,9 +17,6 @@ namespace euler::pattern_mining {
 
   class Sampler {
   public:
-    virtual bool operator()(util::span<const int> s, util::span<const int> t, int i, int j, int step) {
-      return false;
-    }
     virtual double smp_prob(util::span<const int> s, util::span<const int> t, int i, int j, int step) {
       return 1.0;
     }

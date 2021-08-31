@@ -146,20 +146,9 @@ namespace euler::db {
       buf.emplace_back((int*)a, (int*)a + len / sizeof(value_type));
       if (mni >= 0) {
 
-        /*if (perm.size() > 0) {
-          for (int i = 0; i < rperm.size(); i++) {
-            rperm[perm[i]] = i;
-          }
-        }*/
-
         std::vector<std::set<int>> vs;
 
-        //if (perm.size() > 0) {
-        //  for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + rperm[i - 1] + 1) });
-        //}
-        //else {
         for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + i) });
-        // }
 
         std::vector<std::set<int>> vos;
         for (auto& o : orbits) {

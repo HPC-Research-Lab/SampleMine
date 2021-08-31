@@ -11,10 +11,10 @@
 namespace euler::graph {
 
   bool Graph_CSR_CPU::is_neighbor(int n1, int n2, const std::function<void(int, int)>& f) const {
-    size_t low = rowptr[n1];
-    size_t high = rowptr[n1 + 1] - 1;
+    long long low = rowptr[n1];
+    long long high = rowptr[n1 + 1] - 1;
     while (low <= high) {
-      size_t mid = (low + high) / 2;
+      long long mid = (low + high) / 2;
       if (colidx[mid] == n2) {
         if (f) f(n1, n2);
         return true;
