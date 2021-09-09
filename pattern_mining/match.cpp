@@ -650,7 +650,7 @@ namespace euler::pattern_mining {
             //util::print_vec(cp.second);
 
             std::tuple<std::string, std::vector<std::vector<unsigned int>>, std::vector<unsigned int>> cp;
-#pragma omp critical
+/*#pragma omp critical
             {
               auto it_pat = actual_patterns.find(ptt);
               if (it_pat == actual_patterns.end()) {
@@ -663,7 +663,8 @@ namespace euler::pattern_mining {
                 v[tid][0] = std::get<0>(it_pat->second);
                 cp = std::make_tuple(std::get<1>(it_pat->second), std::get<2>(it_pat->second), std::get<3>(it_pat->second));
               }
-            }
+            }*/
+            cp = Pattern::get_pattern(g, &v[tid][0], nn+1)->canonical_form();
             data[tid]->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
           }
           else {
