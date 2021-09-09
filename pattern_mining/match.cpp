@@ -55,7 +55,7 @@ namespace euler::pattern_mining {
     std::vector<std::vector<std::pair<bool, std::vector<int>>>>& z,
     bool edge_induced, std::vector<size_t>& count_per_vertex, double sampling_threshold, double mni, bool testing, bool pattern_labeled) {
     if (level == 0) {
-#pragma omp parallel for num_threads(_Nthreads)
+//#pragma omp parallel for num_threads(_Nthreads)
       for (int i = 0; i < start_set.size(); i++) {
         int tid = omp_get_thread_num();
         v[tid][level + 1] = start_set[i];
@@ -635,22 +635,17 @@ namespace euler::pattern_mining {
           if (output_labeled) {
             auto ptt = std::make_shared<Pattern>(*ptr);
 
-            ptt->enable_label();
-            for (int k = 1; k < nn + 1; k++) {
-              int l = g.get_vertex_label(v[tid][k]);
-              ptt->add_label(l);
+            ptt->init_label();
+            for (int k = 0; k < nn; k++) {
+              int l = g.get_vertex_label(v[tid][k+1]);
+              ptt->vertex_label[node_order[k]] = l;
             }
 
             // if the matching is labeled, we aggregagate the subgraph with their actual pattern. 
             // The first entry of each subgraph store the pattern id
 
-            //ptt->print();
-
-            //std::cout << std::get<0>(cp) << std::endl;
-            //util::print_vec(cp.second);
-
             std::tuple<std::string, std::vector<std::vector<unsigned int>>, std::vector<unsigned int>> cp;
-/*#pragma omp critical
+#pragma omp critical
             {
               auto it_pat = actual_patterns.find(ptt);
               if (it_pat == actual_patterns.end()) {
@@ -663,8 +658,8 @@ namespace euler::pattern_mining {
                 v[tid][0] = std::get<0>(it_pat->second);
                 cp = std::make_tuple(std::get<1>(it_pat->second), std::get<2>(it_pat->second), std::get<3>(it_pat->second));
               }
-            }*/
-            cp = Pattern::get_pattern(g, &v[tid][0], nn+1)->canonical_form();
+            }
+
             data[tid]->merge(std::get<0>(cp), v[tid].data(), v[tid].size() * sizeof(int), store_data, mni, std::get<1>(cp), std::get<2>(cp));
           }
           else {

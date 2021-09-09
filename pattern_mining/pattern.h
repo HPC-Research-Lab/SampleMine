@@ -132,6 +132,11 @@ namespace euler::pattern_mining {
       vertex_label.clear();
     }
 
+    void init_label() {
+      enable_label();
+      vertex_label.resize(nn);
+    }
+
     void combine(const Pattern& p, int j1, int j2) {
       if (p.use_vertex_label != use_vertex_label) {
         std::cerr << "not compatible patterns" << std::endl;
