@@ -304,24 +304,11 @@ namespace euler::pattern_mining {
       if (a->use_vertex_label == b->use_vertex_label) {
         if (a->nn == b->nn) {
           if (a->ne == b->ne) {
-            for (int i = 0; i < a->nn; i++) {
-              if (a->vertex_label[i] != b->vertex_label[i]) {
-                return a->vertex_label[i] < b->vertex_label[i];
-              }
-            }
+            if (a->vertex_label != b->vertex_label) return a->vertex_label < b->vertex_label;
 
             for (int i = 0; i < a->nn; i++) {
-              if (a->adj_list[i].size() == b->adj_list[i].size()) {
-                auto it_a = a->adj_list[i].begin();
-                auto it_b = b->adj_list[i].begin();
-                while (it_a != a->adj_list[i].end() && it_b != b->adj_list[i].end()) {
-                   if (*it_a != *it_b) return *it_a < *it_b;
-                   it_a++; it_b++;
-                }
-              }
-              else {
-                return a->adj_list[i].size() < b->adj_list[i].size();
-              }
+              if (a->adj_list[i] != b->adj_list[i])
+                return a->adj_list[i] < b->adj_list[i];
             }
             return false;
           }
@@ -336,7 +323,6 @@ namespace euler::pattern_mining {
       else {
         return a->use_vertex_label < b->use_vertex_label;
       }
-      //return a->to_string() < b->to_string();
     }
   };
 

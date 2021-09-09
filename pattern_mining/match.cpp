@@ -656,6 +656,7 @@ namespace euler::pattern_mining {
               if (it_pat == actual_patterns.end()) {
                 cp = ptt->canonical_form();
                 actual_patterns[ptt] = std::make_tuple(actual_patterns.size(), std::get<0>(cp), std::get<1>(cp), std::get<2>(cp));
+                // v[tid][0] may not be the canonical pattern idx, so ptts of the same canonical pattern may have different indices
                 v[tid][0] = actual_patterns.size() - 1;
               }
               else {
