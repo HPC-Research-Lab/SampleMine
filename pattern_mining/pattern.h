@@ -306,7 +306,7 @@ namespace euler::pattern_mining {
 
   struct cmpByPattern {
     bool operator()(const std::shared_ptr<Pattern> a, const std::shared_ptr<Pattern> b) const {
-      /* if (a->use_vertex_label == b->use_vertex_label) {
+       if (a->use_vertex_label == b->use_vertex_label) {
         if (a->nn == b->nn) {
           if (a->ne == b->ne) {
             if (a->vertex_label != b->vertex_label) return a->vertex_label < b->vertex_label;
@@ -327,8 +327,7 @@ namespace euler::pattern_mining {
       }
       else {
         return a->use_vertex_label < b->use_vertex_label;
-      } */
-      return a->to_string() < b->to_string();
+      } 
     }
   };
 
