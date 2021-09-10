@@ -282,6 +282,21 @@ namespace euler::db {
 
 
   template <class key_type, class value_type>
+  void MyKV<key_type, value_type>::merge_count(const key_type& k, size_t c) {
+    auto it = keys.find(k);
+    if (it != keys.end()) {
+      size_t file_id = it->second;
+      count[file_id] += c;
+    }
+    else {
+      keys[k] = nfiles++;
+      count.push_back(c);
+    }
+  }
+
+
+
+  template <class key_type, class value_type>
   size_t MyKV<key_type, value_type>::size() {
     return keys.size();
   }

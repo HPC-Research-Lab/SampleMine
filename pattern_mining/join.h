@@ -496,8 +496,9 @@ namespace euler::pattern_mining {
           const int* it_buf = it1.buffer + z * ncols;
 
 
+
           double pr = sampler.smp_prob({ s.data(), s.size() }, { it_buf, ncols }, i - 1, j, level);
-          if (util::random_number() >= pr) continue;
+          if ((&sampler != &default_sampler) && (util::random_number() >= pr)) continue;
 
 
           std::array<int, ncols_left + ncols - 2> value;
@@ -666,7 +667,7 @@ namespace euler::pattern_mining {
 
               double pr1 = sampler.smp_prob({ nullptr,0 }, { it_d1, ncols1 }, -1, i, 0);
 
-              if (util::random_number() >= pr1) continue;
+              if ((&sampler != &default_sampler) && (util::random_number() >= pr1)) continue;
 
               int tid = omp_get_thread_num();
 
@@ -693,7 +694,7 @@ namespace euler::pattern_mining {
                   const int* it_d2 = it2.buffer + z1 * ncols2;
 
                   double pr2 = sampler.smp_prob({ it_d1, ncols1 }, { it_d2, ncols2 }, i, j, 1);
-                  if (util::random_number() >= pr2) continue;
+                  if ((&sampler != &default_sampler) && (util::random_number() >= pr2)) continue;
 
 
                   auto key_pat_vec = get_connectivity<has_labels, edge_induced, ncols2, ncols1, value.size()>(

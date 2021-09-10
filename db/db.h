@@ -52,7 +52,7 @@ namespace euler::db {
 
     double tot_count() {
       double sum = 0.0;
-      for (auto d: count) sum += d;
+      for (auto d : count) sum += d;
       return sum;
     }
 
@@ -76,6 +76,17 @@ namespace euler::db {
           res.push_back({ left, qp_count[0][cur][2] });
           if (qp_path.back().find(res) == qp_path.back().end()) qp_path.back()[res] = 0;
           qp_path.back()[res] += v;
+        }
+      }
+    }
+
+    void combine_count(MyKV& other) {
+      for (auto& [key, value] : other.keys) {
+        if (keys.find(key) == keys.end()) {
+          count.push_back(other.count[value]);
+          keys[key] = nfiles++;
+        } else {
+          count[keys[key]] += other.count[value];
         }
       }
     }
@@ -393,6 +404,8 @@ namespace euler::db {
     MyKV(int nc);
 
     void put(const void* a, size_t len);
+
+    void merge_count(const key_type& k, size_t c);
 
     void merge(const key_type& k, const void* a, size_t len,
       bool store_value = true, double mni = -1, const std::vector<std::vector<unsigned>>& orbits = dummy1, const std::vector<unsigned>& perm = dummy2, bool adaptive_sampling = false);

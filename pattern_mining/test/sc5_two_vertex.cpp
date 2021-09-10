@@ -24,6 +24,9 @@ int main(int argc, char* argv[]) {
   auto pat2 = pattern_mining::PatListing::make_pattern(
     pattern_mining::PatListing().pattern_listing(2));
 
+   auto pat5 = pattern_mining::PatListing::make_pattern(
+    pattern_mining::PatListing().pattern_listing(5));
+
 
   double st2 = atof(argv[2]);
 
@@ -54,7 +57,7 @@ int main(int argc, char* argv[]) {
   auto H = build_tables(sgls);
   cout << "build table done" << endl;
 
-  Sampler *sm2;
+  Sampler* sm2;
   if (st2 > 0)
     sm2 = new ProportionalSampler({ st2, st2 });
   else sm2 = &default_sampler;
@@ -64,29 +67,80 @@ int main(int argc, char* argv[]) {
   auto [d_res, ess] = join<true, true, false, false, 2, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 0);
   t.stop();
 
-  cout << "Time: " << t.get() << " sec, ";
+  double timelimit = t.get();
+
+  cout << "Time: " << timelimit << " sec" << endl;
+
+
+
+  SGList asap_res;
+  double asap_rounds = 0;
+
+  {
+    cout << "start asap sampling: " << endl;
+
+    double tot_time = 0.0;
+
+    while (tot_time < timelimit) {
+
+      util::Timer t;
+      t.start();
+      auto d2 = asap::match(g, pat5, false, false, true, -1, false, false, 1);
+
+
+      if (asap_res.sgl == nullptr) asap_res = d2;
+      else asap_res.combine_count(d2);
+
+      asap_rounds += 1;
+
+      t.stop();
+      tot_time += t.get();
+    }
+  }
+
+
   if (d_res.sgl) {
     if (st2 == 0) {
       cout << "Num patterns: " << d_res.sgl->keys.size() << endl;
 
-      vector<double> counts(d_res.sgl->count.begin(), d_res.sgl->count.end());
-      sort(counts.begin(), counts.end(), std::greater<double>());
-
-      for (int i = 0; i < (50 > counts.size() ? counts.size() : 50); i++) {
-        cout << counts[i] << endl;
+      vector<pair<string, size_t>> result;
+      for (auto& kv : d_res.sgl->keys) {
+        result.push_back(kv);
       }
+
+      sort(result.begin(), result.end(), [&](const pair<string, size_t>& a, const pair<string, size_t>& b) {
+        return d_res.sgl->count[a.second] > d_res.sgl->count[b.second];
+        });
+
+      int found_by_asap = 0;
+      for (int i = 0; i < result.size(); i++) {
+        if (asap_res.sgl->keys.find(result[i].first) != asap_res.sgl->keys.end()) {
+          if (i<50) found_by_asap++;
+          cout << d_res.sgl->count[result[i].second] << "\t" << asap_res.sgl->count[asap_res.sgl->keys[result[i].first]] / asap_rounds << endl;
+        }
+      }
+      cout << "num of first 50 patterns found by asap: " << found_by_asap << endl;
     }
     else {
       cout << "Num patterns: " << ess.size() << endl;
 
-      vector<double> counts;
+      vector<pair<string, size_t>> result;
+      for (auto& kv : ess) {
+        result.push_back(kv);
+      }
 
-      for (auto& [k, v] : ess) counts.push_back(v);
+      sort(result.begin(), result.end(), [&](const pair<string, size_t>& a, const pair<string, size_t>& b) {
+        return a.second > b.second;
+        });
 
-      sort(counts.begin(), counts.end(), std::greater<double>());
-
-      for (int i = 0; i < (50 > counts.size() ? counts.size() : 50); i++) {
-        cout << counts[i] << endl;
+      for (int i = 0; i < (50 > result.size() ? result.size() : 50); i++) {
+        cout << result[i].second << "\t";
+        if (asap_res.sgl->keys.find(result[i].first) != asap_res.sgl->keys.end()) {
+          cout << asap_res.sgl->count[asap_res.sgl->keys[result[i].first]] / asap_rounds << endl;
+        }
+        else {
+          cout << 0 << endl;
+        }
       }
     }
   }

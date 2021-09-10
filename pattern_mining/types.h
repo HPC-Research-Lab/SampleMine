@@ -32,6 +32,10 @@ namespace euler::pattern_mining {
       return sgl < sglist.sgl;
     }
 
+    void combine_count(SGList& other) {
+      sgl->combine_count(*other.sgl);
+    }
+
     void combine(SGList& other, bool mni, bool store, bool adaptive_sampling=false) {
       assert(sgl != nullptr);
       sgl->combine(*other.sgl, mni, store, adaptive_sampling);

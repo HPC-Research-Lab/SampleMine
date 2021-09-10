@@ -4,8 +4,8 @@ CXX=g++
 
 HOME_DIR = ..
 INCLUDE = -I../ -I$(BOOST_ROOT)
-OBJ = join.o match.o filter.o pattern.o patlist.o sampler.o
-EXE = automine_sc.exe fsm5_two_vertex.exe #q1.exe sc5_two_vertex.exe #q1-size4.exe q1-size6.exe q1.exe q2.exe q3.exe #sc5_two_vertex.exe fsm5_two_vertex.exe #fsm7_two_vertex.exe fsm5_two_vertex.exe fsm4_two_vertex.exe #automine.exe fsm6_two_vertex.exe fsm6_single_vertex.exe fsm5_single_vertex.exe fsm5_two_vertex.exe fsm4_two_vertex.exe fsm4_single_vertex.exe #mc4_without_sampling.exe mc5_without_sampling.exe mc4_without_sampling_two_vertex.exe mc5_without_sampling_two_vertex.exe fsm4_single_vertex.exe
+OBJ = join.o match.o filter.o pattern.o patlist.o sampler.o match_asap.o
+EXE = asap.exe sc5_two_vertex.exe #automine_sc.exe fsm5_two_vertex.exe #q1.exe sc5_two_vertex.exe #q1-size4.exe q1-size6.exe q1.exe q2.exe q3.exe #sc5_two_vertex.exe fsm5_two_vertex.exe #fsm7_two_vertex.exe fsm5_two_vertex.exe fsm4_two_vertex.exe #automine.exe fsm6_two_vertex.exe fsm6_single_vertex.exe fsm5_single_vertex.exe fsm5_two_vertex.exe fsm4_two_vertex.exe fsm4_single_vertex.exe #mc4_without_sampling.exe mc5_without_sampling.exe mc4_without_sampling_two_vertex.exe mc5_without_sampling_two_vertex.exe fsm4_single_vertex.exe
 
 all: $(EXE)
 
