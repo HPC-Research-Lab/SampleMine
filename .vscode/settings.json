@@ -106,7 +106,10 @@
       "charconv": "cpp",
       "source_location": "cpp",
       "bit": "cpp",
-      "ranges": "cpp"
+      "ranges": "cpp",
+      "compare": "cpp",
+      "concepts": "cpp",
+      "stop_token": "cpp"
     },
     "python.pythonPath": "/data/not_backed_up/penjiang/conda_env/pytorch/bin/python",
     "C_Cpp.errorSquiggles": "Disabled"
