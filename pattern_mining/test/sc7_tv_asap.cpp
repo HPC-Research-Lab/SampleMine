@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 };
+  vector<SGList> sgls = { d3, d3, d3 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -59,12 +59,12 @@ int main(int argc, char* argv[]) {
 
   Sampler* sm2;
   if (st2 > 0)
-    sm2 = new ProportionalSampler({ st2, st2 });
+    sm2 = new ProportionalSampler({ st2, st2, sqrt(st2) });
   else sm2 = &default_sampler;
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, false, false, 2, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 0);
+  auto [d_res, ess] = join<true, true, false, false, 3, 4, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 0);
   t.stop();
 
   double timelimit = t.get();

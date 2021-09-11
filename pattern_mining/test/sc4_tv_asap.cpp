@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 };
+  vector<SGList> sgls = { d3, d2 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -59,12 +59,12 @@ int main(int argc, char* argv[]) {
 
   Sampler* sm2;
   if (st2 > 0)
-    sm2 = new ProportionalSampler({ st2, st2 });
+    sm2 = new ProportionalSampler({ st2, sqrt(st2) });
   else sm2 = &default_sampler;
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, false, false, 2, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 0);
+  auto [d_res, ess] = join<true, true, false, false, 2, 4, 3>(g, H, sgls, false, *sm2, -1, false, st2 > 0);
   t.stop();
 
   double timelimit = t.get();
@@ -86,6 +86,7 @@ int main(int argc, char* argv[]) {
       util::Timer t;
       t.start();
       auto d2 = asap::match(g, pat5, false, false, true, -1, false, false, 1);
+      t.stop();
 
 
       if (asap_res.sgl == nullptr) asap_res = d2;
@@ -93,7 +94,6 @@ int main(int argc, char* argv[]) {
 
       asap_rounds += 1;
 
-      t.stop();
       tot_time += t.get();
     }
   }
@@ -129,13 +129,12 @@ int main(int argc, char* argv[]) {
         result.push_back(kv);
       }
 
-
-            cout << "num patterns returned by asap: " << asap_res.sgl->size() << endl;
-
-
       sort(result.begin(), result.end(), [&](const pair<string, size_t>& a, const pair<string, size_t>& b) {
         return a.second > b.second;
         });
+
+
+      cout << "num patterns returned by asap: " << asap_res.sgl->size() << endl;
 
       for (int i = 0; i < (50 > result.size() ? result.size() : 50); i++) {
         cout << result[i].second << "\t";
