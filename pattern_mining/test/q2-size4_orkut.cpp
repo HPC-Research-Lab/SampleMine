@@ -13,28 +13,33 @@ typedef vector<pair<int, int>> pat_t;
 
 // p x x x x x
 
-
-// 3 + 3 = 5
-// 3 + 2 = 4
-// 3 + 3 + 2 = 6
-// 3 + 3 + 3 = 7
-
-// citeseer-4,5,6,7
-// mico-4
-// find the size-5 subgraphs with a label 1 AND a label 2
+// find the subgraphs with at least two label 1
+// size-4
+// 3 (step=0) + 2 (step=1)
+// size-5
+// 3 + 2 (step=1) + 2 (step=2)
+// citeseer size-6
+// 3 + 3 (step=1) + 2 (step=2)
+// citeseer size-7
+// 3 (step=0) + 3 (step=1) + 2 (step=2) + 2 (step=3)
 class MyQuery: public Query {
 int operator()(const graph::Graph& g, util::span<const int> s, std::shared_ptr<Pattern> pat, int step) {
-  if (step == 2) {
-    int n1 = 0;
-    int n2 = 0;
-    for (int i=1; i<7; i++) {
-      int l = g.get_vertex_label(s[i]);
-      if (l == 1) n1++;
-      if (l == 2) n2++;
+    if (step == 0) {
+      int n1 = 0;
+      for (int i=1; i<4; i++) {
+        int l = g.get_vertex_label(s[i]);
+        if (l == 1) n1++;
+      }
+      if (n1 == 0) return -1;
+    } else if (step == 1) {
+      int n1 = 0;
+      for (int i=1; i<5; i++) {
+        int l = g.get_vertex_label(s[i]);
+        if (l == 1) n1++;
+      }
+      if (n1 < 2) return -1;
     }
-    if (n1 == 0 || n2 == 0) return -1;
-  }
-  return 0;
+    return 0;
 }
 };
 
@@ -64,7 +69,8 @@ int main(int argc, char* argv[]) {
   auto H2 = build_tables(sgls2);
 
 
-  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, default_sampler, -1, true);
+    Sampler *sm_tmp = new ProportionalSampler({ 8, 8 });
+  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, *sm_tmp, -1, true);
 
   match_time.stop();
 
@@ -75,7 +81,7 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 ,d2 };
+  vector<SGList> sgls = { d3, d2 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -83,14 +89,14 @@ int main(int argc, char* argv[]) {
 
   Sampler *sm2;
   if (st2 > 0)
-    sm2 = new ProportionalSampler({ st2, st2, 1 });
+    sm2 = new ProportionalSampler({ st2, 8 });
   else sm2 = &default_sampler;
 
   auto query = MyQuery();
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<false, true, false, false, 3, 4, 4, 3>(g, H, sgls, false, *sm2, -1, false, st2 > 0, false, join_dummy1, query);
+  auto [d_res, ess] = join<false, true, false, false, 2, 4, 3>(g, H, sgls, false, *sm2, -1, false, st2 > 0, false, join_dummy1, query);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
@@ -117,7 +123,7 @@ int main(int argc, char* argv[]) {
       sort(counts.begin(), counts.end(), std::greater<double>());
 
       for (int i = 0; i < (50 > counts.size() ? counts.size() : 50); i++) {
-        cout << counts[i] << endl;
+        cout << counts[i]*64 << endl;
       }
     }
 

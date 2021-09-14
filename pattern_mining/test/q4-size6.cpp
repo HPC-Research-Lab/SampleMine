@@ -21,20 +21,39 @@ typedef vector<pair<int, int>> pat_t;
 
 // citeseer-4,5,6,7
 // mico-4
-// find the size-5 subgraphs with a label 1 AND a label 2
+// subgraphs containing triangle with label 1
 class MyQuery: public Query {
 int operator()(const graph::Graph& g, util::span<const int> s, std::shared_ptr<Pattern> pat, int step) {
-  if (step == 2) {
-    int n1 = 0;
-    int n2 = 0;
-    for (int i=1; i<7; i++) {
-      int l = g.get_vertex_label(s[i]);
-      if (l == 1) n1++;
-      if (l == 2) n2++;
+    if (step == 2)
+    {
+        int length = 7;
+        for (int i=1; i<length; i++)
+        {
+            int l = g.get_vertex_label(s[i]);
+            if(l==1)
+            {
+                int n0 = s[i], n1, n2;
+                for(int j=1; j<length; j++)
+                {
+                    if(j == i)
+                        continue;
+                    n1 = s[j];
+                    if(g.is_neighbor(n0,n1))
+                    {
+                        for(int j2 = j+1; j2<length; j2++)
+                        {
+                            n2 = s[j2];
+                            if(g.is_neighbor(n0,n2) && g.is_neighbor(n1,n2))
+                                return 0;
+                        }
+                    }
+                }
+            }
+        }
+        return -1;
     }
-    if (n1 == 0 || n2 == 0) return -1;
-  }
-  return 0;
+      return 0;
+
 }
 };
 
@@ -42,6 +61,7 @@ int operator()(const graph::Graph& g, util::span<const int> s, std::shared_ptr<P
 int main(int argc, char* argv[]) {
   // system("rm test_temp/*");
 
+//    printf("0000\n");
   graph::Graph_CSR_CPU g;
 
 
@@ -51,6 +71,7 @@ int main(int argc, char* argv[]) {
     pattern_mining::PatListing().pattern_listing(2));
 
 
+//    printf("1111\n");
   double st2 = atof(argv[2]);
 
   cout << "start matchings pat2: " << endl;
@@ -58,6 +79,8 @@ int main(int argc, char* argv[]) {
 
   cout << "start join for pat3: " << endl;
   vector<SGList> sgls2 = { d2, d2 };
+    
+//    printf("2222\n");
 
   util::Timer match_time;
   match_time.start();
@@ -74,19 +97,26 @@ int main(int argc, char* argv[]) {
 
   cout << "num of size-3 patterns: " << npat3 << endl;
 
+//    printf("3333\n");
 
-  vector<SGList> sgls = { d3, d3 ,d2 };
+  vector<SGList> sgls = { d3, d3, d2 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
   cout << "build table done" << endl;
+    
+//    printf("44444\n");
 
   Sampler *sm2;
   if (st2 > 0)
     sm2 = new ProportionalSampler({ st2, st2, 1 });
   else sm2 = &default_sampler;
 
+//    printf("5555\n");
+    
   auto query = MyQuery();
+    
+//    printf("6666\n");
 
   util::Timer t;
   t.start();

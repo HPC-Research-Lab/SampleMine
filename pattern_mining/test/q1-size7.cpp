@@ -27,7 +27,7 @@ int operator()(const graph::Graph& g, util::span<const int> s, std::shared_ptr<P
   if (step == 2) {
     int n1 = 0;
     int n2 = 0;
-    for (int i=1; i<7; i++) {
+    for (int i=1; i<8; i++) {
       int l = g.get_vertex_label(s[i]);
       if (l == 1) n1++;
       if (l == 2) n2++;
@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 ,d2 };
+  vector<SGList> sgls = { d3, d3 ,d3 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -83,14 +83,14 @@ int main(int argc, char* argv[]) {
 
   Sampler *sm2;
   if (st2 > 0)
-    sm2 = new ProportionalSampler({ st2, st2, 1 });
+    sm2 = new ProportionalSampler({ st2, st2, st2 });
   else sm2 = &default_sampler;
 
   auto query = MyQuery();
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<false, true, false, false, 3, 4, 4, 3>(g, H, sgls, false, *sm2, -1, false, st2 > 0, false, join_dummy1, query);
+  auto [d_res, ess] = join<false, true, false, false, 3, 4, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 0, false, join_dummy1, query);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";

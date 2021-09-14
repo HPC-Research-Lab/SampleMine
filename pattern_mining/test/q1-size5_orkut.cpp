@@ -24,10 +24,10 @@ typedef vector<pair<int, int>> pat_t;
 // find the size-5 subgraphs with a label 1 AND a label 2
 class MyQuery: public Query {
 int operator()(const graph::Graph& g, util::span<const int> s, std::shared_ptr<Pattern> pat, int step) {
-  if (step == 2) {
+  if (step == 1) {
     int n1 = 0;
     int n2 = 0;
-    for (int i=1; i<7; i++) {
+    for (int i=1; i<6; i++) {
       int l = g.get_vertex_label(s[i]);
       if (l == 1) n1++;
       if (l == 2) n2++;
@@ -63,8 +63,9 @@ int main(int argc, char* argv[]) {
   match_time.start();
   auto H2 = build_tables(sgls2);
 
+    Sampler *sm_tmp = new ProportionalSampler({ 8, 8 });
 
-  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, default_sampler, -1, true);
+  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, *sm_tmp, -1, true);
 
   match_time.stop();
 
@@ -75,7 +76,7 @@ int main(int argc, char* argv[]) {
   cout << "num of size-3 patterns: " << npat3 << endl;
 
 
-  vector<SGList> sgls = { d3, d3 ,d2 };
+  vector<SGList> sgls = { d3, d3 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -83,14 +84,14 @@ int main(int argc, char* argv[]) {
 
   Sampler *sm2;
   if (st2 > 0)
-    sm2 = new ProportionalSampler({ st2, st2, 1 });
+    sm2 = new ProportionalSampler({ st2, st2 });
   else sm2 = &default_sampler;
 
   auto query = MyQuery();
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<false, true, false, false, 3, 4, 4, 3>(g, H, sgls, false, *sm2, -1, false, st2 > 0, false, join_dummy1, query);
+  auto [d_res, ess] = join<false, true, false, false, 2, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 0, false, join_dummy1, query);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
@@ -117,7 +118,7 @@ int main(int argc, char* argv[]) {
       sort(counts.begin(), counts.end(), std::greater<double>());
 
       for (int i = 0; i < (50 > counts.size() ? counts.size() : 50); i++) {
-        cout << counts[i] << endl;
+        cout << counts[i]*64*64 << endl;
       }
     }
 

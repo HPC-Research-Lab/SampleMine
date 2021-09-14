@@ -21,11 +21,14 @@ int main(int argc, char* argv[]) {
 
   g.read_graph(argv[1]);
 
+  cout << g.max_degree() << endl;
+
   auto pat2 = pattern_mining::PatListing::make_pattern(
     pattern_mining::PatListing().pattern_listing(2));
 
 
-  double st2 = atof(argv[2]);
+  double st1 = atof(argv[2]);
+  double st2 = atof(argv[3]);
 
   cout << "start matchings pat2: " << endl;
   auto d2 = match(g, pat2, true, false, true);
@@ -33,11 +36,16 @@ int main(int argc, char* argv[]) {
   cout << "start join for pat3: " << endl;
   vector<SGList> sgls2 = { d2, d2 };
 
+   Sampler *sm1;
+  if (st1 > 0)
+    sm1 = new ProportionalSampler({ st1, st1 });
+  else sm1 = &default_sampler;
+
   util::Timer match_time;
   match_time.start();
   auto H2 = build_tables(sgls2);
 
-  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, default_sampler, -1, true);
+  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, *sm1, -1, true);
 
   match_time.stop();
 
@@ -61,19 +69,19 @@ int main(int argc, char* argv[]) {
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, false, false, 2, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 0);
+  auto [d_res, ess] = join<true, true, false, false, 2, 4, 4>(g, H, sgls, false, *sm2, -1, false, st2 > 1);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
   if (d_res.sgl) {
-    if (st2 == 0) {
+    if (st2 == 1) {
       cout << "Num patterns: " << d_res.sgl->keys.size() << endl;
 
       vector<double> counts(d_res.sgl->count.begin(), d_res.sgl->count.end());
       sort(counts.begin(), counts.end(), std::greater<double>());
 
       for (int i = 0; i < (50 > counts.size() ? counts.size() : 50); i++) {
-        cout << counts[i] << endl;
+        cout << counts[i] * st1 * st1* st1 * st1 << endl;
       }
     }
     else {
@@ -86,7 +94,7 @@ int main(int argc, char* argv[]) {
       sort(counts.begin(), counts.end(), std::greater<double>());
 
       for (int i = 0; i < (50 > counts.size() ? counts.size() : 50); i++) {
-        cout << counts[i] << endl;
+        cout << counts[i] * st1 * st1* st1 * st1 << endl;
       }
     }
   }

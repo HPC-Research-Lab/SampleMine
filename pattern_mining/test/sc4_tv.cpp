@@ -25,19 +25,21 @@ int main(int argc, char* argv[]) {
     pattern_mining::PatListing().pattern_listing(2));
 
 
-  double st2 = atof(argv[2]);
-
   cout << "start matchings pat2: " << endl;
   auto d2 = match(g, pat2, true, false, true);
 
   cout << "start join for pat3: " << endl;
   vector<SGList> sgls2 = { d2, d2 };
 
+  Sampler *sm1 = new ProportionalSampler({ 32, 32 });
+
+
+
   util::Timer match_time;
   match_time.start();
   auto H2 = build_tables(sgls2);
 
-  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, default_sampler, -1, true);
+  auto [d3, ess3] = join<true, true, false, false, 2, 3, 3>(g, H2, sgls2, true, *sm1, -1, true);
 
   match_time.stop();
 
@@ -54,19 +56,16 @@ int main(int argc, char* argv[]) {
   auto H = build_tables(sgls);
   cout << "build table done" << endl;
 
-  Sampler *sm2;
-  if (st2 > 0)
-    sm2 = new ProportionalSampler({ st2, sqrt(st2) });
-  else sm2 = &default_sampler;
+  Sampler* sm2 = new ProportionalSampler({ 4, 64 });
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, false, false, 2, 4, 3>(g, H, sgls, false, *sm2, -1, false, st2 > 0);
+  auto [d_res, ess] = join<true, true, false, false, 2, 4, 3>(g, H, sgls, false, *sm2, -1, false, true);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
   if (d_res.sgl) {
-    if (st2 == 0) {
+    if (false) {
       cout << "Num patterns: " << d_res.sgl->keys.size() << endl;
 
       vector<double> counts(d_res.sgl->count.begin(), d_res.sgl->count.end());

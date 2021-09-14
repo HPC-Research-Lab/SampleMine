@@ -436,7 +436,7 @@ namespace euler::pattern_mining {
 
           if (est) {
             double est_ct = 1;
-            for (double &pr: sampling_probs) est_ct /= pr;
+            for (double &pr: sampling_probs[tid]) est_ct /= pr;
             auto itt = estimate_counts[tid].find(std::get<0>(coding));
             if (itt != estimate_counts[tid].end()) {
               itt->second += est_ct;
