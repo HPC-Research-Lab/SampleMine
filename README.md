@@ -2,16 +2,11 @@
 
 ## Overview
 
-SampleMine is a general-purpose system for subgraph pattern mining based on subgraph enumeration and sampling.
+SampleMine is a general-purpose system for subgraph pattern mining based on subgraph enumeration and sampling. Example tasks that SampleMine supports are:
 
-It is built around two novel ideas: two-vertex exploration and multi-stage subgraph sampling. SampleMine achieves significant speedups against the state-of-the-art graph mining systems and supports larger pattern mining tasks that are difficult for the existing systems.
-
-Our system supports conventional SPM tasks as well as arbitrary user-defined tasks.
-It Supports the following tasks:
-
-* **Subgraph Counting**: Counting the embeddings of different subgraph patterns and find the patterns with the largest counts.Subgraph counting considers labeled patterns
-* **Frequent Subgraph Mining**: Obtaining all frequent subgraph patterns from a labeled input graph.
-* **User-Defined Queries**: Processing any user-defined SPM tasks.
+* **Subgraph Counting**: Counting the embeddings of different subgraph patterns and find the patterns with the largest counts. 
+* **Frequent Subgraph Mining**: Obtaining all frequent subgraph patterns from a labeled input graph based on MNI support. 
+* **User-Defined Queries**: Finding subgraphs that meet the constraints specified by the users. 
 
 
 
