@@ -12,63 +12,48 @@ SampleMine is a general-purpose system for subgraph pattern mining based on subg
 
 ## Building SampleMine
 
-### Installing Dependencies
+### Install Dependencies
 
 Download Boost Library version 1.76
 ```Shell
 wget https://boostorg.jfrog.io/native/main/release/1.76.0/source/boost_1_76_0.tar.gz
 tar -xzvf boost_1_76_0.tar.gz
 ```
-Install GCC version 7
-```Shell
-#For CentOS Users
-#Link: https://www.softwarecollections.org/en/scls/rhscl/devtoolset-7/
-sudo yum install centos-release-scl
-sudo yum-config-manager --enable rhel-server-rhscl-7-rpms
-sudo yum install devtoolset-7
-source /opt/rh/devtoolset-7/enable
 
-#For Ubuntu Users
-sudo apt-get update
-sudo apt install g++-7
-```
-
-### Compiling SampleMine
+### Compile SampleMine
 
 Download Source Code
 ```Shell
 git clone SampleMine
 ```
-Add Enviroment Variable BOOST_ROOT for compiling
+Add enviroment variable BOOST_ROOT for compiling
 ```Shell
 export BOOST_ROOT=PATH_TO_BOOST/boost_1_76_0/
 ```
-Enter into the directory and Compiling SampleMine
+Enter into the directory and compile SampleMine
 ```Shell
 cd GPM/pattern_mining/
 make -j 16
 ```
 
-
-
-## Testing SampleMine
+## Test SampleMine
 
 We provide some program examples for testing. You can use our programs to test directly, or you can use the relevant API to rewrite the program in the test folder. 
 
 Before running the program, you need to export two environment variables
 ```Shell
-#The path of database files that stores the intermediate data
-export DB_PATH=./db
+#The path for backing up KVStore (see our paper for more explanation)
+export DB_PATH=/tmp/
 #The number of parallel OPENMP threads 
 export OMP_NUM_THREADS=16
 ```
 
-### Testing using program examples
+### Test with program examples
 
-Please modifying the EXE variable in Makefile to compile the corresponding program
+Modify the EXE filenames in Makefile to compile the corresponding program
 
 **Subgraph Counting:**  
-We provide a test example of 5-size Subgraph Counting
+We provide a test example of 5-size subgraph counting
 ```Shell
 #example: ./sc5_tv.exe data/citeseer 2
 ./sc5_tv.exe GraphPath sampling_ratio
