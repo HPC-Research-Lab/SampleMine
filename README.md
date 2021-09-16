@@ -53,7 +53,7 @@ export OMP_NUM_THREADS=16
 Modify the EXE filenames in Makefile to compile the corresponding program
 
 **Subgraph Counting:**  
-We provide a test example of 5-size subgraph counting
+We provide a test example of 5-size subgraph counting:
 ```Shell
 #example: ./sc5_tv.exe data/citeseer 2
 ./sc5_tv.exe GraphPath sampling_ratio
@@ -66,8 +66,9 @@ We provide a test example of 5-size Frequent Subgraph Mining:
 ./fsm5_two_vertex.exe GraphPath support_threshold sampling_ratio
 ```
 
-**User-Defined Queries:**
-We provide five example quries in pattern_mining/test folder (q1-sizeN.cpp - q5-sizeN.cpp). We take query 1 (find 5-size subgraphs with at least one vertex of label 1 and one vertex of label 2) as an example:
+**User-Defined Queries:**  
+We provide five example quries in pattern_mining/test folder (q1-sizeN.cpp - q5-sizeN.cpp). 
+We take query 1 (find 5-size subgraphs with at least one vertex of label 1 and one vertex of label 2) as an example:
 ```Shell
 #example: ./q1-size5.exe data/citeseer 2
 ./q1-size5.exe GraphPath sampling_ratio
