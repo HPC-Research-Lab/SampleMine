@@ -56,14 +56,14 @@ Modify the EXE filenames in Makefile to compile the corresponding program
 We provide a test example of 5-size subgraph counting:
 ```Shell
 #example: ./sc5_tv.exe data/citeseer 2
-./sc5_tv.exe GraphPath sampling_ratio
+./sc5_tv.exe GraphPath sampling_ratio (no sampling: 0 or 1)
 ```
 
 **Frequent Subgraph Mining:**  
 We provide a test example of 5-size Frequent Subgraph Mining:
 ```Shell
 .#example: ./fsm5_two_vertex.exe data/citeseer 0.001 4
-./fsm5_two_vertex.exe GraphPath support_threshold sampling_ratio
+./fsm5_two_vertex.exe GraphPath support_threshold sampling_ratio (no sampling: 0)
 ```
 
 **User-Defined Queries:**  
@@ -71,7 +71,7 @@ We provide five example quries in pattern_mining/test folder (q1-sizeN.cpp - q5-
 We take query 1 (find 5-size subgraphs with at least one vertex of label 1 and one vertex of label 2) as an example:
 ```Shell
 #example: ./q1-size5.exe data/citeseer 2
-./q1-size5.exe GraphPath sampling_ratio
+./q1-size5.exe GraphPath sampling_ratio (no sampling: 0 or 1)
 ```
 
 
