@@ -67,6 +67,7 @@ We provide a test example of 5-size Frequent Subgraph Mining:
 ```
 
 **User-Defined Queries:**
+
 We provide five example quries in pattern_mining/test folder (q1-sizeN.cpp - q5-sizeN.cpp).
 We take query 1 (find 5-size subgraphs with at least one vertex of label 1 and one vertex of label 2) as an example:
 ```Shell
