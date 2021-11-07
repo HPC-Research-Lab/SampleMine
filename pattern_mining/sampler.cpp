@@ -94,7 +94,57 @@ std::vector<std::vector<double>> get_table_size(const std::vector<std::shared_pt
     return subgraph_hist;
   }
 
+const double N_MI = 1e5;
+const double D_MI = 1359;
+const double Ratio = 20;
+const double Delta_MI = 996045;
 
 
+int calc_join2_sampleratio(const graph::Graph& g)
+{
+    double N_G = g.num_nodes();
+    double D_G = g.max_degree();
+    
+    printf("N_G = %g, D_G = %g\n",N_G,D_G);
+    double p2 = N_G*D_G*D_G/(N_MI*D_MI*D_MI*Ratio*Ratio);
+    double p = sqrt(p2);
+    int appro_p = int(p+0.5);
+    if(appro_p < 1)
+        appro_p = 1;
+    
+    return appro_p;
+//    printf("The sampling ratio of 2-size subgraphs is %d.\n",appro_p);
+}
+
+
+int calc_join3_sampleratio(const graph::Graph& g, std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H3)
+{
+    double N_G = g.num_nodes();
+    
+    double Delta_G = 0;
+    if(H3.size() != 1)
+        printf("H3.size = %d\n",H3.size());
+    for (int k=0; k < H3.size(); k++)
+    {
+        for(int i=0; i<H3[k].size();i++)
+        {
+            std::vector<double> counts(H3[k][i]->count.begin(), H3[k][i]->count.end());
+            for(int j=0; j<counts.size(); j++)
+            {
+                if(Delta_G < counts[j])
+                    Delta_G = counts[j];
+            }
+        }
+    }
+    printf("Delta G = %g\n",Delta_G);
+    
+    double P = 64*N_G*Delta_G/(N_MI*Delta_MI);
+    int appro_P = int(P+0.5);
+    if(appro_P < 1)
+        appro_P = 1;
+    
+//    printf("The sampling ratio of 3-size subgraphs is %d.\n",appro_P);
+    return appro_P;
+}
 
 }
