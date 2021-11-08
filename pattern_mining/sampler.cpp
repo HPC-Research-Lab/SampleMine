@@ -97,6 +97,7 @@ std::vector<std::vector<double>> get_table_size(const std::vector<std::shared_pt
 const double N_MI = 1e5;
 const double D_MI = 1359;
 const double Ratio = 20;
+const double Ratio2 = 80;
 const double Delta_MI = 996045;
 
 
@@ -138,7 +139,7 @@ int calc_join3_sampleratio(const graph::Graph& g, std::vector<std::vector<std::s
     }
     printf("Delta G = %g\n",Delta_G);
     
-    double P = 64*N_G*Delta_G/(N_MI*Delta_MI);
+    double P = 64*N_G*Delta_G/(N_MI*Delta_MI*Ratio2);
     int appro_P = int(P+0.5);
     if(appro_P < 1)
         appro_P = 1;
