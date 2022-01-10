@@ -8,6 +8,7 @@
 #include <chrono>
 #include "util.h"
 #include "types.h"
+#include "graph/graph.h"
 
 
 namespace euler::pattern_mining {
@@ -74,5 +75,8 @@ namespace euler::pattern_mining {
 
 
   std::shared_ptr<std::vector<std::shared_ptr<std::vector<std::map<int, std::map<int, double>>>>>> get_subgraph_hist(const std::vector<SGList>& sgls);
+
+int calc_join2_sampleratio(const graph::Graph& g);
+int calc_join3_sampleratio(const graph::Graph& g, std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H3);
 
 }
