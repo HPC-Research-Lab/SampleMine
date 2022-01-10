@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
 
   g.read_graph(argv[1]);
 
-  cout << g.max_degree() << endl;
+  cout << "max degree: " << g.max_degree() << endl;
 
   auto pat2 = pattern_mining::PatListing::make_pattern(
     pattern_mining::PatListing().pattern_listing(2));
@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   vector<SGList> sgls2 = { d2, d2 };
 
    Sampler *sm1;
-  if (st1 > 0)
+  if (st1 != 1)
     sm1 = new ProportionalSampler({ st1, st1 });
   else sm1 = &default_sampler;
 
@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
   cout << "build table done" << endl;
 
   Sampler *sm2;
-  if (st2 > 0)
+  if (st2 != 1)
     sm2 = new ProportionalSampler({ st2, st2 });
   else sm2 = &default_sampler;
 

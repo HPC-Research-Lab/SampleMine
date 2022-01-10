@@ -21,9 +21,14 @@ int main(int argc, char* argv[]) {
 
   g.read_graph(argv[1]);
 
+  cout << "max degree: " << g.max_degree() << endl;
+
   auto pat2 = pattern_mining::PatListing::make_pattern(
     pattern_mining::PatListing().pattern_listing(2));
 
+
+  double st1 = atof(argv[2]);
+  double st2 = atof(argv[3]);
 
   cout << "start matchings pat2: " << endl;
   auto d2 = match(g, pat2, true, false, true);
@@ -31,9 +36,10 @@ int main(int argc, char* argv[]) {
   cout << "start join for pat3: " << endl;
   vector<SGList> sgls2 = { d2, d2 };
 
-  Sampler *sm1 = new ProportionalSampler({ 32, 32 });
-
-
+   Sampler *sm1;
+  if (st1 != 1)
+    sm1 = new ProportionalSampler({ st1, st1 });
+  else sm1 = &default_sampler;
 
   util::Timer match_time;
   match_time.start();
@@ -43,7 +49,7 @@ int main(int argc, char* argv[]) {
 
   match_time.stop();
 
-  cout << "join for pat3 time: " << match_time.get() << " sec" << endl;
+  cout << "join for pat3 time: " << match_time.get() << " sec" << endl << flush;
 
   size_t npat3 = d3.sgl->size();
 
@@ -56,23 +62,26 @@ int main(int argc, char* argv[]) {
   auto H = build_tables(sgls);
   cout << "build table done" << endl;
 
-  Sampler* sm2 = new ProportionalSampler({ 4, 64 });
+  Sampler *sm2;
+  if (st2 != 1)
+    sm2 = new ProportionalSampler({ st2*st2, st2 });
+  else sm2 = &default_sampler;
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, false, false, 2, 4, 3>(g, H, sgls, false, *sm2, -1, false, true);
+  auto [d_res, ess] = join<true, true, false, false, 2, 4, 3>(g, H, sgls, false, *sm2, -1, false, st2 > 1);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";
   if (d_res.sgl) {
-    if (false) {
+    if (st2 == 1) {
       cout << "Num patterns: " << d_res.sgl->keys.size() << endl;
 
       vector<double> counts(d_res.sgl->count.begin(), d_res.sgl->count.end());
       sort(counts.begin(), counts.end(), std::greater<double>());
 
       for (int i = 0; i < (50 > counts.size() ? counts.size() : 50); i++) {
-        cout << counts[i] << endl;
+        cout << counts[i] * st1 * st1* st1 * st1 << endl;
       }
     }
     else {
@@ -85,7 +94,7 @@ int main(int argc, char* argv[]) {
       sort(counts.begin(), counts.end(), std::greater<double>());
 
       for (int i = 0; i < (50 > counts.size() ? counts.size() : 50); i++) {
-        cout << counts[i] << endl;
+        cout << counts[i] * st1 * st1* st1 * st1 << endl;
       }
     }
   }

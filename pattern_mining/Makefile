@@ -5,7 +5,7 @@ CXX=g++
 HOME_DIR = ..
 INCLUDE = -I../ -I$(BOOST_ROOT)
 OBJ = join.o match.o filter.o pattern.o patlist.o sampler.o match_asap.o
-EXE = fsm5_two_vertex.exe #sc4_tv.exe sc5_tv.exe #sc7_tv_asap.exe sc5_tv_asap.exe sc4_tv_asap.exe #asap.exe sc4_tv.exe sc5_tv.exe #automine_sc.exe fsm5_two_vertex.exe #q1.exe sc5_two_vertex.exe #q1-size4.exe q1-size6.exe q1.exe q2.exe q3.exe #sc5_two_vertex.exe fsm5_two_vertex.exe #fsm7_two_vertex.exe fsm5_two_vertex.exe fsm4_two_vertex.exe #automine.exe fsm6_two_vertex.exe fsm6_single_vertex.exe fsm5_single_vertex.exe fsm5_two_vertex.exe fsm4_two_vertex.exe fsm4_single_vertex.exe #mc4_without_sampling.exe mc5_without_sampling.exe mc4_without_sampling_two_vertex.exe mc5_without_sampling_two_vertex.exe fsm4_single_vertex.exe
+EXE = sc4_tv.exe sc5_tv.exe sc6_tv.exe sc7_tv.exe fsm4_tv.exe fsm4_sv.exe
 
 all: $(EXE)
 

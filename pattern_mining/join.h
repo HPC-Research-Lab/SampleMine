@@ -339,10 +339,10 @@ namespace euler::pattern_mining {
   }
 
   template <bool pat_agg, bool mni, size_t ncols_left>
- void for_loop2_end(const graph::Graph& g, std::array<int, ncols_left>& s,
+  void for_loop2_end(const graph::Graph& g, std::array<int, ncols_left>& s,
     std::shared_ptr<Pattern> pat, int level,
-    std::vector<SGList>& res, std::vector<std::map<std::string, double>>& estimate_counts,std::vector<std::vector<double>> &sampling_probs, bool est,
-    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, Query& query) {
+    std::vector<SGList>& res, std::vector<std::map<std::string, double>>& estimate_counts, std::vector<std::vector<double>>& sampling_probs, bool est,
+    std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, bool store, double mni_threshold, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, Query& query, Sampler& sampler) {
 
 
     int tid = omp_get_thread_num();
@@ -376,13 +376,15 @@ namespace euler::pattern_mining {
           res[tid].sgl->merge(std::get<0>(it->second), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(it->second), std::get<2>(it->second), adaptive_sampling);
 
           if (est) {
-            double est_ct = 1;
-            for (double &pr: sampling_probs[tid]) est_ct /= pr;
+            double est_ct = ((ProportionalSampler*)&sampler)->C[tid].back();
+            //std::cout << est_ct << std::endl;
+            for (double& pr : sampling_probs[tid]) est_ct /= pr;
             auto itt = estimate_counts[tid].find(std::get<0>(it->second));
             if (itt != estimate_counts[tid].end()) {
               itt->second += est_ct;
-            } else {
-              estimate_counts[tid].insert({std::get<0>(it->second), est_ct});
+            }
+            else {
+              estimate_counts[tid].insert({ std::get<0>(it->second), est_ct });
             }
           }
 
@@ -390,16 +392,19 @@ namespace euler::pattern_mining {
         else {
           res[tid].sgl->merge(it->second, s.data(), s.size() * sizeof(int), store);
           if (est) {
-            double est_ct = 1;
-            for (double &pr: sampling_probs[tid]) est_ct /= pr;
+            double est_ct = ((ProportionalSampler*)&sampler)->C[tid].back();
+            //double est_ct = 1;
+            for (double& pr : sampling_probs[tid]) {
+              est_ct /= pr;
+            }
             auto itt = estimate_counts[tid].find(it->second);
             if (itt != estimate_counts[tid].end()) {
               itt->second += est_ct;
-            } else {
-              estimate_counts[tid].insert({it->second, est_ct});
+            }
+            else {
+              estimate_counts[tid].insert({ it->second, est_ct });
             }
           }
-
         }
       }
       else {
@@ -436,12 +441,13 @@ namespace euler::pattern_mining {
 
           if (est) {
             double est_ct = 1;
-            for (double &pr: sampling_probs[tid]) est_ct /= pr;
+            for (double& pr : sampling_probs[tid]) est_ct /= pr;
             auto itt = estimate_counts[tid].find(std::get<0>(coding));
             if (itt != estimate_counts[tid].end()) {
               itt->second += est_ct;
-            } else {
-              estimate_counts[tid].insert({std::get<0>(coding), est_ct});
+            }
+            else {
+              estimate_counts[tid].insert({ std::get<0>(coding), est_ct });
             }
           }
         }
@@ -451,14 +457,15 @@ namespace euler::pattern_mining {
           res[tid].sgl->merge(coding, s.data(), s.size() * sizeof(int), store);
 
 
-           if (est) {
+          if (est) {
             double est_ct = 1;
-            for (double &pr: sampling_probs[tid]) est_ct /= pr;
+            for (double& pr : sampling_probs[tid]) est_ct /= pr;
             auto itt = estimate_counts[tid].find(coding);
             if (itt != estimate_counts[tid].end()) {
               itt->second += est_ct;
-            } else {
-              estimate_counts[tid].insert({coding, est_ct});
+            }
+            else {
+              estimate_counts[tid].insert({ coding, est_ct });
             }
           }
         }
@@ -468,24 +475,25 @@ namespace euler::pattern_mining {
       std::string kk = std::to_string(q);
       res[tid].sgl->merge(kk, s.data(), s.size() * sizeof(int), store);
 
-       if (est) {
-            double est_ct = 1;
-            for (double &pr: sampling_probs[tid]) est_ct /= pr;
-            auto itt = estimate_counts[tid].find(kk);
-            if (itt != estimate_counts[tid].end()) {
-              itt->second += est_ct;
-            } else {
-              estimate_counts[tid].insert({kk, est_ct});
-            }
-          }
+      if (est) {
+        double est_ct = 1;
+        for (double& pr : sampling_probs[tid]) est_ct /= pr;
+        auto itt = estimate_counts[tid].find(kk);
+        if (itt != estimate_counts[tid].end()) {
+          itt->second += est_ct;
+        }
+        else {
+          estimate_counts[tid].insert({ kk, est_ct });
+        }
+      }
     }
   }
 
   template <bool pat_agg, bool has_labels, bool edge_induced, bool mni, int K, typename key_type, size_t ncols_left, size_t ncols, size_t... ncols_right>
-void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
+  void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
     std::shared_ptr<Pattern> pat,
     const std::vector<std::vector<std::shared_ptr<db::MyKV<int>>>>& H, int level,
-    std::vector<int>& iterates, std::vector<SGList>& res, std::vector<std::map<std::string, double>>& estimate_counts, std::vector<std::vector<double>> &sampling_probs,
+    std::vector<int>& iterates, std::vector<SGList>& res, std::vector<std::map<std::string, double>>& estimate_counts, std::vector<std::vector<double>>& sampling_probs,
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<std::array<int, 4>>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
     const graph::Graph& g, Sampler& sampler,
@@ -493,7 +501,7 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
 
 
     int qret = query(g, { s.data(), s.size() }, pat, level - 1);
-    if (qret < 0) return; 
+    if (qret < 0) return;
 
 
     int tid = omp_get_thread_num();
@@ -541,14 +549,10 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
 
           const int* it_buf = it1.buffer + z * ncols;
 
-
-
-          double pr = sampler.smp_prob({ s.data(), s.size() }, { it_buf, ncols }, i - 1, j, level);
-          if ((&sampler != &default_sampler) && (util::random_number() >= pr)) continue;
+          auto [pr, skip] = sampler.smp_prob({ s.data(), s.size() }, { it_buf, ncols }, i - 1, j, level, tid);
+          if (skip) continue;
 
           sampling_probs[tid][level] = pr;
-
-
 
           std::array<int, ncols_left + ncols - 2> value;
 
@@ -603,7 +607,7 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
             }
             else {
               for_loop2_end<pat_agg, mni, value.size()>(g, value, ptt, level + 1, res, estimate_counts, sampling_probs, est, qp2cp,
-                store, mni_threshold, need_actual_pattern, actual_patterns, adaptive_sampling, query);
+                store, mni_threshold, need_actual_pattern, actual_patterns, adaptive_sampling, query, sampler);
             }
           }
         }
@@ -619,7 +623,7 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
     std::vector<int>& iterates, int level, std::vector<SGList>& res,
     std::vector<std::map<int, typename std::conditional<mni, std::tuple<std::string, std::vector<std::vector<unsigned>>, std::vector<unsigned>>, std::string>::type>>& qp2cp, std::vector<std::vector<std::vector<std::array<int, 4>>>>& qp_count,
     std::vector<std::vector<std::map<key_type, int>>>& qp_idx,
-    const graph::Graph& g, Sampler& sampler, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::vector<std::map<std::string, double>>& estimate_counts, std::vector<std::vector<double>> &sampling_probs, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, bool est, Query& query) {
+    const graph::Graph& g, Sampler& sampler, bool store, const std::pair<std::unordered_set<unsigned long>, std::unordered_set<unsigned long>>& sgl3, double mni_threshold, std::vector<std::map<std::string, double>>& estimate_counts, std::vector<std::vector<double>>& sampling_probs, bool need_actual_pattern, std::map<std::shared_ptr<Pattern>, size_t, cmpByPattern>& actual_patterns, bool adaptive_sampling, bool est, Query& query) {
     if (level < H.size()) {
       for (int i = 0; i < H[level].size(); i++) {
         iterates.push_back(i);
@@ -689,11 +693,13 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
               int qret = query(g, { it_d1, ncols1 }, pats1[type1], 0);
               if (qret < 0) continue;
 
-              double pr1 = sampler.smp_prob({ nullptr,0 }, { it_d1, ncols1 }, -1, i, 0);
-
-              if ((&sampler != &default_sampler) && (util::random_number() >= pr1)) continue;
-
               int tid = omp_get_thread_num();
+
+
+              auto [pr1, skip1] = sampler.smp_prob({ nullptr,0 }, { it_d1, ncols1 }, -1, i, 0, tid);
+
+              if (skip1) continue;
+
 
               sampling_probs[tid][0] = pr1;
 
@@ -718,12 +724,10 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
 
                   const int* it_d2 = it2.buffer + z1 * ncols2;
 
-                  double pr2 = sampler.smp_prob({ it_d1, ncols1 }, { it_d2, ncols2 }, i, j, 1);
-                  if ((&sampler != &default_sampler) && (util::random_number() >= pr2)) continue;
+                  auto [pr2, skip2] = sampler.smp_prob({ it_d1, ncols1 }, { it_d2, ncols2 }, i, j, 1, tid);
+                  if (skip2) continue;
 
-                                sampling_probs[tid][1] = pr2;
-
-
+                  sampling_probs[tid][1] = pr2;
 
                   auto key_pat_vec = get_connectivity<has_labels, edge_induced, ncols2, ncols1, value.size()>(
                     nbv, it_d2, it_d1, j + 1,
@@ -762,7 +766,7 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
 
                     auto itt = qp_idx[tid][0].find(key);
                     if (itt == qp_idx[tid][0].end()) {
-                  
+
                       qp_idx[tid][0][key] = qp_count[tid][0].size();
                       value[0] = qp_count[tid][0].size();
                       qp_count[tid][0].push_back({ key[0], key[1], i, j });
@@ -780,7 +784,7 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
                     }
                     else {
                       for_loop2_end<pat_agg, mni, value.size()>(g, value, ptt, 2, res, estimate_counts, sampling_probs, est, qp2cp,
-                        store, mni_threshold, need_actual_pattern, actual_patterns, adaptive_sampling, query);
+                        store, mni_threshold, need_actual_pattern, actual_patterns, adaptive_sampling, query, sampler);
                     }
                   }
                 }
@@ -849,7 +853,7 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
 
     std::vector<std::map<std::string, double>> estimate_counts(_Nthreads);
     std::vector<std::vector<double>> sampling_probs;
-    for (int i=0; i<_Nthreads; i++) {
+    for (int i = 0; i < _Nthreads; i++) {
       sampling_probs.push_back(std::vector<double>(K, 1));
     }
 
@@ -889,13 +893,14 @@ void for_loop2(const std::vector<SGList>& sgls, std::array<int, ncols_left>& s,
     }
 
     if (est) {
-      for (int i=1; i<_Nthreads; i++) {
-        for (auto &[k,v]: estimate_counts[i]) {
+      for (int i = 1; i < _Nthreads; i++) {
+        for (auto& [k, v] : estimate_counts[i]) {
           auto it = estimate_counts[0].find(k);
           if (it != estimate_counts[0].end()) {
             it->second += v;
-          } else {
-            estimate_counts[0].insert({k, v});
+          }
+          else {
+            estimate_counts[0].insert({ k, v });
           }
         }
       }
