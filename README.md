@@ -39,7 +39,8 @@ make -j 16
 ## Test SampleMine
 
 We provide some program examples for testing. You can use our programs to test directly, or you can use the relevant API to rewrite the program in the test folder. 
-The test graphs can be downloaded from this link:[link](https://drive.google.com/drive/folders/1sK-JFJim1e3N1Qd5XIupXbJTHjzasCpn?usp=sharing)
+
+The test graphs can be downloaded from this link:[Graphs](https://drive.google.com/drive/folders/1sK-JFJim1e3N1Qd5XIupXbJTHjzasCpn?usp=sharing)
 
 Before running the program, you need to export two environment variables
 ```Shell
