@@ -75,7 +75,7 @@ int main(int argc, char* argv[]) {
   cout << "scaled sampling param: " << st2_scaled << endl;
 
 
-  vector<SGList> sgls = { d3, d3 };
+  vector<SGList> sgls = { d3, d3, d2 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -84,12 +84,12 @@ int main(int argc, char* argv[]) {
 
   Sampler *sm2;
   if (st2 > 0)
-    sm2 = new BudgetSampler(subgraph_hist, {st2_scaled*st2_scaled, st2_scaled*st2_scaled});
+    sm2 = new BudgetSampler(subgraph_hist, {st2_scaled*st2_scaled, st2_scaled*st2_scaled, st2_scaled});
   else sm2 = &default_sampler;
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, true, true, 2, 4, 4>(g, H, sgls, false, *sm2, sup, false, false);
+  auto [d_res, ess] = join<true, true, true, true, 3, 4, 4, 3>(g, H, sgls, false, *sm2, sup, false, false);
   t.stop();
 
   filter(d_res, sup);

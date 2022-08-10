@@ -48,34 +48,11 @@ int main(int argc, char* argv[]) {
   filter(d2, sup);
   cout << "num of size-2 frequent patterns: " << d2.sgl->size() << endl;
 
-  double scaled_st2 = scale_sampling_param(d2, st2);
-
-  cout << "start join for pat3: " << endl;
-  vector<SGList> sgls2 = { d2, d2 };
-
-  util::Timer match_time;
-  match_time.start();
-  auto H2 = build_tables(sgls2);
-
-  auto [d3, ess3] = join<true, true, true, true, 2, 3, 3>(g, H2, sgls2, true, default_sampler, sup, true);
-
-  match_time.stop();
-
-  cout << "join for pat3 time: " << match_time.get() << " sec" << endl;
-
-  filter(d3, sup);
-
-  size_t npat3 = d3.sgl->size();
-
-  cout << "num of size-3 frequent patterns: " << npat3 << endl;
-
-
   double st2_scaled = scale_sampling_param(d2, st2);
 
   cout << "scaled sampling param: " << st2_scaled << endl;
 
-
-  vector<SGList> sgls = { d3, d3 };
+  vector<SGList> sgls = { d2, d2, d2, d2 };
 
   cout << "building tables..." << endl;
   auto H = build_tables(sgls);
@@ -84,12 +61,12 @@ int main(int argc, char* argv[]) {
 
   Sampler *sm2;
   if (st2 > 0)
-    sm2 = new BudgetSampler(subgraph_hist, {st2_scaled*st2_scaled, st2_scaled*st2_scaled});
+    sm2 = new BudgetSampler(subgraph_hist, {st2_scaled, st2_scaled, st2_scaled, st2_scaled});
   else sm2 = &default_sampler;
 
   util::Timer t;
   t.start();
-  auto [d_res, ess] = join<true, true, true, true, 2, 4, 4>(g, H, sgls, false, *sm2, sup, false, false);
+  auto [d_res, ess] = join<true, true, true, true, 4, 3, 3, 3, 3>(g, H, sgls, false, *sm2, sup, false, false);
   t.stop();
 
   filter(d_res, sup);
@@ -97,6 +74,11 @@ int main(int argc, char* argv[]) {
   cout << "Time: " << t.get() << " sec, ";
   if (d_res.sgl) {
     cout << "Num patterns: " << d_res.sgl->keys.size() << endl;
+    double count = 0;
+    for (auto c: d_res.sgl->count) {
+      count += c;
+    }
+    cout << "Num subgraph: " << count << endl;
   }
   else {
     cout << "Num patterns: 0" << endl;

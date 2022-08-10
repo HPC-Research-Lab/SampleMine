@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
 
   double st1 = atof(argv[2]);
   double st2 = atof(argv[3]);
+  double st3 = atof(argv[4]);
 
   cout << "start matchings pat2: " << endl;
   auto d2 = match(g, pat2, true, false, true);
@@ -38,7 +39,7 @@ int main(int argc, char* argv[]) {
 
    Sampler *sm1;
   if (st1 != 1)
-    sm1 = new ProportionalSampler({ st1, st1 });
+    sm1 = new ProportionalSampler2({ st1, st1 });
   else sm1 = &default_sampler;
 
   util::Timer match_time;
@@ -63,8 +64,8 @@ int main(int argc, char* argv[]) {
   cout << "build table done" << endl;
 
   Sampler *sm2;
-  if (st2 != 1)
-    sm2 = new ProportionalSampler({ st2, st2, st2 });
+  if (st2 != 1 || st3 !=1)
+    sm2 = new ProportionalSampler2({ st3, st3, st3 });
   else sm2 = &default_sampler;
 
   util::Timer t;
@@ -74,7 +75,7 @@ int main(int argc, char* argv[]) {
 
   cout << "Time: " << t.get() << " sec, ";
   if (d_res.sgl) {
-    if (st2 == 1) {
+    if (st2 == 1 && st3 == 1) {
       cout << "Num patterns: " << d_res.sgl->keys.size() << endl;
 
       vector<double> counts(d_res.sgl->count.begin(), d_res.sgl->count.end());
