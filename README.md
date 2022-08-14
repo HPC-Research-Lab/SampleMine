@@ -2,7 +2,7 @@
 
 ## Reproduce the results in the paper. 
 
-To reproduce the data in the paper, please follow the instruction in README.md in [pattern_mining](https://github.com/HPC-Research-Lab/SampleMine/tree/main/pattern_mining) directory. This README.md only offered the general execution instructions. 
+To reproduce the result in the paper, please follow the instruction in README.md in [pattern_mining](https://github.com/HPC-Research-Lab/SampleMine/tree/main/pattern_mining) directory. This README.md only offered the general execution instructions. 
 
 ## Overview
 
