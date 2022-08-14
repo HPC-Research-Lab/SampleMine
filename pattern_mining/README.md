@@ -82,7 +82,7 @@ make -j 16
 ./sc4_tv_asap.exe ./data/mico.lg 1 8 64
 ```
 
-## Table 5
+### Table 5
 ```Shell
 ./sc5_tv.exe ./data/mico.lg 1 8 64
 ./sc5_tv.exe ./data/com-orkut.lg 8 32 1024
@@ -157,7 +157,7 @@ make -j 16
 ./fsm6_sv.exe ./data/citeseer.lg 0.05 0
 ```
 
-## Figure 10
+### Figure 10
 ```Shell
 
 ./fsm4_tv.exe ./data/mico.lg 0.001 0
@@ -185,7 +185,7 @@ make -j 16
 ./fsm4_tv.exe ./data/mico.lg 0.05 10
 ```
 
-## Table 7
+### Table 7
 ```Shell
 ./fsm5_tv.exe ./data/uk-2005.lg  0.0001 4
 
