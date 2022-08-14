@@ -20,7 +20,7 @@ SampleMine is a general-purpose system for subgraph pattern mining based on subg
 
 Download Boost Library version 1.76
 ```Shell
-wget https://boostorg.jfrog.io/native/main/release/1.76.0/source/boost_1_76_0.tar.gz
+wget https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz
 tar -xzvf boost_1_76_0.tar.gz
 ```
 
@@ -36,7 +36,7 @@ export BOOST_ROOT=PATH_TO_BOOST/boost_1_76_0/
 ```
 Enter into the directory and compile SampleMine
 ```Shell
-cd GPM/pattern_mining/
+cd SampleMine/pattern_mining/
 make -j 16
 ```
 
