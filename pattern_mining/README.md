@@ -32,12 +32,22 @@ export BOOST_ROOT=PATH_TO_BOOST/boost_1_76_0/
 ```
 Enter into the directory and compile SampleMine
 ```Shell
-cd GPM/pattern_mining/
+cd SampleMine/pattern_mining/
 make -j 16
 ```
 
 
 ## Reproducing results of Table3, Figure9, Table4, Table5, Table6, Figure10, Table 7, Figure 11, Figure 12 and Table 8.
+
+Before start testing, export the following 2 enviroment variables first.
+```Shell
+export DB_PATH=./db
+export OMP_NUM_THREADS=16
+```
+
+We offered 2 test graphs(mico and citeseer) under ./data directory. 
+Please download those extreme big graphs like Orkut etc in from this link:[Graphs](https://drive.google.com/drive/folders/1sK-JFJim1e3N1Qd5XIupXbJTHjzasCpn?usp=sharing)
+And then place these graphs in ./data directory. 
 
 ### Table3 & Figure9
 
