@@ -247,12 +247,12 @@ make -j 16
 
 ### Table 8
 ```Shell
-./q1_size5.exe ./data/mico.lg 64
-./q1_size5.exe ./data/com-orkut.lg 1024
-./q1_size4.exe ./data/uk-2005.lg 1024
-./q1_size4.exe ./data/com-Friendster.lg 32
+./table8_q1_size5_MI.exe ./data/mico.lg 64
+./table8_q1_size5_OK.exe ./data/com-orkut.lg 1024
+./table8_q1_size4_UK.exe ./data/uk-2005.lg 1024
+./table8_q1_size4_FR.exe ./data/com-Friendster.lg 32
 
-./q2_size5.exe ./data/com-orkut.lg 1024
-./q2_size4.exe ./data/uk-2005.lg 1024
-./q2_size4.exe ./data/com-Friendster.lg 32
+./table8_q2_size5_OK.exe ./data/com-orkut.lg 1024
+./table8_q2_size4_UK.exe ./data/uk-2005.lg 1024
+./table8_q2_size4_FR.exe ./data/com-Friendster.lg 32
 ```
