@@ -1,0 +1,52 @@
+nohup: ignoring input
+Graph read complete. Number of vertex: 3264
+support threshold: 3
+start matchings pat2: 
+db path: ./db/325852
+count: 4536
+num of size-2 frequent patterns: 21
+start join for pat3: 
+join for pat3 time: 0.195818 sec
+num of size-3 frequent patterns: 132
+scaled sampling param: 3.31186
+building tables...
+build table done
+Time: 485.179 sec, Num patterns: 61763
+Graph read complete. Number of vertex: 3264
+support threshold: 3
+start matchings pat2: 
+db path: ./db/967563828
+count: 4536
+num of size-2 frequent patterns: 21
+start join for pat3: 
+join for pat3 time: 0.198575 sec
+num of size-3 frequent patterns: 132
+scaled sampling param: 4.96779
+building tables...
+build table done
+Time: 1279.08 sec, Num patterns: 63636
+Graph read complete. Number of vertex: 3264
+support threshold: 3
+start matchings pat2: 
+db path: ./db/1299833691
+count: 4536
+num of size-2 frequent patterns: 21
+start join for pat3: 
+join for pat3 time: 0.159168 sec
+num of size-3 frequent patterns: 132
+scaled sampling param: 6.62372
+building tables...
+build table done
+Time: 2420.47 sec, Num patterns: 64109
+Graph read complete. Number of vertex: 3264
+support threshold: 3
+start matchings pat2: 
+db path: ./db/975318594
+count: 4536
+num of size-2 frequent patterns: 21
+start join for pat3: 
+join for pat3 time: 0.261687 sec
+num of size-3 frequent patterns: 132
+scaled sampling param: 8.27965
+building tables...
+build table done

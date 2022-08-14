@@ -1,1 +1,200 @@
-# graph_mining_cpp
+# SampleMine
+
+## Overview
+
+SampleMine is a general-purpose system for subgraph pattern mining based on subgraph enumeration and sampling. Example tasks that SampleMine supports are:
+
+* **Subgraph Counting**: Counting the embeddings of different subgraph patterns and find the patterns with the largest counts. 
+* **Frequent Subgraph Mining**: Obtaining all frequent subgraph patterns from a labeled input graph based on MNI support. 
+* **User-Defined Queries**: Finding subgraphs that meet the constraints specified by the users. 
+
+
+
+## Building SampleMine
+
+### Install Dependencies
+
+Download Boost Library version 1.76
+```Shell
+wget https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz
+tar -xzvf boost_1_76_0.tar.gz
+```
+
+### Compile SampleMine
+
+Download Source Code
+```Shell
+git clone SampleMine
+```
+Add enviroment variable BOOST_ROOT for compiling
+```Shell
+export BOOST_ROOT=PATH_TO_BOOST/boost_1_76_0/
+```
+Enter into the directory and compile SampleMine
+```Shell
+cd GPM/pattern_mining/
+make -j 16
+```
+
+
+## Reproducing results of Table3, Figure9, Table4, Table5, Table6, Figure10, Table 7, Figure 11, Figure 12 and Table 8.
+
+### Table3 & Figure9
+
+```Shell
+#For TV-smpl column
+./sc4_tv.exe ./data/citeseer.lg 1 2 4
+./sc5_tv.exe ./data/citeseer.lg 1 2 4
+./sc6_tv.exe ./data/citeseer.lg 1 2 4
+./sc7_tv.exe ./data/citeseer.lg 1 2 4
+./sc4_tv.exe ./data/mico.lg 1 8 64
+
+#For SV-smpl column
+./sc4_sv.exe ./data/citeseer.lg 2
+./sc5_sv.exe ./data/citeseer.lg 2
+./sc6_sv.exe ./data/citeseer.lg 2
+./sc7_sv.exe ./data/citeseer.lg 2
+./sc4_sv.exe ./data/mico.lg 8
+
+#For TV-acc column
+./sc4_tv.exe ./data/citeseer.lg 1 1 1
+./sc5_tv.exe ./data/citeseer.lg 1 1 1
+./sc6_tv.exe ./data/citeseer.lg 1 1 1
+./sc7_tv.exe ./data/citeseer.lg 1 1 1
+./sc4_tv.exe ./data/mico.lg 1 1 1
+
+#For SV-acc column
+./sc4_sv.exe ./data/citeseer.lg 1
+./sc5_sv.exe ./data/citeseer.lg 1
+./sc6_sv.exe ./data/citeseer.lg 1
+./sc7_sv.exe ./data/citeseer.lg 1
+./sc4_sv.exe ./data/mico.lg 1
+```
+
+### Table 4
+```Shell
+./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
+./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
+./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
+./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
+./sc4_tv_asap.exe ./data/mico.lg 1 8 64
+
+```
+
+### Table 6
+```Shell
+#For SM column
+./fsm4_tv.exe ./data/citeseer.lg 0.001 4
+./fsm4_tv.exe ./data/citeseer.lg 0.005 4
+./fsm4_tv.exe ./data/citeseer.lg 0.01 4
+./fsm4_tv.exe ./data/citeseer.lg 0.05 4
+
+./fsm4_tv.exe ./data/mico.lg 0.001 6
+./fsm4_tv.exe ./data/mico.lg 0.005 6
+./fsm4_tv.exe ./data/mico.lg 0.01 6
+./fsm4_tv.exe ./data/mico.lg 0.05 6
+
+./fsm5_tv.exe ./data/citeseer.lg 0.001 4
+./fsm5_tv.exe ./data/citeseer.lg 0.005 4
+./fsm5_tv.exe ./data/citeseer.lg 0.01 4
+./fsm5_tv.exe ./data/citeseer.lg 0.05 4
+
+./fsm6_tv.exe ./data/citeseer.lg 0.001 4
+./fsm6_tv.exe ./data/citeseer.lg 0.005 4
+./fsm6_tv.exe ./data/citeseer.lg 0.01 4
+./fsm6_tv.exe ./data/citeseer.lg 0.05 4
+
+#For TV-acc column
+./fsm4_tv.exe ./data/citeseer.lg 0.001 0
+./fsm4_tv.exe ./data/citeseer.lg 0.005 0
+./fsm4_tv.exe ./data/citeseer.lg 0.01 0
+./fsm4_tv.exe ./data/citeseer.lg 0.05 0
+
+./fsm4_tv.exe ./data/mico.lg 0.001 0
+./fsm4_tv.exe ./data/mico.lg 0.005 0
+./fsm4_tv.exe ./data/mico.lg 0.01 0
+./fsm4_tv.exe ./data/mico.lg 0.05 0
+
+./fsm5_tv.exe ./data/citeseer.lg 0.001 0
+./fsm5_tv.exe ./data/citeseer.lg 0.005 0
+./fsm5_tv.exe ./data/citeseer.lg 0.01 0
+./fsm5_tv.exe ./data/citeseer.lg 0.05 0
+
+./fsm6_tv.exe ./data/citeseer.lg 0.001 0
+./fsm6_tv.exe ./data/citeseer.lg 0.005 0
+./fsm6_tv.exe ./data/citeseer.lg 0.01 0
+./fsm6_tv.exe ./data/citeseer.lg 0.05 0
+
+
+#For SV-acc column
+./fsm4_sv.exe ./data/citeseer.lg 0.001 0
+./fsm4_sv.exe ./data/citeseer.lg 0.005 0
+./fsm4_sv.exe ./data/citeseer.lg 0.01 0
+./fsm4_sv.exe ./data/citeseer.lg 0.05 0
+
+./fsm4_sv.exe ./data/mico.lg 0.001 0
+./fsm4_sv.exe ./data/mico.lg 0.005 0
+./fsm4_sv.exe ./data/mico.lg 0.01 0
+./fsm4_sv.exe ./data/mico.lg 0.05 0
+
+./fsm5_sv.exe ./data/citeseer.lg 0.001 0
+./fsm5_sv.exe ./data/citeseer.lg 0.005 0
+./fsm5_sv.exe ./data/citeseer.lg 0.01 0
+./fsm5_sv.exe ./data/citeseer.lg 0.05 0
+
+./fsm6_sv.exe ./data/citeseer.lg 0.001 0
+./fsm6_sv.exe ./data/citeseer.lg 0.005 0
+./fsm6_sv.exe ./data/citeseer.lg 0.01 0
+./fsm6_sv.exe ./data/citeseer.lg 0.05 0
+
+```
+
+### Figure 11
+```Shell
+#For size-7 on CI
+./q1_size7.exe ./data/citeseer.lg 0
+./q1_size7.exe ./data/citeseer.lg 2
+./q1_size7.exe ./data/citeseer.lg 4
+
+./q2_size7.exe ./data/citeseer.lg 0
+./q2_size7.exe ./data/citeseer.lg 2
+./q2_size7.exe ./data/citeseer.lg 4
+
+./q3_size7.exe ./data/citeseer.lg 0
+./q3_size7.exe ./data/citeseer.lg 2
+./q4_size7.exe ./data/citeseer.lg 4
+
+./q4_size7.exe ./data/citeseer.lg 0
+./q4_size7.exe ./data/citeseer.lg 2
+./q4_size7.exe ./data/citeseer.lg 4
+
+#For size-4 on MI
+./q1_size4.exe ./data/mico.lg 0
+./q1_size4.exe ./data/mico.lg 32
+./q1_size4.exe ./data/mico.lg 64
+
+./q2_size4.exe ./data/mico.lg 0
+./q2_size4.exe ./data/mico.lg 32
+./q2_size4.exe ./data/mico.lg 64
+
+./q3_size4.exe ./data/mico.lg 0
+./q3_size4.exe ./data/mico.lg 32
+./q3_size4.exe ./data/mico.lg 64
+
+./q4_size4.exe ./data/mico.lg 0
+./q4_size4.exe ./data/mico.lg 32
+./q4_size4.exe ./data/mico.lg 64
+
+```
+
+### Figure 12
+```Shell
+./q5_size7.exe ./data/citeseer.lg 0
+./q5_size7.exe ./data/citeseer.lg 2
+./q5_size7.exe ./data/citeseer.lg 4
+
+./q5_size4.exe ./data/mico.lg 0
+./q5_size4.exe ./data/mico.lg 32
+./q5_size4.exe ./data/mico.lg 64
+
+```
