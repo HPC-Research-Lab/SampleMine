@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 
   Sampler *sm2;
   if (st2 > 0)
-      sm2 = new BudgetSampler(subgraph_hist, { st2_scaled * st2_scaled, 1 });
+      sm2 = new BudgetSampler(subgraph_hist, { st2_scaled * st2_scaled, st2_scaled });
   else sm2 = &default_sampler;
 
   auto query = MyQuery();
