@@ -73,12 +73,12 @@ make -j 16
 
 ### Table 4
 ```Shell
-#The Tot# column can be verified by the TV-acc execution of Table3
-#From each of the following execution, you can get 4 results corresponding to the SM-tot SM-50 ASAP-tot ASAP-50 respectively. 
+#The Tot#, SM-tot and SM-50 columns can be verified by the TV-acc execution of Table3
+#From each of the following execution, you can get 3 results corresponding to the Tot#  ASAP-tot ASAP-50 respectively. 
 ./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
-./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
-./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
-./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
+./sc5_tv_asap.exe ./data/citeseer.lg 1 2 4
+./sc6_tv_asap.exe ./data/citeseer.lg 1 2 4
+./sc7_tv_asap.exe ./data/citeseer.lg 1 2 4
 ./sc4_tv_asap.exe ./data/mico.lg 1 8 64
 ```
 

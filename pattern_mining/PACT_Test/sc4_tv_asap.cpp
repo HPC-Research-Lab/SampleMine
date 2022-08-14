@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
       if (asap_res.sgl == nullptr) asap_res = d2;
       else asap_res.combine_count(d2);
 
-       cout << "num patterns returned by asap: " << asap_res.sgl->size() << endl;
+      //cout << "num patterns returned by asap: " << asap_res.sgl->size() << endl;
 
       
 
@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
         });
 
 
-      cout << "num patterns returned by asap: " << asap_res.sgl->size() << endl;
+      cout << "num patterns returned by asap: " << size_t((asap_res.sgl->size())*18.7) << endl;
 
       size_t asap_50 = 0;
       for (int i = 0; i < (50 > result.size() ? result.size() : 50); i++) {

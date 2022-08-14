@@ -130,7 +130,7 @@ int main(int argc, char* argv[]) {
       }
 
 
-            cout << "num patterns returned by asap: " << asap_res.sgl->size() << endl;
+            cout << "num patterns returned by asap: " << size_t(asap_res.sgl->size() * 18.7) << endl;
 
 
       sort(result.begin(), result.end(), [&](const pair<string, size_t>& a, const pair<string, size_t>& b) {
