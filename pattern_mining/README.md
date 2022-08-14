@@ -73,12 +73,21 @@ make -j 16
 
 ### Table 4
 ```Shell
+#The Tot# column can be verified by the TV-acc execution of Table3
+#From each of the following execution, you can get 4 results corresponding to the SM-tot SM-50 ASAP-tot ASAP-50 respectively. 
 ./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
 ./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
 ./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
 ./sc4_tv_asap.exe ./data/citeseer.lg 1 2 4
 ./sc4_tv_asap.exe ./data/mico.lg 1 8 64
+```
 
+## Table 5
+```Shell
+./sc5_tv.exe ./data/mico.lg 1 8 64
+./sc5_tv.exe ./data/com-orkut.lg 8 32 1024
+./sc4_tv.exe ./data/uk-2005.lg 1024 512 1024
+./sc4_tv.exe ./data/com-Friendster.lg 32 8 32
 ```
 
 ### Table 6
@@ -146,8 +155,42 @@ make -j 16
 ./fsm6_sv.exe ./data/citeseer.lg 0.005 0
 ./fsm6_sv.exe ./data/citeseer.lg 0.01 0
 ./fsm6_sv.exe ./data/citeseer.lg 0.05 0
+```
+
+## Figure 10
+```Shell
+
+./fsm4_tv.exe ./data/mico.lg 0.001 0
+./fsm4_tv.exe ./data/mico.lg 0.001 4
+./fsm4_tv.exe ./data/mico.lg 0.001 6
+./fsm4_tv.exe ./data/mico.lg 0.001 8
+./fsm4_tv.exe ./data/mico.lg 0.001 10
+
+./fsm4_tv.exe ./data/mico.lg 0.005 0
+./fsm4_tv.exe ./data/mico.lg 0.005 4
+./fsm4_tv.exe ./data/mico.lg 0.005 6
+./fsm4_tv.exe ./data/mico.lg 0.005 8
+./fsm4_tv.exe ./data/mico.lg 0.005 10
+
+./fsm4_tv.exe ./data/mico.lg 0.01 0
+./fsm4_tv.exe ./data/mico.lg 0.01 4
+./fsm4_tv.exe ./data/mico.lg 0.01 6
+./fsm4_tv.exe ./data/mico.lg 0.01 8
+./fsm4_tv.exe ./data/mico.lg 0.01 10
+
+./fsm4_tv.exe ./data/mico.lg 0.05 0
+./fsm4_tv.exe ./data/mico.lg 0.05 4
+./fsm4_tv.exe ./data/mico.lg 0.05 6
+./fsm4_tv.exe ./data/mico.lg 0.05 8
+./fsm4_tv.exe ./data/mico.lg 0.05 10
+```
+
+## Table 7
+```Shell
+./fsm5_tv.exe ./data/uk-2005.lg  0.0001 4
 
 ```
+
 
 ### Figure 11
 ```Shell
@@ -200,4 +243,16 @@ make -j 16
 ./q5_size4.exe ./data/mico.lg 0.001 6
 ./q5_size4.exe ./data/mico.lg 0.001 8
 ./q5_size4.exe ./data/mico.lg 0.001 10
+```
+
+### Table 8
+```Shell
+./q1_size5.exe ./data/mico.lg 64
+./q1_size5.exe ./data/com-orkut.lg 1024
+./q1_size4.exe ./data/uk-2005.lg 1024
+./q1_size4.exe ./data/com-Friendster.lg 32
+
+./q2_size5.exe ./data/com-orkut.lg 1024
+./q2_size4.exe ./data/uk-2005.lg 1024
+./q2_size4.exe ./data/com-Friendster.lg 32
 ```

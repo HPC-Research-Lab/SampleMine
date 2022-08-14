@@ -50,3 +50,16 @@ num of size-3 frequent patterns: 132
 scaled sampling param: 8.27965
 building tables...
 build table done
+Time: 3825.63 sec, Num patterns: 64323
+Graph read complete. Number of vertex: 3264
+support threshold: 3
+start matchings pat2: 
+db path: ./db/1455994417
+count: 4536
+num of size-2 frequent patterns: 21
+start join for pat3: 
+join for pat3 time: 0.143705 sec
+num of size-3 frequent patterns: 132
+scaled sampling param: 0
+building tables...
+build table done
