@@ -376,8 +376,13 @@ namespace euler::pattern_mining {
           res[tid].sgl->merge(std::get<0>(it->second), s.data(), s.size() * sizeof(int), store, mni_threshold, std::get<1>(it->second), std::get<2>(it->second), adaptive_sampling);
 
           if (est) {
-            double est_ct = ((ProportionalSampler*)&sampler)->C[tid].back();
-            //double est_ct = 1;
+            double est_ct = 1;
+            if(typeid(sampler)==typeid(ProportionalSampler2)){
+              est_ct = 1;
+            }
+            else{
+              est_ct = ((ProportionalSampler*)&sampler)->C[tid].back();
+            }
             //std::cout << est_ct << std::endl;
             for (double& pr : sampling_probs[tid]) est_ct /= pr;
             auto itt = estimate_counts[tid].find(std::get<0>(it->second));
@@ -393,8 +398,13 @@ namespace euler::pattern_mining {
         else {
           res[tid].sgl->merge(it->second, s.data(), s.size() * sizeof(int), store);
           if (est) {
-            double est_ct = ((ProportionalSampler*)&sampler)->C[tid].back();
-            //double est_ct = 1;
+            double est_ct = 1;
+            if(typeid(sampler)==typeid(ProportionalSampler2)){
+              est_ct = 1;
+            }
+            else{
+              est_ct = ((ProportionalSampler*)&sampler)->C[tid].back();
+            }
             for (double& pr : sampling_probs[tid]) {
               est_ct /= pr;
             }
