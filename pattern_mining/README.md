@@ -189,12 +189,15 @@ make -j 16
 
 ### Figure 12
 ```Shell
-./q5_size7.exe ./data/citeseer.lg 0
-./q5_size7.exe ./data/citeseer.lg 2
-./q5_size7.exe ./data/citeseer.lg 4
+./q5_size7.exe ./data/citeseer.lg 0.001 0
+./q5_size7.exe ./data/citeseer.lg 0.001 4
+./q5_size7.exe ./data/citeseer.lg 0.001 6
+./q5_size7.exe ./data/citeseer.lg 0.001 8
+./q5_size7.exe ./data/citeseer.lg 0.001 10
 
-./q5_size4.exe ./data/mico.lg 0
-./q5_size4.exe ./data/mico.lg 32
-./q5_size4.exe ./data/mico.lg 64
-
+./q5_size4.exe ./data/mico.lg 0.001 0
+./q5_size4.exe ./data/mico.lg 0.001 4
+./q5_size4.exe ./data/mico.lg 0.001 6
+./q5_size4.exe ./data/mico.lg 0.001 8
+./q5_size4.exe ./data/mico.lg 0.001 10
 ```
