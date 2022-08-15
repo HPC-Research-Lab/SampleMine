@@ -33,8 +33,8 @@ export DB_PATH=./db
 export OMP_NUM_THREADS=16
 ```
 
-We offered 2 test graphs(mico and citeseer) under ./data directory. 
-The other input graphs can be downloaded from this link:[Graphs](https://drive.google.com/drive/folders/1sK-JFJim1e3N1Qd5XIupXbJTHjzasCpn?usp=sharing). After downloading, you need to store these graphs in ./data directory. 
+We provide two test graphs(mico and citeseer) under ./data directory in this github repo. 
+The other input graphs can be downloaded from this google drive link:[Graphs](https://drive.google.com/drive/folders/1sK-JFJim1e3N1Qd5XIupXbJTHjzasCpn?usp=sharing). After downloading, you need to store these graphs in ./data directory. 
 
 ### Table3 & Figure9
 
