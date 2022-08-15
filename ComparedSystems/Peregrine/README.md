@@ -33,9 +33,9 @@ source tbb2020/bin/tbbvars.sh intel64
 ./bin/fsm data/citeseer 7 1 16 v
 
 #Reproduce the results of Table 6
-./bin/fsm data/citeseer 4 0.001 16 e
-./bin/fsm data/citeseer 4 0.005 16 e
-./bin/fsm data/citeseer 4 0.01 16 e
-./bin/fsm data/citeseer 4 0.05 16 e
+./bin/fsm data/citeseer 4 5 16 e
+./bin/fsm data/citeseer 4 10 16 e
+./bin/fsm data/citeseer 4 25 16 e
+./bin/fsm data/citeseer 4 50 16 e
 ```
  
