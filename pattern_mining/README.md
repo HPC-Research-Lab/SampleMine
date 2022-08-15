@@ -207,7 +207,7 @@ The other input graphs can be downloaded from this google drive link:[Graphs](ht
 
 ### Table 7
 ```Shell
-#The third argument is Sup
+#The third argument is Sup, fourth argument is join threshold, last argument is matching threshold
 ./table7.exe ./data/uk-2005.lg 0.0001 4 2
 ./table7.exe ./data/uk-2005.lg 0.0001 16 2
 ./table7.exe ./data/uk-2005.lg 0.0001 4 4
