@@ -34,7 +34,7 @@ export OMP_NUM_THREADS=16
 ```
 
 We offered 2 test graphs(mico and citeseer) under ./data directory. 
-Please download those extreme big graphs like Orkut etc from this link:[Graphs](https://drive.google.com/drive/folders/1sK-JFJim1e3N1Qd5XIupXbJTHjzasCpn?usp=sharing) ,and then place these graphs in ./data directory. 
+The other input graphs can be downloaded from this link:[Graphs](https://drive.google.com/drive/folders/1sK-JFJim1e3N1Qd5XIupXbJTHjzasCpn?usp=sharing). After downloading, you need to store these graphs in ./data directory. 
 
 ### Table3 & Figure9
 
