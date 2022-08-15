@@ -1,7 +1,7 @@
 ## Building SampleMine
 
 ### Run docker image for testing SampleMine
-We provided a docker image for testing SampleMine, Automine and Peregrine. 
+We provide a docker image for testing SampleMine, Automine and Peregrine. 
 You can download the docker image from the following link and omit the 'Install Dependencies' and 'Compile SampleMine' process.
 
 ```Shell
