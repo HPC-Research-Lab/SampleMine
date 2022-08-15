@@ -3,10 +3,12 @@
 ## Run docker image and reproduce the result of Peregrine in Table 3 and Table 6.
     
 ```shell
-docker pull weiyihua/samplemine_test
+#The docker image link
+https://hub.docker.com/r/weiyihua/samplemine_test
 
-#Replace 665014af3aca with the real image id. 
-docker run -it -u root 665014af3aca /bin/bash
+docker pull weiyihua/samplemine_test        #Download the last version of the docker image. 
+docker images                               #Check image id.
+docker run -it -u root xxxxxxxx /bin/bash   #Replace xxxxxxxx with the real image id. 
 
 cd /home/peregrine
 

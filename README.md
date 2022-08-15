@@ -16,7 +16,7 @@ https://hub.docker.com/r/weiyihua/samplemine_test
 #The code in the docker container is located in the /home directory. 
 cd /home
 
-#The execution command 
+#The execution commands
 docker pull weiyihua/samplemine_test        #Download the last version of the docker image. 
 docker images                               #Check image id.
 docker run -it -u root xxxxxxxx /bin/bash   #Replace xxxxxxxx with the real image id. 

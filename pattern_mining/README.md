@@ -5,8 +5,14 @@ We provided a docker image for testing SampleMine, Automine and Peregrine.
 You can download the docker image from the following link and omit the 'Install Dependencies' and 'Compile SampleMine' process.
 
 ```Shell
+#The docker image link
 https://hub.docker.com/r/weiyihua/samplemine_test
-docker pull weiyihua/samplemine_test
+
+docker pull weiyihua/samplemine_test        #Download the last version of the docker image. 
+docker images                               #Check image id.
+docker run -it -u root xxxxxxxx /bin/bash   #Replace xxxxxxxx with the real image id. 
+
+cd /home/SampleMine/pattern_mining/
 ```
 
 The source code of SampleMine, Automine and Peregrine in the container are in the /home/ directory. 
