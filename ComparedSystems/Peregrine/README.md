@@ -1,4 +1,4 @@
-# Peregrine
+# The source code of Peregrine is obtained from https://github.com/pdclab/peregrine
 
 ## Run docker image and reproduce the result of Peregrine in Table 3 and Table 6.
     
