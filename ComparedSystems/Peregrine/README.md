@@ -20,7 +20,7 @@ source tbb2020/bin/tbbvars.sh intel64
 
 ```shell
 #Reproduce the results of Table 3
-#The meaning of the parameter is as follows:
+#The meaning of the parameters is as follows:
 #2nd: input graph
 #3rd: pattern size
 #4th minimum frequency
