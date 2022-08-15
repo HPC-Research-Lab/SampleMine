@@ -20,6 +20,12 @@ source tbb2020/bin/tbbvars.sh intel64
 
 ```shell
 #Reproduce the results of Table 3
+#The meaning of the parameter is as follows:
+#2nd: input graph
+#3rd: pattern size
+#4th minimum frequency
+#5th v: vertex-induced, e: edge-induced. 
+#Our subgraph counting task is same with the vertex-induced based fsm in Peregrine.
 ./bin/fsm data/citeseer 4 1 16 v
 ./bin/fsm data/citeseer 5 1 16 v
 ./bin/fsm data/citeseer 6 1 16 v
