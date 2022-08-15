@@ -35,7 +35,7 @@ tar -xzvf boost_1_76_0.tar.gz
 
 Download Source Code
 ```Shell
-git clone SampleMine
+git clone https://github.com/HPC-Research-Lab/SampleMine.git
 ```
 Add enviroment variable BOOST_ROOT for compiling
 ```Shell
