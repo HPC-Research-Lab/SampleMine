@@ -24,7 +24,8 @@ source tbb2020/bin/tbbvars.sh intel64
 #2nd: input graph
 #3rd: pattern size
 #4th: minimum frequency
-#5th: v:vertex-induced, e:edge-induced. 
+#5th: Num of threads.
+#6th: v:vertex-induced, e:edge-induced. 
 #Our subgraph counting task is same with the vertex-induced based fsm in Peregrine.
 ./bin/fsm data/citeseer 4 1 16 v
 ./bin/fsm data/citeseer 5 1 16 v
