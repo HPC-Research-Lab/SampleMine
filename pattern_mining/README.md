@@ -1,6 +1,4 @@
-## Building SampleMine
-
-### Run docker image for testing SampleMine
+## Run docker image for testing SampleMine
 We provide a docker image for testing SampleMine, Automine and Peregrine. 
 You can download the docker image from the following link and omit the 'Install Dependencies' and 'Compile SampleMine' process.
 
@@ -22,6 +20,8 @@ export BOOST_ROOT=/home/boost_1_76_0/
 The source code of SampleMine, Automine and Peregrine in the container are in the /home/ directory. 
 We integrated the source code of Automine into SampleMine so you will see 2 directories in /home/ directory. 
 The detailed instructions for testing peregrine and Automine are in READMEs under /SampleMine/ComparedSystem.
+
+## If you prefer to compile and run SampleMine on your host machine
 
 ### Install Dependencies
 
