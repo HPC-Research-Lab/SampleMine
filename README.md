@@ -8,22 +8,10 @@ SampleMine is a general-purpose system for subgraph pattern mining based on subg
 
 
 ## To reproduce the results in the paper
-We provide a docker image containing the source code and compiled executables of SampleMine, Peregrine, Automine and Pangolin.
-```shell
-#The image link:
-https://hub.docker.com/r/weiyihua/samplemine_test
+We provide docker images containing the source code and compiled executables of SampleMine, Peregrine, Automine and Pangolin.
 
-
-#The execution commands
-docker pull weiyihua/samplemine_test        #Download the last version of the docker image. 
-docker images                               #Check image id.
-docker run -it -u root xxxxxxxx /bin/bash   #Replace xxxxxxxx with the real image id. 
-
-#The code in the docker container is located in the /home directory. 
-```
-
-The 'pattern_mining' directory includes the instructions for testing SampleMine. 
-The 'ComparedSystems' directory includes three subdirectories, each has a README file with the instructions for testing Automine, Peregrine and Pangolin. 
+The instructions for testing SampleMine are described in the README of the 'pattern_mining' directory. 
+The 'ComparedSystems' directory includes three subdirectories, each has a README file with instructions for testing Automine, Peregrine and Pangolin. 
 
 
 
