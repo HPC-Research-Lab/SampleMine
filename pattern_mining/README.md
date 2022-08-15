@@ -184,8 +184,16 @@ The other input graphs can be downloaded from this google drive link:[Graphs](ht
 
 ### Table 7
 ```Shell
-./fsm5_tv.exe ./data/uk-2005.lg  0.0001 4
+#The third argument is Sup
+./table7.exe ./data/uk-2005.lg 0.0001 4 2
+./table7.exe ./data/uk-2005.lg 0.0001 16 2
+./table7.exe ./data/uk-2005.lg 0.0001 4 4
+./table7.exe ./data/uk-2005.lg 0.0001 16 4
 
+./table7.exe ./data/uk-2005.lg 0.0005 4 2
+./table7.exe ./data/uk-2005.lg 0.0005 16 2
+./table7.exe ./data/uk-2005.lg 0.0005 4 4
+./table7.exe ./data/uk-2005.lg 0.0005 16 4
 ```
 
 

@@ -145,10 +145,13 @@ namespace euler::db {
       file_exist.push_back(0);
       buf.emplace_back((int*)a, (int*)a + len / sizeof(value_type));
       if (mni >= 0) {
+        //printf("mni >= 0\n");
 
         std::vector<std::set<int>> vs;
 
-        for (int i = 1; i < len / sizeof(value_type); i++) vs.push_back({ *((int*)a + i) });
+        for (int i = 1; i < len / sizeof(value_type); i++) {
+          vs.push_back({ *((int*)a + i) });
+        }
 
         std::vector<std::set<int>> vos;
         for (auto& o : orbits) {

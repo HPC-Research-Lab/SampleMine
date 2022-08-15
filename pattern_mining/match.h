@@ -36,3 +36,14 @@ SGList match(
 
 
 }
+
+namespace euler::pattern_mining::old_match {
+
+//static std::vector<size_t> dummy_match = {};
+
+SGList match(
+    const graph::Graph &g, const PatList &patterns,
+    bool store_data = true, bool edge_induced=false, bool output_labeled=false,  double mni=-1, bool testing = false, bool pattern_labeled = false, double sampling_threshold=0);
+
+
+}

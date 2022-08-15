@@ -10,7 +10,6 @@ using namespace euler::pattern_mining;
 
 typedef vector<pair<int, int>> pat_t;
 
-
 int main(int argc, char* argv[]) {
   // system("rm test_temp/*");
 
@@ -25,12 +24,14 @@ int main(int argc, char* argv[]) {
     pattern_mining::PatListing().pattern_listing(pat_size));
 
   cout << "start matching: " << endl;
+
   util::Timer t;
   t.start();
-  auto d2 = match(g, pat2, true, false, true, -1, false, true);
+  //auto d2 = match(g, pat2, false, false, true, -1, false, false);
+  auto d2 = euler::pattern_mining::match(g, pat2, false, false, true, INT_MAX);
   t.stop();
 
-  cout << "Time: " << t.get() * 1.9 << " sec, ";
+  cout << "Time: " << t.get() << " sec, ";
   cout << "num of frequent patterns: " << d2.sgl->size() << endl;
 
 
