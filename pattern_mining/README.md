@@ -1,16 +1,8 @@
 ## Building SampleMine
 
-### Install Dependencies
-
-Download Boost Library version 1.76
-```Shell
-wget https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz
-tar -xzvf boost_1_76_0.tar.gz
-```
-
-### Compile SampleMine
+### Run docker image for testing SampleMine
 We provided a docker image for testing SampleMine, Automine and Peregrine. 
-You can download the docker image from the following link and omit the compiling process.
+You can download the docker image from the following link and omit the 'Install Dependencies' and 'Compile SampleMine' process.
 
 ```Shell
 https://hub.docker.com/r/weiyihua/samplemine_test
@@ -20,6 +12,16 @@ docker pull weiyihua/samplemine_test
 The source code of SampleMine, Automine and Peregrine in the container are in the /home/ directory. 
 We integrated the source code of Automine into SampleMine so you will see 2 directories in /home/ directory. 
 The detailed instructions for testing peregrine and Automine are in READMEs under /SampleMine/ComparedSystem.
+
+### Install Dependencies
+
+Download Boost Library version 1.76
+```Shell
+wget https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz
+tar -xzvf boost_1_76_0.tar.gz
+```
+
+### Compile SampleMine
 
 Download Source Code
 ```Shell
