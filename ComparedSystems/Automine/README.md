@@ -1,4 +1,4 @@
-# Automine
+# The source code of Automine is included in our repo. 
 
 ## Run docker image and reproduce the result of Automine in Table 3 and Table 6.
     
