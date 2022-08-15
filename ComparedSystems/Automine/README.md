@@ -1,6 +1,6 @@
-# Peregrine
+# Automine
 
-## Run docker image and reproduce the result of Peregrine in Table 3 and Table 6.
+## Run docker image and reproduce the result of Automine in Table 3 and Table 6.
     
 ```shell
 docker pull weiyihua/samplemine_test
