@@ -24,17 +24,10 @@ int main(int argc, char* argv[]) {
   auto pat2 = pattern_mining::PatListing::make_pattern(
     pattern_mining::PatListing().pattern_listing(pat_size));
 
-  double thh = atof(argv[3]);
-
-  double sup = (size_t)round(thh * g.num_nodes());
-
-  cout << "support threshold: " << sup << endl;
-
   cout << "start matching: " << endl;
   util::Timer t;
   t.start();
-  auto d2 = match(g, pat2, false, true, true, sup);
-  filter(d2, sup);
+  auto d2 = match(g, pat2, false, true, true, -1);
   t.stop();
 
   cout << "Time: " << t.get() << " sec, ";

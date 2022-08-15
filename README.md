@@ -9,6 +9,7 @@ SampleMine is a general-purpose system for subgraph pattern mining based on subg
 
 ## To reproduce the results in the paper
 
+
 Please follow the instructions in the 'pattern_mining' directory. 
 
 

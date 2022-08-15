@@ -8,21 +8,21 @@ docker pull weiyihua/samplemine_test
 #Replace 665014af3aca with the real image id. 
 docker run -it -u root 665014af3aca /bin/bash
 
-cd /home/peregrine
+cd /home/SampleMine/pattern_mining
 
 #Then run the following commands to do the test. 
 ```
 ```shell
 #Reproduce the results of Table 3
-./bin/fsm data/citeseer 4 1 16 v
-./bin/fsm data/citeseer 5 1 16 v
-./bin/fsm data/citeseer 6 1 16 v
-./bin/fsm data/citeseer 7 1 16 v
+./automine_sc.exe ./data/citeseer.lg 4
+./automine_sc.exe ./data/citeseer.lg 5
+./automine_sc.exe ./data/citeseer.lg 6
+./automine_sc.exe ./data/citeseer.lg 7
 
 #Reproduce the results of Table 6
-./bin/fsm data/citeseer 4 0.001 16 e
-./bin/fsm data/citeseer 4 0.005 16 e
-./bin/fsm data/citeseer 4 0.01 16 e
-./bin/fsm data/citeseer 4 0.05 16 e
+./automine_fsm.exe ./data/citeseer.lg 4
+./automine_fsm.exe ./data/citeseer.lg 5
+./automine_fsm.exe ./data/citeseer.lg 6
+./automine_fsm.exe ./data/mico.lg 4
 ```
  

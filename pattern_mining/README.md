@@ -9,6 +9,17 @@ tar -xzvf boost_1_76_0.tar.gz
 ```
 
 ### Compile SampleMine
+We provided a docker image for testing SampleMine, Automine and Peregrine. 
+You can download the docker image from the following link and omit the compiling process.
+
+```Shell
+https://hub.docker.com/r/weiyihua/samplemine_test
+docker pull weiyihua/samplemine_test
+```
+
+The source code of SampleMine, Automine and Peregrine in the container are in the /home/ directory. 
+We integrated the source code of Automine into SampleMine so you will see 2 directories in /home/ directory. 
+The detailed instructions for testing peregrine and Automine are in READMEs under /SampleMine/ComparedSystem.
 
 Download Source Code
 ```Shell
