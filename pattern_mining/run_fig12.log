@@ -63,3 +63,69 @@ num of size-3 frequent patterns: 132
 scaled sampling param: 0
 building tables...
 build table done
+Time: 18727.6 sec, Num patterns: 64497
+Graph read complete. Number of vertex: 100000
+support threshold: 100
+start matchings pat2: 
+db path: ./db/1426039005
+count: 1080156
+num of size-2 frequent patterns: 380
+start join for pat3: 
+join for pat3 time: 329.434 sec
+num of size-3 frequent patterns: 9030
+scaled sampling param: 0.687411
+building tables...
+build table done
+Time: 290.41 sec, Num patterns: 136136
+Graph read complete. Number of vertex: 100000
+support threshold: 100
+start matchings pat2: 
+db path: ./db/357479127
+count: 1080156
+num of size-2 frequent patterns: 380
+start join for pat3: 
+join for pat3 time: 327.419 sec
+num of size-3 frequent patterns: 9030
+scaled sampling param: 1.03112
+building tables...
+build table done
+Time: 547.419 sec, Num patterns: 233672
+Graph read complete. Number of vertex: 100000
+support threshold: 100
+start matchings pat2: 
+db path: ./db/797095214
+count: 1080156
+num of size-2 frequent patterns: 380
+start join for pat3: 
+join for pat3 time: 339.017 sec
+num of size-3 frequent patterns: 9030
+scaled sampling param: 1.37482
+building tables...
+build table done
+Time: 655.297 sec, Num patterns: 243860
+Graph read complete. Number of vertex: 100000
+support threshold: 100
+start matchings pat2: 
+db path: ./db/1922272348
+count: 1080156
+num of size-2 frequent patterns: 380
+start join for pat3: 
+join for pat3 time: 353.324 sec
+num of size-3 frequent patterns: 9030
+scaled sampling param: 1.71853
+building tables...
+build table done
+Time: 733.544 sec, Num patterns: 246886
+Graph read complete. Number of vertex: 100000
+support threshold: 100
+start matchings pat2: 
+db path: ./db/858109480
+count: 1080156
+num of size-2 frequent patterns: 380
+start join for pat3: 
+join for pat3 time: 321.855 sec
+num of size-3 frequent patterns: 9030
+scaled sampling param: 0
+building tables...
+build table done
+Time: 27159.4 sec, Num patterns: 249140
