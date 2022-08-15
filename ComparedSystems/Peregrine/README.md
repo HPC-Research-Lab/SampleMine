@@ -12,8 +12,12 @@ docker run -it -u root xxxxxxxx /bin/bash   #Replace xxxxxxxx with the real imag
 
 cd /home/peregrine
 
+#Enable some enviroment variables
+source tbb2020/bin/tbbvars.sh intel64
+
 #Then run the following commands to do the test. 
 ```
+
 ```shell
 #Reproduce the results of Table 3
 ./bin/fsm data/citeseer 4 1 16 v

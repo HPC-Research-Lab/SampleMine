@@ -13,6 +13,10 @@ docker images                               #Check image id.
 docker run -it -u root xxxxxxxx /bin/bash   #Replace xxxxxxxx with the real image id. 
 
 cd /home/SampleMine/pattern_mining/
+
+export DB_PATH=/home/SampleMine/pattern_mining/db/
+export OMP_NUM_THREADS=16
+export BOOST_ROOT=/home/boost_1_76_0/
 ```
 
 The source code of SampleMine, Automine and Peregrine in the container are in the /home/ directory. 
