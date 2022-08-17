@@ -26,7 +26,7 @@ cd /home/Galois/build/lonestar/mining/cpu/frequent-subgraph-mining/
 #7th: pattern size: 4.
 #8th: minimum support, corresponding to the for rows in the table 6
 #9th: -t 1: number of trials
-#Our subgraph counting task is same with the vertex-induced based fsm in Peregrine.
+#Our subgraph counting task is same with the vertex-induced based fsm in Pangolin.
 ./frequent-subgraph-mining-cpu -symmetricGraph -simpleGraph citeseer.adj -ft adj -k=4 -ms=1 -t 1
 ./frequent-subgraph-mining-cpu -symmetricGraph -simpleGraph citeseer.adj -ft adj -k=4 -ms=5 -t 1
 ./frequent-subgraph-mining-cpu -symmetricGraph -simpleGraph citeseer.adj -ft adj -k=4 -ms=10 -t 1
